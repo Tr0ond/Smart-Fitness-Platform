@@ -8,7 +8,7 @@ Repository hiện tại là gốc dự án (`E:\Fitness` trên máy khởi tạo
 
 | Thư mục | Công nghệ đã cài | Vai trò dự kiến |
 | --- | --- | --- |
-| `BE/` | Laravel 13.29.0, PHP 8.4, cấu hình MySQL | REST API dùng chung |
+| `BE/` | Laravel 13.29.0, PHP 8.4, MariaDB 10.4.32 / InnoDB qua PDO MySQL-compatible | REST API dùng chung |
 | `FE/` | Vue 3.5.42, Vite 8.2.2, Vue Router 5.3.0, Pinia 4.0.3, Axios 1.20.0 | Web cho Admin, Receptionist, PT |
 | `Mobile/` | React Native 0.86.3, React 19.2.3, Community CLI 20.2.0, TypeScript 5.9.3 | Ứng dụng Member, ưu tiên Android |
 
@@ -80,7 +80,7 @@ Các thư mục chưa có code chứa `.gitkeep` để Git giữ cấu trúc. `M
 ## Môi trường
 
 - PHP **8.4 trở lên trong nhánh 8.x**, Composer 2. Lockfile hiện có dependency yêu cầu PHP 8.4; PHP 8.0 của XAMPP trên máy khởi tạo không dùng để chạy project này.
-- Bật các extension PHP thông dụng của Laravel và `pdo_mysql`. `composer check-platform-reqs` kiểm tra yêu cầu của dependency; MySQL được sử dụng ở giai đoạn phát triển database sau này.
+- Bật các extension PHP thông dụng của Laravel và `pdo_mysql`. `composer check-platform-reqs` kiểm tra yêu cầu của dependency; MariaDB 10.4.32 / InnoDB được sử dụng ở giai đoạn phát triển database sau này.
 - Node.js 22.13+ trong nhánh 22, hoặc 24.3+. Môi trường đã kiểm tra: Node 22.20.0, npm 10.9.3.
 - Khi build Android native: Android Studio, JDK tương thích Gradle, Android SDK Platform 36, Build Tools 36.0.0, NDK 27.1.12297006; cấu hình `JAVA_HOME` và `ANDROID_HOME`/`android/local.properties`. Các phiên bản Android nằm trong `Mobile/android/build.gradle`.
 
@@ -119,8 +119,8 @@ Chỉ tạo key khi thiết lập môi trường lần đầu; không chạy l�
 
 - Trang skeleton: `http://127.0.0.1:8000/`; health mặc định Laravel: `/up`.
 - `routes/api.php` đã được đăng ký với prefix `/api`, nhưng **chưa có endpoint nghiệp vụ**. Truy cập `/api` hiện trả 404 là bình thường.
-- `.env.example` dùng MySQL (`smart_fitness`); điều chỉnh tài khoản cục bộ khi bắt đầu triển khai database.
-- Chưa tạo database/bảng, chưa chạy migration/seed, chưa kiểm tra kết nối MySQL.
+- `.env.example` dùng connection Laravel/PDO MySQL-compatible tới MariaDB (`smart_fitness`); điều chỉnh tài khoản cục bộ khi bắt đầu triển khai database.
+- Chưa tạo database/bảng, chưa chạy migration/seed, chưa kiểm tra kết nối MariaDB.
 - Session/cache dùng file và queue dùng `sync`; skeleton và health không cần database.
 - Đã bỏ User model/factory và các migration mặc định; `DatabaseSeeder` chưa tạo dữ liệu. Authentication chưa có guard/provider.
 - Backend không có pipeline Vite riêng: web client nằm ở `FE/`; Blade chỉ có trang trạng thái tĩnh. Không cần `npm install` trong `BE/`.
@@ -202,7 +202,7 @@ Bundle JavaScript thành công không đồng nghĩa với build APK hoặc ch�
 | Dependency audit | Composer, FE, Mobile: không có lỗ hổng được báo tại thời điểm kiểm tra |
 | `PROJECT_RULES.md` | Giữ nguyên, SHA-256 trước/sau trùng nhau |
 
-**Giới hạn:** chưa build APK, chạy emulator/thiết bị hoặc kiểm tra kết nối MySQL. Máy đã có SDK Platform 36 nhưng còn thiếu Build Tools 36.0.0, NDK 27.1.12297006 và Android SDK Command-line Tools; cần chuẩn bị trước khi `npm run android`. npm vẫn báo một số package công cụ đã deprecated (ESLint 8 và dependency gián tiếp như glob 7, inflight...). Metro có cảnh báo màu terminal `NO_COLOR`/`FORCE_COLOR`, không làm hỏng bundle. Không tự chạy `npm audit fix --force` vì có thể thay đổi bộ phiên bản tương thích.
+**Giới hạn:** chưa build APK, chạy emulator/thiết bị hoặc kiểm tra kết nối MariaDB. Máy đã có SDK Platform 36 nhưng còn thiếu Build Tools 36.0.0, NDK 27.1.12297006 và Android SDK Command-line Tools; cần chuẩn bị trước khi `npm run android`. npm vẫn báo một số package công cụ đã deprecated (ESLint 8 và dependency gián tiếp như glob 7, inflight...). Metro có cảnh báo màu terminal `NO_COLOR`/`FORCE_COLOR`, không làm hỏng bundle. Không tự chạy `npm audit fix --force` vì có thể thay đổi bộ phiên bản tương thích.
 
 ## Git và cấu hình cục bộ
 

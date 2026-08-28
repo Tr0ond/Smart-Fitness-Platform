@@ -1,17 +1,38 @@
 # Từ điển dữ liệu — Smart Fitness Platform
 
-**Bản đề xuất chờ review. Không có bảng/migration nào được tạo.** Đã đồng bộ bốn quyết định: tách Chat PT/quota buổi, cấp lại Role, Workout từ lịch và usage Chat. Xem [phân tích nghiệp vụ, transaction và các điểm cần chốt](THIET_KE_DATABASE.md).
+**DATABASE DESIGN = APPROVED FOR MARIADB 10.4.32 — Q01–Q13 đã đồng bộ và kiểm tra ngày 29/08/2026. Không có bảng/migration nào được tạo/chạy.** Giữ các quyết định trước về Chat PT/quota buổi, cấp lại Role, Workout từ lịch và usage Chat. Xem [phân tích nghiệp vụ và các quyết định đã chốt](THIET_KE_DATABASE.md).
 
 ## Quy ước đọc
 
-- Tổng cộng **52 bảng, 571 cột** (kể cả PK/timestamp/cột sinh), 112 tham chiếu FK cột và 30 FK kép bổ sung bảo vệ ownership.
+- Tổng cộng **52 bảng, 575 cột** (kể cả PK/timestamp/cột sinh), 113 tham chiếu FK cột và 31 FK kép bổ sung bảo vệ ownership.
 - Mỗi bảng: PK `id BIGINT UNSIGNED AUTO_INCREMENT`; `Không` ở cột NULL nghĩa là NOT NULL. Cột id/_id theo ngoại lệ kỹ thuật trong PROJECT_RULES.
-- Kiểu và điều kiện là thiết kế dự kiến, chưa có DDL. CHECK diễn đạt bằng văn bản sẽ được chuyển thành biểu thức phù hợp MySQL sau duyệt. Kiểm tra qua bảng hoặc trạng thái cũ thực hiện bằng service/transaction, không bằng CHECK chéo bảng.
+- Kiểu và điều kiện là thiết kế dự kiến, chưa có DDL. CHECK diễn đạt bằng văn bản sẽ được chuyển thành biểu thức phù hợp MariaDB 10.4 khi bước triển khai migration được yêu cầu. Kiểm tra qua bảng hoặc trạng thái cũ thực hiện bằng service/transaction, không bằng CHECK chéo bảng.
 - FK đơn mặc định trỏ tới `id` của bảng đích. Tất cả FK dùng RESTRICT khi xóa/sửa khóa; không cascade history. FK kép nêu riêng, UNIQUE tuple ở bảng cha đã liệt kê đủ.
 - UNIQUE có NULL cho phép nhiều NULL; đối với FK kép có NULL cần kiểm tra workflow trong Backend. Các UNIQUE chứa id phục vụ FK kép, không phải khóa nghiệp vụ mới.
 - Quan hệ `1 → 0..N`: một cha có nhiều con; `1 → 0..1`: FK ở con cũng UNIQUE. FK nullable cho phép một con chưa có cha ở giai đoạn được nêu.
 - Giá trị mặc định ghi trong mô tả; các cột bắt buộc khác do Backend cấp khi tạo. Cờ BOOLEAN luôn ràng buộc 0/1; trạng thái luôn giới hạn tập giá trị trong mô tả. `ngay_tao`/`ngay_cap_nhat` do server cấp UTC.
+- Có 98 bộ UNIQUE ngoài 52 PK và 48 khai báo index truy vấn bổ sung (chưa khử trùng với UNIQUE/index FK tự có); không coi đây là tổng index vật lý đã tạo.
 - Cột sinh (generated) không được client ghi. Danh mục lưu giá trị Việt có dấu bình thường; chỉ tên bảng/cột không dấu.
+
+## Quy ước DBMS vật lý — MariaDB 10.4.32 / InnoDB
+
+- Từ điển này là nguồn tên và mô hình logic: giữ nguyên 52 bảng, 575 cột, PK/FK/UNIQUE, 5 cột sinh và các CHECK nghiệp vụ đã duyệt. Không thêm bảng/cột chỉ vì đổi DBMS.
+- Các cột khai báo `JSON` vẫn giữ kiểu logic `JSON`. Trên MariaDB 10.4, kiểu này được lưu như `LONGTEXT` với `utf8mb4_bin` và có kiểm tra `JSON_VALID` ngầm; đó là khác biệt vật lý so với binary JSON, không phải CHECK nghiệp vụ mới. Migration/P0 phải tách các CHECK JSON tự sinh khỏi 83 CHECK nghiệp vụ trong manifest.
+- `DATETIME(6)`, số unsigned, DECIMAL, DATE và TIME giữ nguyên. Cột sinh VIRTUAL chỉ dựa trên dữ liệu cùng hàng, có thể đánh index/UNIQUE; không làm FK và không dùng NOW()/subquery.
+- Charset mặc định và override kỹ thuật được ghi trong [MIGRATION_PLAN.md](MIGRATION_PLAN.md): `utf8mb4_unicode_ci` cho text nghiệp vụ, `utf8mb4_nopad_bin` cho chuỗi kỹ thuật và email sau khi Backend trim/NFC/lowercase. Không còn tham chiếu `utf8mb4_0900_*` trong thiết kế hoạt động.
+- MariaDB InnoDB thực thi CHECK/FK/UNIQUE ở mức statement. FK ghép có thành phần NULL được phép và không kiểm tra quan hệ cha; ownership, overlap, quota, trạng thái trước và bất biến lịch sử vẫn là service/transaction.
+- Review chuyển DBMS và nguồn kỹ thuật nằm tại [THIET_KE_DATABASE.md](THIET_KE_DATABASE.md#31-review-chuyển-dbms-mysql--mariadb). Chưa chạy P0, SQL/DDL hoặc migration trong vòng review này.
+
+## Ràng buộc bổ sung từ Q01–Q13
+
+- Q04: `phan_cong_huan_luyen_vien.hoi_vien_dang_phan_cong_id` + UNIQUE chỉ ngăn hai khoảng mở. Overlap của mọi khoảng cùng Member vẫn kiểm tra dưới khóa hội viên, dùng khoảng nửa mở; chi tiết B22 và mục 7 của phân tích.
+- Q07A: `ke_hoach_tap.hoi_vien_dang_su_dung_id` + UNIQUE ngăn hai Plan DANG_SU_DUNG; LUU_TRU trả NULL.
+- Q07B: `buoi_tap_du_kien.ngay_tap_con_hieu_luc` + UNIQUE cùng Member giữ một slot/ngày. CHUA_TAP/DANG_TAP/HOAN_THANH/BO_QUA giữ slot; HUY/DA_THAY_THE trả NULL. Không xóa history.
+- Q05: thêm `hoi_thoai.phan_cong_huan_luyen_vien_id` NOT NULL UNIQUE; một hội thoại của một lần phân công. Thay UNIQUE cặp Member/PT bằng UNIQUE phân công; FK kép hội thoại–phân công và tin–hội thoại bảo vệ đúng lần phân công. Không mở lại hội thoại của phân công đã kết thúc.
+- Ba cột sinh mới dùng VIRTUAL, chỉ đọc cột cùng hàng, không dùng NOW()/subquery và không là FK. Hai cột sinh đã có (`dang_ky_goi_tap.hoi_vien_chua_ket_thuc_id`, `buoi_tap_du_kien.ma_buoi_con_hieu_luc`) giữ nguyên ý nghĩa, ghi rõ VIRTUAL. Tổng cộng 5 cột sinh.
+- UNIQUE nullable cho phép giữ nhiều hàng lịch sử NULL; CHECK không kiểm tra overlap nhiều hàng. Đây là thiết kế logic giữ nguyên khi chuyển sang MariaDB 10.4.32, chưa kiểm chứng bằng DDL trong vòng review này. [MariaDB generated columns](https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/generated-columns), [MariaDB constraints](https://mariadb.com/docs/server/reference/sql-statements/data-definition/constraint).
+- Q12 áp dụng mọi bảng lịch sử: không hard-delete, không cascade account/catalog làm mất dữ liệu. Không đặt số năm retention hoặc tự triển khai purge/anonymization.
+- Thay đổi thuần cấu trúc: 4 cột thêm, 1 FK đơn thêm, 1 FK kép thêm ròng, 3 UNIQUE thêm ròng; không đổi tên 52 bảng hay thêm bảng.
 
 ## Danh mục bảng
 
@@ -57,7 +78,7 @@
 | 38 | [phien_tap](#b38) | Workout History | Workout Session thực tế; HOAN_THANH là mốc khóa toàn bộ kết quả và các bảng con. |
 | 39 | [bai_tap_trong_phien](#b39) | Workout History | Bài thực tế của một phiên, sao chép đơn kê lúc bắt đầu và giữ snapshot độc lập. |
 | 40 | [hiep_tap](#b40) | Workout History | Kết quả thực tế từng set, chống gửi lặp và cập nhật cũ ghi đè. |
-| 41 | [hoi_thoai](#b41) | Realtime Chat | Hội thoại 1–1 Member/PT, không phải group chat. |
+| 41 | [hoi_thoai](#b41) | Realtime Chat | Hội thoại 1–1 Member/PT của một lần phân công; giữ lịch sử đọc sau khi quan hệ kết thúc. |
 | 42 | [tin_nhan](#b42) | Realtime Chat | Tin nhắn text bất biến, có sequence để reconnect không mất tin. |
 | 43 | [su_kien_phat_tin_nhan](#b43) | Realtime Chat | Transactional outbox cho Reverb, tránh commit tin nhưng mất broadcast. |
 | 44 | [hoi_thoai_tro_ly](#b44) | AI và kiểm định | Ngữ cảnh trao đổi Member–AI, tách hội thoại PT. |
@@ -94,7 +115,7 @@
 
 **FK đơn:** Không có.
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -102,7 +123,7 @@
 
 **Được tham chiếu bởi:** `nguoi_dung` qua `chi_nhanh_id` [0..N]; `goi_tap` qua `chi_nhanh_id` [0..N]; `dang_ky_goi_tap` qua `chi_nhanh_id` [0..N]; `ma_vao_phong_tap` qua `chi_nhanh_id` [0..N]; `lich_su_vao_phong_tap` qua `chi_nhanh_id` [0..N].
 
-**Bảo toàn và lưu ý:** Phân quyền thao tác tại Backend; giữ dữ liệu được các bảng lịch sử tham chiếu.
+**Bảo toàn và lưu ý:**
 
 <a id="b02"></a>
 
@@ -131,7 +152,7 @@
 
 **FK đơn:** `chi_nhanh_id` → `chi_nhanh(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** `(chi_nhanh_id, trang_thai)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -139,7 +160,7 @@
 
 **Được tham chiếu bởi:** `phan_quyen_nguoi_dung` qua `nguoi_dung_id` [0..N]; `phan_quyen_nguoi_dung` qua `nguoi_cap_id` [0..N]; `ho_so_hoi_vien` qua `nguoi_dung_id` [0..1]; `ho_so_huan_luyen_vien` qua `nguoi_dung_id` [0..1]; `the_truy_cap` qua `nguoi_dung_id` [0..N]; `yeu_cau_dat_lai_mat_khau` qua `nguoi_dung_id` [0..N]; `goi_tap` qua `nguoi_tao_id` [0..N]; `su_dung_quyen_loi` qua `nguoi_thuc_hien_id` [0..N]; `lich_su_vao_phong_tap` qua `nguoi_xac_nhan_id` [0..N]; `phan_cong_huan_luyen_vien` qua `nguoi_phan_cong_id` [0..N]; `ghi_chu_huan_luyen` qua `nguoi_tao_id` [0..N]; `bai_tap` qua `nguoi_tao_id` [0..N]; `giao_an_mau` qua `nguoi_tao_id` [0..N]; `ke_hoach_tap` qua `nguoi_tao_id` [0..N]; `phien_ban_ke_hoach_tap` qua `nguoi_tao_id` [0..N]; `tin_nhan` qua `nguoi_gui_id` [0..N]; `de_xuat_ke_hoach_tap` qua `nguoi_tao_id` [0..N]; `de_xuat_ke_hoach_tap` qua `nguoi_quyet_dinh_id` [0..N]; `nhat_ky_he_thong` qua `nguoi_thuc_hien_id` [0..N]; `yeu_cau_chong_lap` qua `nguoi_dung_id` [0..N].
 
-**Bảo toàn và lưu ý:** Khóa/ngừng tài khoản thay vì xóa dây chuyền lịch sử. Không tự mặc định email xác minh là điều kiện sử dụng nếu chưa được duyệt.
+**Bảo toàn và lưu ý:**Khóa/ngừng tài khoản thay vì xóa dây chuyền lịch sử. Không tự mặc định email xác minh là điều kiện sử dụng nếu chưa được duyệt.
 
 <a id="b03"></a>
 
@@ -170,7 +191,7 @@
 
 **Được tham chiếu bởi:** `phan_quyen_nguoi_dung` qua `vai_tro_id` [0..N].
 
-**Bảo toàn và lưu ý:** Phân quyền thao tác tại Backend; giữ dữ liệu được các bảng lịch sử tham chiếu.
+**Bảo toàn và lưu ý:**
 
 <a id="b04"></a>
 
@@ -203,7 +224,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** ĐÃ CHỐT: một hàng hiện tại cho mỗi cặp người dùng/vai trò. Thu hồi gán thu_hoi_luc; cấp lại UPDATE hàng cũ, gán cap_luc và nguoi_cap_id mới, thu_hoi_luc=NULL; giữ id/ngay_tao, cập nhật ngay_cap_nhat. Cấp/thu hồi/cấp lại lưu người thao tác, mốc thời gian và trước/sau trong nhat_ky_he_thong cùng transaction; lịch sử đọc từ audit, không suy từ cap_luc đã cập nhật. Retry không nhân đôi hàng/audit thành công. Không thêm bảng lịch sử Role hoặc UI permission chi tiết.
+**Bảo toàn và lưu ý:**ĐÃ CHỐT: một hàng hiện tại cho mỗi cặp người dùng/vai trò. Thu hồi gán thu_hoi_luc; cấp lại UPDATE hàng cũ, gán cap_luc và nguoi_cap_id mới, thu_hoi_luc=NULL; giữ id/ngay_tao, cập nhật ngay_cap_nhat. Cấp/thu hồi/cấp lại lưu người thao tác, mốc thời gian và trước/sau trong nhat_ky_he_thong cùng transaction; lịch sử đọc từ audit, không suy từ cap_luc đã cập nhật. Retry không nhân đôi hàng/audit thành công. Không thêm bảng lịch sử Role hoặc UI permission chi tiết.
 
 <a id="b05"></a>
 
@@ -233,7 +254,7 @@
 
 **FK đơn:** `nguoi_dung_id` → `nguoi_dung(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** so_ngay_tap_mong_muon NULL hoặc trong 1..7. thoi_luong_moi_buoi_phut NULL hoặc > 0; các mốc phiên bản không giảm.
+**CHECK/điều kiện cùng hàng dự kiến:** so_ngay_tap_mong_muon NULL hoặc trong 1..7. thoi_luong_moi_buoi_phut NULL hoặc > 0.
 
 **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -241,7 +262,7 @@
 
 **Được tham chiếu bởi:** `ngay_ranh_hoi_vien` qua `hoi_vien_id` [0..N]; `dung_cu_hoi_vien` qua `hoi_vien_id` [0..N]; `chi_so_co_the` qua `hoi_vien_id` [0..N]; `don_mua_goi` qua `hoi_vien_id` [0..N]; `dang_ky_goi_tap` qua `hoi_vien_id` [0..N]; `ky_han_hoi_vien` qua `hoi_vien_id` [0..N]; `su_dung_quyen_loi` qua `hoi_vien_id` [0..N]; `ma_vao_phong_tap` qua `hoi_vien_id` [0..N]; `lich_su_vao_phong_tap` qua `hoi_vien_id` [0..N]; `phan_cong_huan_luyen_vien` qua `hoi_vien_id` [0..N]; `lich_su_su_dung_huan_luyen_vien` qua `hoi_vien_id` [0..N]; `ghi_chu_huan_luyen` qua `hoi_vien_id` [0..N]; `ke_hoach_tap` qua `hoi_vien_id` [0..N]; `buoi_tap_du_kien` qua `hoi_vien_id` [0..N]; `phien_tap` qua `hoi_vien_id` [0..N]; `hoi_thoai` qua `hoi_vien_id` [0..N]; `tin_nhan` qua `hoi_vien_id` [0..N]; `hoi_thoai_tro_ly` qua `hoi_vien_id` [0..N]; `yeu_cau_tro_ly` qua `hoi_vien_id` [0..N]; `de_xuat_ke_hoach_tap` qua `hoi_vien_id` [0..N].
 
-**Bảo toàn và lưu ý:** Ngày rảnh và dụng cụ nằm ở bảng con. Không lưu cân nặng mới nhất làm nguồn duy nhất; dùng chi_so_co_the.
+**Bảo toàn và lưu ý:**Ngày rảnh và dụng cụ nằm ở bảng con. Không lưu cân nặng mới nhất làm nguồn duy nhất; dùng chi_so_co_the. Các mốc phiên bản không giảm được kiểm tra trong transaction khi cập nhật so với giá trị trước đó; đây không phải CHECK cùng hàng có thể tự đọc phiên bản cũ.
 
 <a id="b06"></a>
 
@@ -266,7 +287,7 @@
 
 **FK đơn:** `nguoi_dung_id` → `nguoi_dung(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -274,7 +295,7 @@
 
 **Được tham chiếu bởi:** `phan_cong_huan_luyen_vien` qua `huan_luyen_vien_id` [0..N]; `lich_su_su_dung_huan_luyen_vien` qua `huan_luyen_vien_id` [0..N]; `hoi_thoai` qua `huan_luyen_vien_id` [0..N]; `tin_nhan` qua `huan_luyen_vien_id` [0..N].
 
-**Bảo toàn và lưu ý:** Phân quyền thao tác tại Backend; giữ dữ liệu được các bảng lịch sử tham chiếu.
+**Bảo toàn và lưu ý:**
 
 <a id="b07"></a>
 
@@ -304,7 +325,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Thay đổi đồng thời tăng phien_ban_ho_so của hội viên.
+**Bảo toàn và lưu ý:**Thay đổi đồng thời tăng phien_ban_ho_so của hội viên.
 
 <a id="b08"></a>
 
@@ -326,7 +347,7 @@
 
 **FK đơn:** `hoi_vien_id` → `ho_so_hoi_vien(id)`; `dung_cu_id` → `dung_cu(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -334,7 +355,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Thay đổi đồng thời tăng phien_ban_ho_so.
+**Bảo toàn và lưu ý:**Thay đổi đồng thời tăng phien_ban_ho_so.
 
 <a id="b09"></a>
 
@@ -368,7 +389,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. BMI tính từ chính chiều cao/cân nặng của lần đo; không dùng chiều cao hồ sơ hiện tại để sửa diễn giải lịch sử.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. BMI tính từ chính chiều cao/cân nặng của lần đo; không dùng chiều cao hồ sơ hiện tại để sửa diễn giải lịch sử.
 
 <a id="b10"></a>
 
@@ -403,7 +424,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Nếu dùng Sanctum cần custom model/adapter ánh xạ tên cột tiếng Việt; không giả định chỉ đổi tên bảng là đủ. Web session tiếp tục dùng file, chưa cần bảng session.
+**Bảo toàn và lưu ý:**Nếu dùng Sanctum cần custom model/adapter ánh xạ tên cột tiếng Việt; không giả định chỉ đổi tên bảng là đủ. Web session tiếp tục dùng file, chưa cần bảng session.
 
 <a id="b11"></a>
 
@@ -436,7 +457,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Không lưu token rõ hoặc trả thông tin giúp dò email; giới hạn tần suất xử lý tại Backend.
+**Bảo toàn và lưu ý:**Không lưu token rõ hoặc trả thông tin giúp dò email; giới hạn tần suất xử lý tại Backend.
 
 <a id="b12"></a>
 
@@ -473,7 +494,7 @@
 
 **Được tham chiếu bởi:** `quyen_loi_goi_tap` qua `goi_tap_id` [0..1]; `don_mua_goi` qua `goi_tap_id` [0..N].
 
-**Bảo toàn và lưu ý:** Gói miễn phí chưa được chốt nên không mặc định thêm vào quy trình thanh toán trả phí.
+**Bảo toàn và lưu ý:**Q08: Workout cơ bản không cần mua gói; không đưa gói miễn phí hoặc quyền Workout vào luồng thanh toán trả phí. Q01: sửa giá/quyền chỉ áp dụng đơn mới; đơn cũ còn trong hạn dùng snapshot đã chốt.
 
 <a id="b13"></a>
 
@@ -507,7 +528,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** ĐÃ CHỐT: Chat PT và quota buổi độc lập. ONLINE có Chat=true và số buổi=0 là hợp lệ; hết lượt buổi không tắt Chat nếu cờ Chat/kỳ/phân công vẫn hợp lệ. Tắt Chat không cấm buổi trực tiếp còn lượt. Không thêm boolean quyền buổi, đồng hồ riêng hoặc hard-code tên gói. Khi mua phải snapshot cả hai trường vào kỳ.
+**Bảo toàn và lưu ý:**ĐÃ CHỐT: Chat PT và quota buổi độc lập. ONLINE có Chat=true và số buổi=0 là hợp lệ; hết lượt buổi không tắt Chat nếu cờ Chat/kỳ/phân công vẫn hợp lệ. Tắt Chat không cấm buổi trực tiếp còn lượt. Không thêm boolean quyền buổi, đồng hồ riêng hoặc hard-code tên gói. Khi mua phải snapshot cả hai trường vào kỳ. Q08 không thêm quyền Workout. Q13 không dùng cờ Chat/quota buổi để cấp quyền PT Proposal; chỉ cần phân công hợp lệ. Q03 hạn mức AI tính theo request nghiệp vụ.
 
 <a id="b14"></a>
 
@@ -528,7 +549,7 @@
 | `don_vi_tien` | CHAR(3) | Không | — | VND. |
 | `trang_thai` | VARCHAR(30) | Không | — | CHO_THANH_TOAN / DA_THANH_TOAN / HET_HAN / HUY / CAN_DOI_SOAT. |
 | `chot_gia_luc` | DATETIME(6) | Không | — | Mốc tạo snapshot. |
-| `het_han_thanh_toan_luc` | DATETIME(6) | Không | — | Hạn giá/link theo chính sách. |
+| `het_han_thanh_toan_luc` | DATETIME(6) | Không | — | Hạn giữ snapshot của đơn. Link không được hết hạn muộn hơn mốc này; không kéo dài báo giá bằng cách tạo lại link. |
 | `thanh_toan_luc` | DATETIME(6) | Có | — | Thời điểm xác nhận thanh toán hợp lệ. |
 | `huy_luc` | DATETIME(6) | Có | — | Nếu đơn bị hủy. |
 | `ly_do_huy` | VARCHAR(500) | Có | — | Không tự động hoàn tiền. |
@@ -547,7 +568,7 @@
 
 **Được tham chiếu bởi:** `lan_thanh_toan` qua `don_mua_goi_id` [0..N]; `ky_han_hoi_vien` qua `don_mua_goi_id` [0..1].
 
-**Bảo toàn và lưu ý:** Mỗi đơn tạo một ky_han_hoi_vien CHO_THANH_TOAN để giữ snapshot báo giá; chưa có chuỗi/thứ tự/quyền sử dụng. Giá, thời hạn và quyền lợi của snapshot không sửa sau khi đơn đã phát hành. Quy tắc đóng băng giá khi chờ trả tiền cần review.
+**Bảo toàn và lưu ý:**Q01 ĐÃ CHỐT: tạo đơn và ky_han_hoi_vien CHO_THANH_TOAN cùng transaction để snapshot giá, gói, thời hạn/quyền lợi; chưa có chuỗi/thứ tự/quyền sử dụng. Snapshot giữ nguyên trong hạn đơn/link, Admin đổi catalog không tác động đơn cũ còn hiệu lực; mua mới dùng catalog mới. Không tự gia hạn giữ giá quá het_han_thanh_toan_luc; snapshot vẫn được lưu lịch sử sau hạn, không có nghĩa tiếp tục được thanh toán/cấp quyền. Q10: sai tiền, đơn hết hạn/hủy, không khớp hoặc hai link nhận tiền phải lưu CAN_DOI_SOAT tại sự kiện/lần thử liên quan; tối đa một kỳ được cấp mỗi đơn. Không tự hoàn tiền, xóa giao dịch hoặc cấp thêm ngày. Q12 giữ lịch sử đơn và snapshot.
 
 <a id="b15"></a>
 
@@ -572,8 +593,8 @@
 | `ma_tham_chieu_duoc_chap_nhan` | VARCHAR(150) | Có | — | reference của giao dịch xác minh được chấp nhận cho lần thử. |
 | `so_tien_da_nhan` | DECIMAL(15,0) | Có | — | Tiền nhận đã được xác minh. |
 | `thanh_toan_luc` | DATETIME(6) | Có | — | Thời điểm ngân hàng/gateway; lưu UTC sau chuẩn hóa. |
-| `xac_nhan_luc` | DATETIME(6) | Có | — | Thời điểm Backend xác minh và ghi nhận. |
-| `het_han_luc` | DATETIME(6) | Không | — | Hạn link. |
+| `xac_nhan_luc` | DATETIME(6) | Có | — | Q02: mốc Backend lần đầu xác nhận thanh toán hợp lệ dưới khóa Member/chuỗi; chỉ ghi một lần, retry không thay đổi. Mốc xếp thứ tự, khác thời điểm ngân hàng. |
+| `het_han_luc` | DATETIME(6) | Không | — | Hạn link cụ thể; không muộn hơn don_mua_goi.het_han_thanh_toan_luc (Backend kiểm tra chéo bảng). |
 | `ma_loi` | VARCHAR(100) | Có | — | Mã lỗi được chuẩn hóa. |
 | `ngay_tao` | DATETIME(6) | Không | — | Thời điểm tạo, UTC. |
 | `ngay_cap_nhat` | DATETIME(6) | Không | — | Thời điểm cập nhật, UTC. |
@@ -590,7 +611,7 @@
 
 **Được tham chiếu bởi:** `su_kien_thanh_toan` qua `lan_thanh_toan_id` [0..N]; `ky_han_hoi_vien` qua `lan_thanh_toan_id` [0..1].
 
-**Bảo toàn và lưu ý:** Không gọi gateway trong transaction giữ khóa dài. Timeout tạo link phải tra cứu cùng orderCode trước khi tạo lần thử mới. Giao dịch hợp lệ ở lần thử khác không được cấp thêm kỳ cho cùng đơn; chuyển đối soát, không tự hoàn tiền.
+**Bảo toàn và lưu ý:**Không gọi gateway trong transaction giữ khóa dài. Timeout tạo link phải tra cứu cùng orderCode trước khi tạo lần thử mới. Giao dịch hợp lệ ở lần thử khác không được cấp thêm kỳ cho cùng đơn; chuyển đối soát, không tự hoàn tiền. Q01: giá/link trong hạn đơn dùng snapshot chốt lúc tạo; tạo lại link không kéo dài hạn giữ giá của đơn. Q02: xac_nhan_luc ghi dưới khóa hội viên khi lần đầu xác nhận hợp lệ, đồng thời cấp so_thu_tu kỳ; nếu mốc trùng, thứ tự được tuần tự hóa bởi khóa và so_thu_tu. Q10: link thứ hai nhận tiền hoặc tiền sai/trễ/không khớp -> CAN_DOI_SOAT, không làm mất nguồn thanh toán đã cấp kỳ hợp lệ. Không sửa một thanh toán đã chấp nhận thành chưa từng thành công chỉ vì có khoản bất thường khác.
 
 <a id="b16"></a>
 
@@ -636,7 +657,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Webhook trùng có thể tăng số lần nhận nhưng không cấp quyền lại. Không dùng duy nhất hash payload để bảo đảm thanh toán đúng một lần: vẫn cần khóa đơn, unique reference và unique kỳ/đơn. Payload sai JSON chỉ lưu hash/lỗi, không làm dữ liệu nghiệp vụ.
+**Bảo toàn và lưu ý:**Webhook trùng có thể tăng số lần nhận nhưng không cấp quyền lại. Không dùng duy nhất hash payload để bảo đảm thanh toán đúng một lần: vẫn cần khóa đơn, unique reference và unique kỳ/đơn. Payload sai JSON chỉ lưu hash/lỗi, không làm dữ liệu nghiệp vụ. Q10 ĐÃ CHỐT: lưu mọi sự kiện bất thường với ly_do; khoản sai tiền, trễ sau hạn/hủy, không khớp hoặc link thứ hai nhận tiền -> CAN_DOI_SOAT, không cấp kỳ hoặc hoàn tiền tự động. Không bỏ qua webhook. Payload không xác thực giữ BI_TU_CHOI và dấu vết, không gán khóa chống lặp đáng tin cậy; không coi dữ liệu giả là tiền đã nhận. Retry sự kiện đã xử lý không đổi thứ tự/mốc Q02. Q12 không hard-delete inbox/event.
 
 <a id="b17"></a>
 
@@ -655,7 +676,7 @@
 | `lan_su_dung_dau_tien_id` | BIGINT UNSIGNED | Có | UNIQUE; FK → `su_dung_quyen_loi.id` | Hành động trả phí hợp lệ kích hoạt chuỗi. |
 | `ngay_bat_dau` | DATETIME(6) | Có | — | NULL đến lần sử dụng đầu tiên. |
 | `ket_thuc_ghi_nhan_luc` | DATETIME(6) | Có | — | Mốc ghi nhận chuỗi đã khép lại; không phải nguồn tính quyền. |
-| `hoi_vien_chua_ket_thuc_id` | BIGINT UNSIGNED | Có | UNIQUE | Cột sinh: hoi_vien_id khi trạng thái CHO_KICH_HOAT/DANG_HOAT_DONG, ngược lại NULL. |
+| `hoi_vien_chua_ket_thuc_id` | BIGINT UNSIGNED | Có | UNIQUE | Cột sinh VIRTUAL: hoi_vien_id khi trạng thái CHO_KICH_HOAT/DANG_HOAT_DONG, ngược lại NULL; không dùng NOW(). |
 | `ngay_tao` | DATETIME(6) | Không | — | Thời điểm tạo, UTC. |
 | `ngay_cap_nhat` | DATETIME(6) | Không | — | Thời điểm cập nhật, UTC. |
 
@@ -675,7 +696,7 @@
 
 **Được tham chiếu bởi:** `ky_han_hoi_vien` qua `dang_ky_goi_tap_id` [0..N].
 
-**Bảo toàn và lưu ý:** Unique cột sinh bảo vệ tối đa một chuỗi chưa khép. Trạng thái chỉ là projection: khi thao tác phải tính lại theo kỳ/thời gian dưới khóa hội viên và đóng chuỗi đã hết trước khi tạo chuỗi mới. Tổng ngày còn lại tính từ các kỳ, không lưu bộ đếm giảm hằng ngày.
+**Bảo toàn và lưu ý:**Unique cột sinh bảo vệ tối đa một chuỗi chưa khép. Trạng thái chỉ là projection: khi thao tác phải tính lại theo kỳ/thời gian dưới khóa hội viên và đóng chuỗi đã hết trước khi tạo chuỗi mới. Tổng ngày còn lại tính từ các kỳ, không lưu bộ đếm giảm hằng ngày.
 
 <a id="b18"></a>
 
@@ -692,7 +713,7 @@
 | `don_mua_goi_id` | BIGINT UNSIGNED | Không | UNIQUE; FK → `don_mua_goi.id` | Đơn nguồn, đúng một kỳ mỗi đơn. |
 | `lan_thanh_toan_id` | BIGINT UNSIGNED | Có | UNIQUE; FK → `lan_thanh_toan.id` | Lần thanh toán cấp kỳ, chỉ gán sau xác minh. |
 | `dang_ky_goi_tap_id` | BIGINT UNSIGNED | Có | FK → `dang_ky_goi_tap.id` | Chuỗi được xếp sau thanh toán. |
-| `so_thu_tu` | INT UNSIGNED | Có | — | Thứ tự trong chuỗi; cấp dưới khóa hội viên. |
+| `so_thu_tu` | INT UNSIGNED | Có | — | Q02: thứ tự được cấp khi Backend lần đầu xác nhận thanh toán hợp lệ dưới khóa Member/chuỗi; không theo thời điểm tạo đơn hoặc client. |
 | `trang_thai` | VARCHAR(30) | Không | — | CHO_THANH_TOAN / CHO_KICH_HOAT / CHO_DEN_LUOT / DANG_HOAT_DONG / HET_HAN / HUY. |
 | `ten_goi` | VARCHAR(150) | Không | — | Snapshot tên gói lúc chốt đơn. |
 | `phien_ban_goi` | INT UNSIGNED | Không | — | Phiên bản catalog đã mua. |
@@ -704,9 +725,9 @@
 | `cho_phep_tro_chuyen_huan_luyen_vien` | BOOLEAN | Không | — | Snapshot quyền Chat PT, độc lập quota buổi; không giới hạn số message. |
 | `so_buoi_huan_luyen_vien` | SMALLINT UNSIGNED | Không | — | Snapshot tổng buổi PT trực tiếp 1-1 được cấp; không suy quyền Chat từ số này. |
 | `so_buoi_huan_luyen_vien_da_dung` | SMALLINT UNSIGNED | Không | — | Counter đối chiếu ledger, mặc định 0. |
-| `so_luot_tro_ly_da_dung` | INT UNSIGNED | Không | — | Counter theo chính sách AI được duyệt, mặc định 0. |
+| `so_luot_tro_ly_da_dung` | INT UNSIGNED | Không | — | Q03: số request nghiệp vụ AI hợp lệ đã tính; mỗi request 1 lượt, không theo message/provider call; mặc định 0. |
 | `so_luot_tro_ly_giu_cho` | INT UNSIGNED | Không | — | Giữ hạn mức cho request AI đang xử lý, mặc định 0. |
-| `mua_luc` | DATETIME(6) | Có | — | Mốc ghi nhận thanh toán hợp lệ; không phải mốc kích hoạt. |
+| `mua_luc` | DATETIME(6) | Có | — | Q02: mốc Backend xác nhận hợp lệ lần đầu, cùng mốc lan_thanh_toan.xac_nhan_luc; không phải mốc kích hoạt hoặc thời điểm ngân hàng. |
 | `ngay_bat_dau` | DATETIME(6) | Có | — | Ranh giới đầu kỳ, UTC. |
 | `ngay_ket_thuc` | DATETIME(6) | Có | — | Ranh giới loại trừ cuối kỳ, UTC. |
 | `ngay_tao` | DATETIME(6) | Không | — | Thời điểm tạo, UTC. |
@@ -730,7 +751,7 @@
 
 **Được tham chiếu bởi:** `su_dung_quyen_loi` qua `ky_han_hoi_vien_id` [0..N]; `lich_su_vao_phong_tap` qua `ky_han_hoi_vien_id` [0..N]; `lich_su_su_dung_huan_luyen_vien` qua `ky_han_hoi_vien_id` [0..N]; `yeu_cau_tro_ly` qua `ky_han_hoi_vien_id` [0..N].
 
-**Bảo toàn và lưu ý:** CHO_THANH_TOAN: payment/chuỗi/thứ tự/mua_luc/ngày đều NULL, không cấp quyền. Được thanh toán: gán payment, chuỗi, thứ tự, mua_luc trong cùng transaction. Head chưa chạy => CHO_KICH_HOAT; tail => CHO_DEN_LUOT. Thời hạn nối tiếp là [bắt đầu,kết thúc); sau activation tính ngày cho tất cả tail đã mua. Snapshot không sửa kể cả Admin đổi catalog.
+**Bảo toàn và lưu ý:**CHO_THANH_TOAN: payment/chuỗi/thứ tự/mua_luc/ngày đều NULL, không cấp quyền. Được thanh toán: gán payment, chuỗi, thứ tự, mua_luc trong cùng transaction. Head chưa chạy => CHO_KICH_HOAT; tail => CHO_DEN_LUOT. Thời hạn nối tiếp là [bắt đầu,kết thúc); sau activation tính ngày cho tất cả tail đã mua. Snapshot không sửa kể cả Admin đổi catalog. Q01: snapshot chốt ngay khi tạo đơn và giữ đến hạn đơn/link, không đọc lại catalog để thay quyền lúc webhook. Q02: khóa hội viên/chuỗi và cấp thứ tự theo lần đầu Backend xác nhận hợp lệ; không chèn ngược kỳ đã dùng, không dựa returnUrl/frontend. Q03: quota giữ/tính/trả theo một yeu_cau_tro_ly hợp lệ; trả quota do lỗi kỹ thuật không reset ngày/nguồn activation. Q08/Q13: Workout Tracking và Proposal PT không cần kỳ này, không trừ lượt/kích hoạt.
 
 <a id="b19"></a>
 
@@ -759,7 +780,7 @@
 
 - `(ky_han_hoi_vien_id, hoi_vien_id)` → `ky_han_hoi_vien(id, hoi_vien_id)`.
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** `(ky_han_hoi_vien_id, loai_su_dung, chap_nhan_luc)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -767,7 +788,7 @@
 
 **Được tham chiếu bởi:** `dang_ky_goi_tap` qua `lan_su_dung_dau_tien_id` [0..1]; `lich_su_vao_phong_tap` qua `su_dung_quyen_loi_id` [0..1]; `lich_su_su_dung_huan_luyen_vien` qua `su_dung_quyen_loi_id` [0..1]; `tin_nhan` qua `su_dung_quyen_loi_id` [0..1]; `yeu_cau_tro_ly` qua `su_dung_quyen_loi_id` [0..1].
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Chỉ ghi sau khi đủ quyền, ownership, quota và điều kiện luồng. Bản ghi domain tham chiếu hàng này bằng FK UNIQUE; không tạo cho việc chỉ mở màn hình/đọc lịch sử. Nguồn kích hoạt chuỗi phải thuộc kỳ thứ nhất của chính chuỗi, kiểm tra trong transaction. Riêng TRO_CHUYEN_HUAN_LUYEN chỉ ghi cho tin Member thực sự kích hoạt kỳ đầu đang chờ. Chat khi kỳ đã hoạt động, dù là tin Chat đầu tiên sau AI/QR/buổi PT, không ghi thêm usage. Không tạo usage cho từng tin hoặc từng kỳ nối tiếp; dấu vết tin nằm ở tin_nhan. Không áp ngoại lệ này cho request AI tính quota hoặc ledger buổi PT.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Chỉ ghi sau khi đủ quyền, ownership, quota và điều kiện luồng. Bản ghi domain tham chiếu hàng này bằng FK UNIQUE; không tạo cho việc chỉ mở màn hình/đọc lịch sử. Nguồn kích hoạt chuỗi phải thuộc kỳ thứ nhất của chính chuỗi, kiểm tra trong transaction. Riêng TRO_CHUYEN_HUAN_LUYEN chỉ ghi cho tin Member thực sự kích hoạt kỳ đầu đang chờ. Chat khi kỳ đã hoạt động, dù là tin Chat đầu tiên sau AI/QR/buổi PT, không ghi thêm usage. Không tạo usage cho từng tin hoặc từng kỳ nối tiếp; dấu vết tin nằm ở tin_nhan. Không áp ngoại lệ này cho request AI tính quota hoặc ledger buổi PT.
 
 <a id="b20"></a>
 
@@ -784,7 +805,7 @@
 | `chi_nhanh_id` | BIGINT UNSIGNED | Không | FK → `chi_nhanh.id` | Nơi được quét. |
 | `ma_bam_bi_mat` | CHAR(64) | Không | UNIQUE | Hash token ngẫu nhiên đủ entropy; QR mang token rõ, DB chỉ giữ hash. |
 | `phat_hanh_luc` | DATETIME(6) | Không | — | Mốc phát hành. |
-| `het_han_luc` | DATETIME(6) | Không | — | TTL ngắn theo cấu hình, đề xuất cần duyệt. |
+| `het_han_luc` | DATETIME(6) | Không | — | Q09: hạn server ghi cụ thể; mặc định phat_hanh_luc + 90 giây. TTL lấy từ cấu hình/policy tập trung, không hard-code rải rác. |
 | `thu_hoi_luc` | DATETIME(6) | Có | — | Vô hiệu QR nếu cần. |
 | `da_su_dung_luc` | DATETIME(6) | Có | — | Cập nhật khi redemption thành công. |
 | `ngay_tao` | DATETIME(6) | Không | — | Thời điểm tạo, UTC. |
@@ -802,7 +823,7 @@
 
 **Được tham chiếu bởi:** `lich_su_vao_phong_tap` qua `ma_vao_phong_tap_id` [0..1].
 
-**Bảo toàn và lưu ý:** Phát hành QR không kích hoạt gói. Không gắn cứng vào kỳ tại lúc phát hành: lúc quét xác định lại kỳ hiệu lực để xử lý đúng chuyển kỳ. Không chứa PII hoặc ngày hết hạn Membership do client quyết định.
+**Bảo toàn và lưu ý:**Phát hành QR không kích hoạt gói. Không gắn cứng vào kỳ tại lúc phát hành: lúc quét xác định lại kỳ hiệu lực để xử lý đúng chuyển kỳ. Không chứa PII hoặc ngày hết hạn Membership do client quyết định. Q09 ĐÃ CHỐT: TTL mặc định 90 giây; hợp lệ khi thời điểm kiểm tra < het_han_luc, đúng hạn cũng bị từ chối. Thay cấu hình không tính lại hạn của mã đã phát hành.
 
 <a id="b21"></a>
 
@@ -833,7 +854,7 @@
 - `(ma_vao_phong_tap_id, hoi_vien_id, chi_nhanh_id)` → `ma_vao_phong_tap(id, hoi_vien_id, chi_nhanh_id)`.
 - `(su_dung_quyen_loi_id, hoi_vien_id, ky_han_hoi_vien_id)` → `su_dung_quyen_loi(id, hoi_vien_id, ky_han_hoi_vien_id)`.
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** `(hoi_vien_id, vao_phong_luc, id)`; `(chi_nhanh_id, vao_phong_luc)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -841,7 +862,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không thêm UNIQUE theo hội viên/ngày vì chưa có quy tắc chỉ được check-in một lần mỗi ngày. Quét lại QR thành công trả kết quả cũ; QR không hợp lệ chỉ ghi audit, không tạo check-in.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không thêm UNIQUE theo hội viên/ngày vì chưa có quy tắc chỉ được check-in một lần mỗi ngày. Quét lại QR thành công trả kết quả cũ; QR không hợp lệ chỉ ghi audit, không tạo check-in.
 
 <a id="b22"></a>
 
@@ -860,10 +881,11 @@
 | `ngay_bat_dau` | DATETIME(6) | Không | — | Bắt đầu quan hệ. |
 | `ngay_ket_thuc` | DATETIME(6) | Có | — | NULL khi chưa kết thúc. |
 | `ly_do_ket_thuc` | VARCHAR(500) | Có | — | Giữ lịch sử chuyển PT. |
+| `hoi_vien_dang_phan_cong_id` | BIGINT UNSIGNED | Có | UNIQUE | Cột sinh VIRTUAL: bằng hoi_vien_id khi ngay_ket_thuc IS NULL; ngược lại NULL. UNIQUE chỉ bảo vệ tối đa một khoảng phân công mở, không tự bảo vệ mọi overlap theo thời gian. |
 | `ngay_tao` | DATETIME(6) | Không | — | Thời điểm tạo, UTC. |
 | `ngay_cap_nhat` | DATETIME(6) | Không | — | Thời điểm cập nhật, UTC. |
 
-**UNIQUE:** `(hoi_vien_id, huan_luyen_vien_id, ngay_bat_dau)`; `(id, hoi_vien_id, huan_luyen_vien_id)`; `(id, hoi_vien_id)`
+**UNIQUE:** `(hoi_vien_id, huan_luyen_vien_id, ngay_bat_dau)`; `(id, hoi_vien_id, huan_luyen_vien_id)`; `(id, hoi_vien_id)`; `(hoi_vien_dang_phan_cong_id)`
 
 **FK đơn:** `hoi_vien_id` → `ho_so_hoi_vien(id)`; `huan_luyen_vien_id` → `ho_so_huan_luyen_vien(id)`; `nguoi_phan_cong_id` → `nguoi_dung(id)`
 
@@ -873,9 +895,9 @@
 
 **Quan hệ đi ra:** `ho_so_hoi_vien` 1 → 0..N `phan_cong_huan_luyen_vien` qua `hoi_vien_id` (mỗi con bắt buộc có cha); `ho_so_huan_luyen_vien` 1 → 0..N `phan_cong_huan_luyen_vien` qua `huan_luyen_vien_id` (mỗi con bắt buộc có cha); `nguoi_dung` 1 → 0..N `phan_cong_huan_luyen_vien` qua `nguoi_phan_cong_id` (mỗi con bắt buộc có cha).
 
-**Được tham chiếu bởi:** `lich_su_su_dung_huan_luyen_vien` qua `phan_cong_huan_luyen_vien_id` [0..N]; `ghi_chu_huan_luyen` qua `phan_cong_huan_luyen_vien_id` [0..N]; `tin_nhan` qua `phan_cong_huan_luyen_vien_id` [0..N]; `de_xuat_ke_hoach_tap` qua `phan_cong_huan_luyen_vien_id` [0..N].
+**Được tham chiếu bởi:** `lich_su_su_dung_huan_luyen_vien` qua `phan_cong_huan_luyen_vien_id` [0..N]; `ghi_chu_huan_luyen` qua `phan_cong_huan_luyen_vien_id` [0..N]; `hoi_thoai` qua `phan_cong_huan_luyen_vien_id` [0..1]; `tin_nhan` qua `phan_cong_huan_luyen_vien_id` [0..N]; `de_xuat_ke_hoach_tap` qua `phan_cong_huan_luyen_vien_id` [0..N].
 
-**Bảo toàn và lưu ý:** Không cho hai khoảng chồng nhau của cùng cặp Member–PT: kiểm tra dưới khóa hội viên. Số PT khác nhau được phụ trách đồng thời chưa chốt; chưa thêm UNIQUE một PT/Member. Không gắn phân công vào một kỳ duy nhất vì quyền dùng vẫn kiểm tra từng kỳ.
+**Bảo toàn và lưu ý:**Q04 ĐÃ CHỐT: mỗi Member có 0..1 PT hiệu lực tại một thời điểm, nhưng có nhiều phân công lịch sử. Không cho overlap giữa BẤT KỲ PT nào cùng Member, dùng khoảng [ngay_bat_dau, ngay_ket_thuc), NULL là không có cận cuối. Khóa ho_so_hoi_vien trước rồi các phân công theo id; đọc lại toàn bộ khoảng liên quan, loại hàng đang sửa và kiểm tra giao khoảng trước khi ghi. Index (hoi_vien_id, ngay_bat_dau, ngay_ket_thuc) hỗ trợ truy vấn. Đổi PT đóng khoảng cũ trước hoặc đúng lúc mở khoảng mới trong cùng transaction + audit; giữ hàng cũ. UNIQUE cột sinh chỉ ngăn hai hàng có ngày kết thúc NULL, kể cả hàng mở ở tương lai; không phát hiện overlap hai khoảng hữu hạn hoặc khoảng mở với khoảng hữu hạn. Không có CHECK chéo hàng và không dùng NOW() trong cột sinh. Q05: hội thoại tham chiếu đúng lần phân công; phân công kết thúc làm hội thoại cũ chỉ đọc cho Member. Không gắn phân công vào một kỳ Membership; Q13 Proposal chỉ cần phân công hợp lệ, còn Chat/buổi trực tiếp kiểm tra quyền kỳ riêng.
 
 <a id="b23"></a>
 
@@ -919,7 +941,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không cần booking để tạo ledger. Hai request dùng lượt cuối khóa cùng kỳ. Ledger + counter + activation + audit ghi một transaction. Không tạo bảng chuyển lượt/hoàn lượt/điều chỉnh trong MVP. Buổi PT trực tiếp không đồng nhất với phien_tap. Xác nhận cần snapshot tổng buổi > 0 và đã dùng < tổng; không kiểm tra cờ Chat để cấp/trừ buổi. Gói chỉ Chat với tổng buổi=0 không được ghi ledger buổi PT.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không cần booking để tạo ledger. Hai request dùng lượt cuối khóa cùng kỳ. Ledger + counter + activation + audit ghi một transaction. Không tạo bảng chuyển lượt/hoàn lượt/điều chỉnh trong MVP. Buổi PT trực tiếp không đồng nhất với phien_tap. Xác nhận cần snapshot tổng buổi > 0 và đã dùng < tổng; không kiểm tra cờ Chat để cấp/trừ buổi. Gói chỉ Chat với tổng buổi=0 không được ghi ledger buổi PT. Q06 ĐÃ CHỐT: chỉ xác nhận hợp lệ khi đúng kỳ còn hiệu lực (hoặc head được phép kích hoạt), còn quota và phân công hợp lệ. Nếu kỳ của buổi đã hết trước xác nhận thì từ chối; hoan_thanh_luc không được dùng để backdate activation/trừ kỳ cũ hoặc mượn kỳ mới. Đối chiếu buổi với đúng kỳ, không chọn kỳ khác chỉ vì còn lượt. Q13 tạo/apply Proposal không tạo ledger này. Q12 không hard-delete; correction Admin là Future Development.
 
 <a id="b24"></a>
 
@@ -950,7 +972,7 @@
 - `(ke_hoach_tap_id, hoi_vien_id)` → `ke_hoach_tap(id, hoi_vien_id)`.
 - `(phien_tap_id, hoi_vien_id)` → `phien_tap(id, hoi_vien_id)`.
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** `(hoi_vien_id, ngay_tao, id)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -958,7 +980,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Đề xuất append-only cho audit. Ghi chú về một phiên đã hoàn thành không được cập nhật bất cứ cột kết quả nào của phiên.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Đề xuất append-only cho audit. Ghi chú về một phiên đã hoàn thành không được cập nhật bất cứ cột kết quả nào của phiên.
 
 <a id="b25"></a>
 
@@ -982,7 +1004,7 @@
 
 **FK đơn:** Không có.
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -990,7 +1012,7 @@
 
 **Được tham chiếu bởi:** `dung_cu_hoi_vien` qua `dung_cu_id` [0..N]; `bai_tap_dung_cu` qua `dung_cu_id` [0..N].
 
-**Bảo toàn và lưu ý:** Phân quyền thao tác tại Backend; giữ dữ liệu được các bảng lịch sử tham chiếu.
+**Bảo toàn và lưu ý:** Q11: quan hệ bài–dụng cụ có nghĩa AND; biến thể dụng cụ khác là bài/biến thể bài riêng, không thêm nhóm OR.
 
 <a id="b26"></a>
 
@@ -1013,7 +1035,7 @@
 
 **FK đơn:** Không có.
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -1021,7 +1043,7 @@
 
 **Được tham chiếu bởi:** `bai_tap_nhom_co` qua `nhom_co_id` [0..N].
 
-**Bảo toàn và lưu ý:** Phân quyền thao tác tại Backend; giữ dữ liệu được các bảng lịch sử tham chiếu.
+**Bảo toàn và lưu ý:**
 
 <a id="b27"></a>
 
@@ -1059,7 +1081,7 @@
 
 **Được tham chiếu bởi:** `bai_tap_dung_cu` qua `bai_tap_id` [0..N]; `bai_tap_nhom_co` qua `bai_tap_id` [0..N]; `bai_tap_trong_giao_an` qua `bai_tap_id` [0..N]; `bai_tap_trong_ke_hoach` qua `bai_tap_id` [0..N]; `bai_tap_trong_phien` qua `bai_tap_id` [0..N]; `bai_tap_ung_vien` qua `bai_tap_id` [0..N].
 
-**Bảo toàn và lưu ý:** Không hard-delete khi đã được tham chiếu. History giữ snapshot tên/hướng dẫn, nên đổi catalog không sửa lịch sử.
+**Bảo toàn và lưu ý:**Không hard-delete khi đã được tham chiếu. History giữ snapshot tên/hướng dẫn, nên đổi catalog không sửa lịch sử. Q11: metadata và liên kết dụng cụ phải diễn giải AND; dụng cụ thay thế thuộc bài/biến thể bài khác, không nhóm OR.
 
 <a id="b28"></a>
 
@@ -1081,7 +1103,7 @@
 
 **FK đơn:** `bai_tap_id` → `bai_tap(id)`; `dung_cu_id` → `dung_cu(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -1089,7 +1111,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Đề xuất mỗi hàng là dụng cụ bắt buộc (AND); bài không có hàng là không cần dụng cụ. Nếu muốn nhóm dụng cụ thay thế (OR), cần chốt thêm, không diễn giải tùy tiện.
+**Bảo toàn và lưu ý:**Q11 ĐÃ CHỐT: mọi hàng dụng cụ của cùng bài đều bắt buộc (AND). Bench + Barbell cần cả hai; bài không có hàng không yêu cầu dụng cụ. Biến thể dùng dụng cụ khác quản lý như bài/biến thể bài khác trong thư viện; không thêm nhóm OR ở MVP. Candidate selection và Apply đều kiểm tra đủ tập dụng cụ, không chọn một dụng cụ bất kỳ. Không quản lý tài sản.
 
 <a id="b29"></a>
 
@@ -1120,7 +1142,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Phân quyền thao tác tại Backend; giữ dữ liệu được các bảng lịch sử tham chiếu.
+**Bảo toàn và lưu ý:**
 
 <a id="b30"></a>
 
@@ -1157,7 +1179,7 @@
 
 **Được tham chiếu bởi:** `ngay_trong_giao_an` qua `giao_an_mau_id` [0..N]; `phien_ban_ke_hoach_tap` qua `giao_an_mau_id` [0..N]; `giao_an_ung_vien` qua `giao_an_mau_id` [0..N].
 
-**Bảo toàn và lưu ý:** Khi dùng tạo Plan phải sao chép nội dung, không render kế hoạch/history bằng giáo án hiện tại.
+**Bảo toàn và lưu ý:**Khi dùng tạo Plan phải sao chép nội dung, không render kế hoạch/history bằng giáo án hiện tại.
 
 <a id="b31"></a>
 
@@ -1189,7 +1211,7 @@
 
 **Được tham chiếu bởi:** `bai_tap_trong_giao_an` qua `ngay_trong_giao_an_id` [0..N].
 
-**Bảo toàn và lưu ý:** Phân quyền thao tác tại Backend; giữ dữ liệu được các bảng lịch sử tham chiếu.
+**Bảo toàn và lưu ý:**
 
 <a id="b32"></a>
 
@@ -1225,7 +1247,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Không unique bài trong ngày vì một bài có thể xuất hiện ở hai vị trí được kê rõ ràng.
+**Bảo toàn và lưu ý:**Không unique bài trong ngày vì một bài có thể xuất hiện ở hai vị trí được kê rõ ràng.
 
 <a id="b33"></a>
 
@@ -1244,10 +1266,11 @@
 | `phien_ban_hien_tai_id` | BIGINT UNSIGNED | Có | UNIQUE; FK → `phien_ban_ke_hoach_tap.id` | Con trỏ phiên bản chính thức hiện tại. |
 | `nguoi_tao_id` | BIGINT UNSIGNED | Không | FK → `nguoi_dung.id` | Người thao tác tạo chính thức. |
 | `ma_lan_tao` | CHAR(36) | Không | — | Chống tạo kế hoạch hai lần. |
+| `hoi_vien_dang_su_dung_id` | BIGINT UNSIGNED | Có | UNIQUE | Cột sinh VIRTUAL: bằng hoi_vien_id khi trang_thai=DANG_SU_DUNG; LUU_TRU trả NULL. UNIQUE bảo vệ tối đa một Active Plan/Member, vẫn giữ mọi Plan lưu trữ. |
 | `ngay_tao` | DATETIME(6) | Không | — | Thời điểm tạo, UTC. |
 | `ngay_cap_nhat` | DATETIME(6) | Không | — | Thời điểm cập nhật, UTC. |
 
-**UNIQUE:** `(hoi_vien_id, ma_lan_tao)`; `(id, hoi_vien_id)`; `(phien_ban_hien_tai_id)`
+**UNIQUE:** `(hoi_vien_id, ma_lan_tao)`; `(id, hoi_vien_id)`; `(phien_ban_hien_tai_id)`; `(hoi_vien_dang_su_dung_id)`
 
 **FK đơn:** `hoi_vien_id` → `ho_so_hoi_vien(id)`; `phien_ban_hien_tai_id` → `phien_ban_ke_hoach_tap(id)`; `nguoi_tao_id` → `nguoi_dung(id)`
 
@@ -1255,7 +1278,7 @@
 
 - `(phien_ban_hien_tai_id, id)` → `phien_ban_ke_hoach_tap(id, ke_hoach_tap_id)`.
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** `(hoi_vien_id, trang_thai)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -1263,7 +1286,7 @@
 
 **Được tham chiếu bởi:** `ghi_chu_huan_luyen` qua `ke_hoach_tap_id` [0..N]; `phien_ban_ke_hoach_tap` qua `ke_hoach_tap_id` [0..N]; `buoi_tap_du_kien` qua `ke_hoach_tap_id` [0..N]; `de_xuat_ke_hoach_tap` qua `ke_hoach_tap_id` [0..N].
 
-**Bảo toàn và lưu ý:** Con trỏ NULL chỉ trong transaction khởi tạo trước khi có version 1, không công bố Plan chưa có version. Số kế hoạch đồng thời chưa chốt; không áp đặt UNIQUE một Plan hiện hành/hội viên.
+**Bảo toàn và lưu ý:**Q07A ĐÃ CHỐT: tối đa một DANG_SU_DUNG mỗi Member; UNIQUE hoi_vien_dang_su_dung_id là hàng rào cuối, các Plan LUU_TRU trả NULL và giữ toàn bộ history. Khóa hội viên -> Plan theo id; lưu trữ Plan cũ trước khi công bố Plan mới, cùng transaction với version/con trỏ, lịch hợp lệ và audit. Không chuyển lịch/history cũ sang Plan mới hoặc xóa để né UNIQUE. Con trỏ phien_ban_hien_tai_id NULL chỉ trong transaction khởi tạo trước version 1; không công bố Plan thiếu version. Q08: Plan/Workout của Member không yêu cầu Membership đang hoạt động; vẫn kiểm tra ownership và workflow.
 
 <a id="b34"></a>
 
@@ -1306,7 +1329,7 @@
 
 **Được tham chiếu bởi:** `ke_hoach_tap` qua `phien_ban_hien_tai_id` [0..1]; `phien_ban_ke_hoach_tap` qua `phien_ban_truoc_id` [0..N]; `ngay_trong_ke_hoach` qua `phien_ban_ke_hoach_tap_id` [0..N]; `buoi_tap_du_kien` qua `phien_ban_ke_hoach_tap_id` [0..N]; `de_xuat_ke_hoach_tap` qua `phien_ban_co_so_id` [0..N].
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không UPDATE/DELETE nội dung version đã công bố. Version mới không chuyển FK của session cũ. Template sửa không kéo theo sửa version.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không UPDATE/DELETE nội dung version đã công bố. Version mới không chuyển FK của session cũ. Template sửa không kéo theo sửa version.
 
 <a id="b35"></a>
 
@@ -1339,7 +1362,7 @@
 
 **Được tham chiếu bởi:** `bai_tap_trong_ke_hoach` qua `ngay_trong_ke_hoach_id` [0..N]; `buoi_tap_du_kien` qua `ngay_trong_ke_hoach_id` [0..N].
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Một version có thể giữ cấu trúc khác version trước; không ghi đè hàng cũ.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Một version có thể giữ cấu trúc khác version trước; không ghi đè hàng cũ.
 
 <a id="b36"></a>
 
@@ -1379,7 +1402,7 @@
 
 **Được tham chiếu bởi:** `bai_tap_trong_phien` qua `bai_tap_trong_ke_hoach_id` [0..N].
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Snapshot giúp tái hiện đơn kê ngay cả khi catalog đổi. Ghi chú PT tự do nằm ở ghi_chu_huan_luyen, không dùng cột này để bỏ qua Proposal.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Snapshot giúp tái hiện đơn kê ngay cả khi catalog đổi. Ghi chú PT tự do nằm ở ghi_chu_huan_luyen, không dùng cột này để bỏ qua Proposal.
 
 <a id="b37"></a>
 
@@ -1402,11 +1425,12 @@
 | `gio_ket_thuc_du_kien` | TIME | Có | — | Đi cùng giờ bắt đầu. |
 | `trang_thai` | VARCHAR(30) | Không | — | CHUA_TAP / DANG_TAP / HOAN_THANH / BO_QUA / HUY / DA_THAY_THE. |
 | `thay_the_buoi_tap_id` | BIGINT UNSIGNED | Có | UNIQUE; FK → `buoi_tap_du_kien.id` | Hàng lịch cũ được thay thế bởi hàng này. |
-| `ma_buoi_con_hieu_luc` | CHAR(36) | Có | — | Cột sinh: ma_buoi_logic trừ HUY/DA_THAY_THE thì NULL. |
+| `ma_buoi_con_hieu_luc` | CHAR(36) | Có | — | Cột sinh VIRTUAL: bằng ma_buoi_logic khi CHUA_TAP/DANG_TAP/HOAN_THANH/BO_QUA; HUY/DA_THAY_THE trả NULL. Giữ cơ chế một phiên bản lịch còn hiệu lực cho mỗi mã buổi. |
+| `ngay_tap_con_hieu_luc` | DATE | Có | — | Cột sinh VIRTUAL: bằng ngay_tap khi trạng thái CHUA_TAP/DANG_TAP/HOAN_THANH/BO_QUA; HUY/DA_THAY_THE trả NULL. UNIQUE (hoi_vien_id, ngay_tap_con_hieu_luc) giữ tối đa một lịch có giá trị mỗi Member/ngày. |
 | `ngay_tao` | DATETIME(6) | Không | — | Thời điểm tạo, UTC. |
 | `ngay_cap_nhat` | DATETIME(6) | Không | — | Thời điểm cập nhật, UTC. |
 
-**UNIQUE:** `(phien_ban_ke_hoach_tap_id, ma_buoi_logic)`; `(thay_the_buoi_tap_id)`; `(hoi_vien_id, ma_buoi_con_hieu_luc)`; `(id, hoi_vien_id)`
+**UNIQUE:** `(phien_ban_ke_hoach_tap_id, ma_buoi_logic)`; `(thay_the_buoi_tap_id)`; `(hoi_vien_id, ma_buoi_con_hieu_luc)`; `(id, hoi_vien_id)`; `(hoi_vien_id, ngay_tap_con_hieu_luc)`
 
 **FK đơn:** `hoi_vien_id` → `ho_so_hoi_vien(id)`; `ke_hoach_tap_id` → `ke_hoach_tap(id)`; `phien_ban_ke_hoach_tap_id` → `phien_ban_ke_hoach_tap(id)`; `ngay_trong_ke_hoach_id` → `ngay_trong_ke_hoach(id)`; `thay_the_buoi_tap_id` → `buoi_tap_du_kien(id)`
 
@@ -1424,7 +1448,7 @@
 
 **Được tham chiếu bởi:** `buoi_tap_du_kien` qua `thay_the_buoi_tap_id` [0..1]; `phien_tap` qua `buoi_tap_du_kien_id` [0..1].
 
-**Bảo toàn và lưu ý:** Không sửa ngày/nội dung/FK của hàng đã tạo: thay future CHUA_TAP bằng hàng mới và đánh dấu hàng cũ DA_THAY_THE trong transaction. Session đang tập/hoàn thành giữ lịch gốc. Không mặc định UNIQUE hội viên/ngày khi chưa chốt số buổi/ngày; kiểm tra trùng lịch dưới khóa hội viên.
+**Bảo toàn và lưu ý:**Q07B ĐÃ CHỐT: mỗi Member tối đa một lịch có giá trị/ngày. CHUA_TAP, DANG_TAP, HOAN_THANH, BO_QUA giữ slot; HUY và DA_THAY_THE giải phóng slot nhưng giữ hàng lịch sử. Không sửa ngày/nội dung/FK để làm mất lịch cũ. Khóa hội viên -> Plan -> lịch/phiên liên quan theo id; đánh dấu hàng cũ trước khi tạo hàng thay thế cùng transaction, UNIQUE ngày và mã buổi là hàng rào cuối. Giữ ma_buoi_logic, thay_the_buoi_tap_id và UNIQUE (phien_ban_ke_hoach_tap_id, ma_buoi_logic). Vì UNIQUE này, lịch thay thế cùng mã buổi phải thuộc version mới theo workflow đã xác nhận, không tạo lại trong cùng version. Chỉ thay lịch CHUA_TAP tương lai hoặc lịch có phiên HUY theo Q07C; không thay lịch có phiên DANG_TAP/HOAN_THANH. Với phiên HUY, giữ phiên và FK lịch cũ; lịch cũ chuyển HUY/DA_THAY_THE theo bước hủy/thay, lịch mới phải hợp lệ về ngày, version, ownership và slot. Không tạo lịch giả hoặc Free Workout. Q08: Start từ lịch hợp lệ không yêu cầu active Membership.
 
 <a id="b38"></a>
 
@@ -1466,7 +1490,7 @@
 
 **Được tham chiếu bởi:** `ghi_chu_huan_luyen` qua `phien_tap_id` [0..N]; `bai_tap_trong_phien` qua `phien_tap_id` [0..N].
 
-**Bảo toàn và lưu ý:** ĐÃ CHỐT: chỉ bắt đầu Workout Mode từ lịch có sẵn, FK lịch NOT NULL; không tạo lịch giả/phiên tự do. Free Workout là FUTURE DEVELOPMENT, khác câu hỏi Workout có cần trả phí. Đề xuất một phiên cho một lịch giữ nguyên; cách bắt đầu lại sau HUY vẫn cần review. Không có FK bắt buộc tới Membership nên lịch sử không mất khi hết hạn. Mọi ghi set/complete khóa phiên cha; trạng thái HOAN_THANH cấm sửa/xóa cả cây.
+**Bảo toàn và lưu ý:**Q07C/D ĐÃ CHỐT: buoi_tap_du_kien_id NOT NULL UNIQUE, một lịch tối đa một phiên kể cả phiên HUY. Không restart/chuyển HUY về DANG_TAP, không thêm phiên thứ hai hoặc xóa phiên HUY để thử lại. Nếu tập lại, dùng buoi_tap_du_kien thay thế theo workflow schedule/version hợp lệ, giữ phiên/FK cũ; không tạo Free Workout hay lịch giả. Q08: Start/Save Set/Complete không yêu cầu Membership còn hiệu lực, không tạo usage trả phí hoặc kích hoạt kỳ; vẫn xác thực Member, ownership, Plan/Schedule/trạng thái, idempotency và concurrency. Mọi ghi set/complete khóa hội viên/phiên cha; HOAN_THANH cấm sửa/xóa cả cây kết quả. Q12: giữ lịch sử cả phiên HUY và HOAN_THANH.
 
 <a id="b39"></a>
 
@@ -1507,7 +1531,7 @@
 
 **Được tham chiếu bởi:** `hiep_tap` qua `bai_tap_trong_phien_id` [0..N].
 
-**Bảo toàn và lưu ý:** Mọi thay đổi bị khóa theo phiên cha khi hoàn thành. Kết quả thật nằm ở hiep_tap, không tự biến mục tiêu thành kết quả.
+**Bảo toàn và lưu ý:**Mọi thay đổi bị khóa theo phiên cha khi hoàn thành. Kết quả thật nằm ở hiep_tap, không tự biến mục tiêu thành kết quả.
 
 <a id="b40"></a>
 
@@ -1543,13 +1567,13 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Reps 0 có thể phản ánh không thực hiện được, cần chính sách validation UI; không tự áp ngưỡng y khoa. Request sửa dùng idempotency + expected revision; complete không chạy đồng thời bỏ qua khóa phiên.
+**Bảo toàn và lưu ý:**Reps 0 có thể phản ánh không thực hiện được, cần chính sách validation UI; không tự áp ngưỡng y khoa. Request sửa dùng idempotency + expected revision; complete không chạy đồng thời bỏ qua khóa phiên.
 
 <a id="b41"></a>
 
 ## 41. `hoi_thoai`
 
-**Mục đích:** Hội thoại 1–1 Member/PT, không phải group chat.
+**Mục đích:** Hội thoại 1–1 Member/PT của một lần phân công; giữ lịch sử đọc sau khi quan hệ kết thúc.
 
 **Khóa chính:** `id` — BIGINT UNSIGNED, tự tăng.
 
@@ -1558,25 +1582,30 @@
 | `id` | BIGINT UNSIGNED | Không | PK | Khóa chính tự tăng. |
 | `hoi_vien_id` | BIGINT UNSIGNED | Không | FK → `ho_so_hoi_vien.id` | Member của cặp. |
 | `huan_luyen_vien_id` | BIGINT UNSIGNED | Không | FK → `ho_so_huan_luyen_vien.id` | PT của cặp. |
+| `phan_cong_huan_luyen_vien_id` | BIGINT UNSIGNED | Không | UNIQUE; FK → `phan_cong_huan_luyen_vien.id` | Lần phân công sở hữu hội thoại; UNIQUE, tối đa một hội thoại mỗi phân công. Không đổi FK khi đổi PT hoặc cấp lại phân công. |
 | `so_thu_tu_cuoi` | BIGINT UNSIGNED | Không | — | Counter tin đã commit; mặc định 0, tăng dưới khóa hội thoại. |
 | `hoi_vien_doc_den_so` | BIGINT UNSIGNED | Không | — | Con trỏ đã đọc cơ bản, mặc định 0. |
 | `huan_luyen_vien_doc_den_so` | BIGINT UNSIGNED | Không | — | Con trỏ đã đọc cơ bản, mặc định 0. |
 | `ngay_tao` | DATETIME(6) | Không | — | Thời điểm tạo, UTC. |
 | `ngay_cap_nhat` | DATETIME(6) | Không | — | Thời điểm cập nhật, UTC. |
 
-**UNIQUE:** `(hoi_vien_id, huan_luyen_vien_id)`; `(id, hoi_vien_id, huan_luyen_vien_id)`
+**UNIQUE:** `(phan_cong_huan_luyen_vien_id)`; `(id, phan_cong_huan_luyen_vien_id)`
 
-**FK đơn:** `hoi_vien_id` → `ho_so_hoi_vien(id)`; `huan_luyen_vien_id` → `ho_so_huan_luyen_vien(id)`
+**FK đơn:** `hoi_vien_id` → `ho_so_hoi_vien(id)`; `huan_luyen_vien_id` → `ho_so_huan_luyen_vien(id)`; `phan_cong_huan_luyen_vien_id` → `phan_cong_huan_luyen_vien(id)`
+
+**FK kép bảo vệ dữ liệu cùng chủ/cùng nguồn:**
+
+- `(phan_cong_huan_luyen_vien_id, hoi_vien_id, huan_luyen_vien_id)` → `phan_cong_huan_luyen_vien(id, hoi_vien_id, huan_luyen_vien_id)`.
 
 **CHECK/điều kiện cùng hàng dự kiến:** Con trỏ đã đọc không âm và <= so_thu_tu_cuoi.
 
 **Index truy vấn bổ sung:** `(hoi_vien_id, ngay_cap_nhat)`; `(huan_luyen_vien_id, ngay_cap_nhat)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
-**Quan hệ đi ra:** `ho_so_hoi_vien` 1 → 0..N `hoi_thoai` qua `hoi_vien_id` (mỗi con bắt buộc có cha); `ho_so_huan_luyen_vien` 1 → 0..N `hoi_thoai` qua `huan_luyen_vien_id` (mỗi con bắt buộc có cha).
+**Quan hệ đi ra:** `ho_so_hoi_vien` 1 → 0..N `hoi_thoai` qua `hoi_vien_id` (mỗi con bắt buộc có cha); `ho_so_huan_luyen_vien` 1 → 0..N `hoi_thoai` qua `huan_luyen_vien_id` (mỗi con bắt buộc có cha); `phan_cong_huan_luyen_vien` 1 → 0..1 `hoi_thoai` qua `phan_cong_huan_luyen_vien_id` (mỗi con bắt buộc có cha).
 
 **Được tham chiếu bởi:** `tin_nhan` qua `hoi_thoai_id` [0..N].
 
-**Bảo toàn và lưu ý:** Không cần bảng thành viên linh hoạt vì đúng hai bên đã xác định. Khi truy cập luôn kiểm tra quan hệ hiện thời và cờ Chat PT của đúng kỳ; không kiểm tra quota buổi để mở chat. Hội thoại tồn tại không tự cấp quyền. Read status là cột hỗ trợ tùy chọn, không bắt buộc triển khai ngay.
+**Bảo toàn và lưu ý:**Q05 ĐÃ CHỐT: phân biệt READ HISTORY với SEND NEW MESSAGE. Member đọc lịch sử của mình dù hết Membership hoặc phân công kết thúc. Gửi mới cần cờ Chat của kỳ hợp lệ và chính lần phân công của hội thoại còn hiệu lực; PT cũ không được gửi hoặc tiếp tục truy cập theo resource scope đã mất. Đổi PT dùng hội thoại của phân công mới; PT mới không đọc hội thoại cũ. FK phân công + UNIQUE thay UNIQUE cặp Member/PT để hội thoại đã kết thúc không mở lại khi Member quay lại PT cũ: lần phân công mới có hội thoại mới, không đổi chủ hội thoại cũ. Đây là hệ quả bảo toàn hội thoại lịch sử, không thêm bảng/group chat. Không DELETE/sửa nội dung tin; hết kỳ chỉ khóa gửi, không khóa Member đọc lịch sử. Read status là cột hỗ trợ tùy chọn.
 
 <a id="b42"></a>
 
@@ -1607,7 +1636,7 @@
 
 **FK kép bảo vệ dữ liệu cùng chủ/cùng nguồn:**
 
-- `(hoi_thoai_id, hoi_vien_id, huan_luyen_vien_id)` → `hoi_thoai(id, hoi_vien_id, huan_luyen_vien_id)`.
+- `(hoi_thoai_id, phan_cong_huan_luyen_vien_id)` → `hoi_thoai(id, phan_cong_huan_luyen_vien_id)`.
 - `(phan_cong_huan_luyen_vien_id, hoi_vien_id, huan_luyen_vien_id)` → `phan_cong_huan_luyen_vien(id, hoi_vien_id, huan_luyen_vien_id)`.
 - `(su_dung_quyen_loi_id, hoi_vien_id)` → `su_dung_quyen_loi(id, hoi_vien_id)`.
 
@@ -1619,7 +1648,7 @@
 
 **Được tham chiếu bởi:** `su_kien_phat_tin_nhan` qua `tin_nhan_id` [0..1].
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không UPDATE/DELETE nội dung trong MVP. Retry cùng mã nhưng khác nội dung phải báo xung đột. Chỉ tin Member kích hoạt kỳ mới tạo một usage Chat; tin sau không tạo usage, không tái dùng FK kích hoạt và không trừ buổi. Mỗi tin vẫn kiểm tra cờ Chat/phân công/kỳ. Khóa hội viên/chuỗi/kỳ chung với AI/QR/buổi PT; hai tin đầu đồng thời chỉ một tin được gắn nguồn kích hoạt. Tin + usage/activation nếu có + outbox commit/rollback cùng nhau. Retry tin kích hoạt trả lại bản ghi cũ. PT chủ động gửi hoặc mở/đọc/subscribe không kích hoạt.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không UPDATE/DELETE nội dung trong MVP. Retry cùng mã nhưng khác nội dung phải báo xung đột. Chỉ tin Member kích hoạt kỳ mới tạo một usage Chat; tin sau không tạo usage, không tái dùng FK kích hoạt và không trừ buổi. Mỗi lần GỬI tin vẫn kiểm tra cờ Chat/phân công/kỳ; đọc lịch sử của Member không bị điều kiện Membership/phân công hiện thời chặn. Khóa hội viên/chuỗi/kỳ chung với AI/QR/buổi PT; hai tin đầu đồng thời chỉ một tin được gắn nguồn kích hoạt. Tin + usage/activation nếu có + outbox commit/rollback cùng nhau. Retry tin kích hoạt trả lại bản ghi cũ. PT chủ động gửi hoặc mở/đọc/subscribe không kích hoạt. Q05: FK kép tới hoi_thoai bảo đảm tin dùng đúng lần phân công của hội thoại; FK kép tới phân công tiếp tục bảo vệ cặp Member/PT. Phân công hết hiệu lực thì không gửi mới vào hội thoại đó; Member vẫn đọc history, PT mới không được đọc. Q12 không hard-delete tin khi hết kỳ/đổi PT.
 
 <a id="b43"></a>
 
@@ -1645,7 +1674,7 @@
 
 **FK đơn:** `tin_nhan_id` → `tin_nhan(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** `(trang_thai, thu_lai_luc)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -1653,7 +1682,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Ghi cùng transaction tin_nhan; phát sau commit. Có thể phát ít nhất một lần, client dedup bằng ID/sequence. Đây là độ tin cậy của Chat CORE, không phải module Notification mới.
+**Bảo toàn và lưu ý:**Ghi cùng transaction tin_nhan; phát sau commit. Có thể phát ít nhất một lần, client dedup bằng ID/sequence. Đây là độ tin cậy của Chat CORE, không phải module Notification mới.
 
 <a id="b44"></a>
 
@@ -1677,7 +1706,7 @@
 
 **FK đơn:** `hoi_vien_id` → `ho_so_hoi_vien(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** `(hoi_vien_id, ngay_cap_nhat)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -1685,7 +1714,7 @@
 
 **Được tham chiếu bởi:** `tin_nhan_tro_ly` qua `hoi_thoai_tro_ly_id` [0..N]; `yeu_cau_tro_ly` qua `hoi_thoai_tro_ly_id` [0..N].
 
-**Bảo toàn và lưu ý:** Không có tài khoản/vai trò AI. Mở hội thoại hay đọc tin cũ không được tự kích hoạt.
+**Bảo toàn và lưu ý:**Không có tài khoản/vai trò AI. Mở hội thoại hay đọc tin cũ không được tự kích hoạt.
 
 <a id="b45"></a>
 
@@ -1723,7 +1752,7 @@
 
 **Được tham chiếu bởi:** `yeu_cau_tro_ly` qua `tin_nhan_dau_vao_id` [0..1].
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không lấy text này parse ngược để áp dụng kế hoạch. Structured output hợp lệ và Proposal lưu riêng.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không lấy text này parse ngược để áp dụng kế hoạch. Structured output hợp lệ và Proposal lưu riêng.
 
 <a id="b46"></a>
 
@@ -1765,7 +1794,7 @@
 - `(ky_han_hoi_vien_id, hoi_vien_id)` → `ky_han_hoi_vien(id, hoi_vien_id)`.
 - `(su_dung_quyen_loi_id, hoi_vien_id, ky_han_hoi_vien_id)` → `su_dung_quyen_loi(id, hoi_vien_id, ky_han_hoi_vien_id)`.
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** trang_thai_han_muc chỉ KHONG_AP_DUNG/GIU_CHO/DA_TINH/DA_TRA. KHONG_AP_DUNG: ky_han_hoi_vien_id và su_dung_quyen_loi_id cùng NULL; trạng thái hạn mức khác: cả hai NOT NULL. Các điều kiện này chỉ dùng cột cùng hàng; kiểm tra quyền/counter dùng transaction.
 
 **Index truy vấn bổ sung:** `(ky_han_hoi_vien_id, trang_thai_han_muc)`; `(hoi_vien_id, ngay_tao, id)`; `(trang_thai, bat_dau_xu_ly_luc)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -1773,7 +1802,7 @@
 
 **Được tham chiếu bởi:** `tin_nhan_tro_ly` qua `yeu_cau_tro_ly_id` [0..N]; `bai_tap_ung_vien` qua `yeu_cau_tro_ly_id` [0..N]; `giao_an_ung_vien` qua `yeu_cau_tro_ly_id` [0..N]; `lan_goi_mo_hinh` qua `yeu_cau_tro_ly_id` [0..N]; `de_xuat_ke_hoach_tap` qua `yeu_cau_tro_ly_id` [0..1].
 
-**Bảo toàn và lưu ý:** Provider retry không tạo request/quota mới. Quy tắc tính quota khi lỗi/chờ bổ sung chưa chốt; các trạng thái giữ chỗ hỗ trợ quyết định review. Không dùng quyền AI kỳ sau. Request bị từ chối không tạo su_dung_quyen_loi.
+**Bảo toàn và lưu ý:**Q03 ĐÃ CHỐT: một request nghiệp vụ HỢP LỆ = một lượt. Xác minh quyền AI và điều kiện trước; khóa hội viên -> chuỗi/kỳ -> request theo id, revalidate, giữ 1 quota (GIU_CHO), ghi domain/usage và activation nếu cần trong một transaction; chỉ gọi provider sau commit. Chưa đủ điều kiện/thiếu dữ liệu trước chấp nhận: KHONG_AP_DUNG, không quota/usage/activation. Provider retry thuộc cùng request, không tạo quota mới. GIU_CHO -> DA_TINH: giảm giữ chỗ 1, tăng đã dùng 1 khi có kết quả nghiệp vụ; GIU_CHO -> DA_TRA khi lỗi kỹ thuật kết thúc request: giảm giữ chỗ 1, không tăng đã dùng. Nếu lượt đã tính rồi xác định lỗi kỹ thuật thì DA_TINH -> DA_TRA giảm đã dùng đúng 1, lưu audit; dùng khóa và trạng thái chống trả hai lần. Phản hồi kỹ thuật trễ/retry không được hồi sinh request DA_TRA hoặc ghi đè trạng thái kết thúc. Hỏi bổ sung trước chấp nhận không tính lượt; sau khi đã chấp nhận hợp lệ, không đếm từng message bổ sung/provider retry như lượt mới. Lỗi provider sau commit không xóa usage hoặc lùi đồng hồ Membership đã kích hoạt. Không dùng quyền kỳ tương lai. Q12 giữ request và nguồn kể cả lỗi.
 
 <a id="b47"></a>
 
@@ -1797,7 +1826,7 @@
 
 **FK đơn:** `yeu_cau_tro_ly_id` → `yeu_cau_tro_ly(id)`; `bai_tap_id` → `bai_tap(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -1805,7 +1834,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. LLM chỉ chọn trong tập này. Khi Apply vẫn kiểm tra catalog hiện tại và điều kiện Member, không coi candidate cũ là giấy phép vĩnh viễn.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. LLM chỉ chọn trong tập này. Khi Apply vẫn kiểm tra catalog hiện tại và điều kiện Member, không coi candidate cũ là giấy phép vĩnh viễn. Q11: tập dụng cụ yêu cầu của bài phải nằm trọn trong dụng cụ phù hợp của Member (AND), không dùng điều kiện có một dụng cụ trùng.
 
 <a id="b48"></a>
 
@@ -1829,7 +1858,7 @@
 
 **FK đơn:** `yeu_cau_tro_ly_id` → `yeu_cau_tro_ly(id)`; `giao_an_mau_id` → `giao_an_mau(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -1837,7 +1866,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không để LLM tự bịa ID giáo án.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không để LLM tự bịa ID giáo án.
 
 <a id="b49"></a>
 
@@ -1881,7 +1910,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Không lưu API key, toàn bộ dữ liệu sức khỏe hoặc response JSON lỗi dưới dạng kế hoạch. Chỉ Proposal qua cả schema và business validation mới chờ xác nhận.
+**Bảo toàn và lưu ý:**Không lưu API key, toàn bộ dữ liệu sức khỏe hoặc response JSON lỗi dưới dạng kế hoạch. Chỉ Proposal qua cả schema và business validation mới chờ xác nhận. Q03: mỗi retry tăng so_lan trong cùng yeu_cau_tro_ly, không thêm quota. Provider lỗi kỹ thuật được xử lý kết thúc request và trả quota đúng một lần; không rollback activation đã commit. Lưu mọi lần gọi/lỗi, không hard-delete theo Q12.
 
 <a id="b50"></a>
 
@@ -1911,7 +1940,7 @@
 | `ma_bam_noi_dung` | CHAR(64) | Không | — | Fingerprint nội dung đã preview. |
 | `ap_dung_tu_ngay` | DATE | Không | — | Giới hạn thay đổi lịch tương lai. |
 | `trang_thai` | VARCHAR(30) | Không | — | CHO_XAC_NHAN / DA_TU_CHOI / HET_HAN / XUNG_DOT / DA_AP_DUNG. |
-| `het_han_luc` | DATETIME(6) | Không | — | TTL theo chính sách được duyệt. |
+| `het_han_luc` | DATETIME(6) | Không | — | Q09: mốc cụ thể do server cấp; mặc định ngay_tao + 24 giờ cho cả AI/PT, lấy TTL từ cấu hình/policy tập trung. |
 | `nguoi_quyet_dinh_id` | BIGINT UNSIGNED | Có | FK → `nguoi_dung.id` | Phải là tài khoản Member sở hữu. |
 | `quyet_dinh_luc` | DATETIME(6) | Có | — | Xác nhận hoặc từ chối. |
 | `ap_dung_luc` | DATETIME(6) | Có | — | Commit áp dụng. |
@@ -1938,7 +1967,7 @@
 
 **Được tham chiếu bởi:** `phien_ban_ke_hoach_tap` qua `de_xuat_ke_hoach_tap_id` [0..1].
 
-**Bảo toàn và lưu ý:** Nguồn XOR, ownership và cặp plan/version kiểm tra bằng FK kép + transaction; không gán CHECK chéo bảng. Kết quả truy từ phien_ban_ke_hoach_tap.de_xuat_ke_hoach_tap_id UNIQUE. Không tạo thêm de_xuat_ai chứa trạng thái trùng. PT không có lan_goi_mo_hinh. JSON không có FK nội tại nên Backend phải revalidate từng ID trước Apply.
+**Bảo toàn và lưu ý:**Nguồn XOR, ownership và cặp Plan/version kiểm tra bằng FK kép + transaction; không có CHECK chéo bảng. Kết quả truy từ phien_ban_ke_hoach_tap.de_xuat_ke_hoach_tap_id UNIQUE. AI/PT dùng chung bảng; PT không có lan_goi_mo_hinh. Q13 ĐÃ CHỐT: PT tạo Proposal chỉ cần authenticated PT có chính phan_cong_huan_luyen_vien hợp lệ với Member; không cần Chat, tổng/còn quota buổi hoặc active Membership. Tạo/apply Proposal PT không trừ lượt, không usage Chat/buổi và không kích hoạt Membership. Preview, Member confirm/reject, ownership, base version, mốc hồ sơ/kế hoạch, future schedule, TTL/trạng thái và phân công phải được revalidate dưới khóa; Apply thành công tạo version và audit cùng transaction. Nếu phân công nguồn đã kết thúc trước confirm, chuyển XUNG_DOT và không Apply, kể cả PT được phân công lại bằng hàng khác. Q09 TTL mặc định 24 giờ; thời điểm kiểm tra >= het_han_luc là hết hạn, không reset TTL khi preview/retry. JSON không có FK nội tại nên kiểm tra từng ID/candidate/dụng cụ AND trước Apply. Q07 kiểm tra 1 Active Plan và 1 lịch/ngày, xử lý lịch thay thế có version mới. Q12 không hard-delete Proposal.
 
 <a id="b51"></a>
 
@@ -1967,7 +1996,7 @@
 
 **FK đơn:** `nguoi_thuc_hien_id` → `nguoi_dung(id)`
 
-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; không thêm ràng buộc nghiệp vụ chưa chốt.
+**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng ràng buộc nghiệp vụ đã được chốt.
 
 **Index truy vấn bổ sung:** `(loai_doi_tuong, dinh_danh_doi_tuong, thuc_hien_luc)`; `(khoa_tuong_quan)` Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
 
@@ -1975,7 +2004,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. FK đa hình không được MySQL bảo đảm; chỉ dùng ở audit. Quan hệ tài chính/quyền/phiên bản chính vẫn phải là FK thật. Audit thay đổi thành công ghi cùng transaction với domain. Với Role: lưu cấp/thu hồi/cấp lại, người thao tác, thời điểm và trước/sau; tham chiếu logic id hàng phan_quyen_nguoi_dung cùng cặp người dùng/vai trò. Đây là lịch sử Role của MVP, không tạo bảng lịch sử riêng.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. FK đa hình không được MariaDB bảo đảm; chỉ dùng ở audit. Quan hệ tài chính/quyền/phiên bản chính vẫn phải là FK thật. Audit thay đổi thành công ghi cùng transaction với domain. Với Role: lưu cấp/thu hồi/cấp lại, người thao tác, thời điểm và trước/sau; tham chiếu logic id hàng phan_quyen_nguoi_dung cùng cặp người dùng/vai trò. Đây là lịch sử Role của MVP, không tạo bảng lịch sử riêng. Q12 ĐÃ CHỐT: không hard-delete audit và lịch sử tài chính/quyền/PT/Workout/Chat/AI trong MVP. Khóa/ngừng account/catalog, không cascade xóa lịch sử. Không tự đặt số năm retention; anonymization, legal retention và purge/archive tự động là Future Development/vận hành sau MVP.
 
 <a id="b52"></a>
 
@@ -2011,10 +2040,10 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:** Không thay thế unique nghiệp vụ lâu dài; hết TTL vẫn không cấp kỳ/apply/ghi buổi PT hai lần. Webhook dùng cơ chế su_kien_thanh_toan và unique reference, không giả làm request người dùng.
+**Bảo toàn và lưu ý:**Không thay thế unique nghiệp vụ lâu dài; hết TTL vẫn không cấp kỳ/apply/ghi buổi PT hai lần. Webhook dùng cơ chế su_kien_thanh_toan và unique reference, không giả làm request người dùng.
 
 ## Phần không phải bảng mới
 
-Không có bảng `workout_history`, `progress`, `dashboard` hay `is_premium`. History đọc từ phien_tap/bai_tap_trong_phien/hiep_tap; Progress từ kết quả thực tế và chi_so_co_the; Dashboard tổng hợp đơn/giao dịch/kỳ/check-in. Không thêm bảng Booking, carry-over, refund, tài sản, file chat hoặc nhóm chat.
+Không có bảng `workout_history`, `progress`, `dashboard` hay `is_premium`. History đọc từ phien_tap/bai_tap_trong_phien/hiep_tap; Progress từ kết quả thực tế và chi_so_co_the; Dashboard tổng hợp đơn/giao dịch/kỳ/check-in. Không thêm bảng Booking, carry-over, refund, tài sản, file chat, nhóm chat hoặc nhóm dụng cụ OR.
 
-Các tên ma_qr_check_in/ho_so_pt/hoi_thoai_ai trong danh sách ví dụ của PROJECT_RULES chưa phải tên bắt buộc; bản đề xuất dùng ma_vao_phong_tap/ho_so_huan_luyen_vien/hoi_thoai_tro_ly để tuân thủ yêu cầu hiện tại không viết tắt nghiệp vụ. Tên cuối cùng chỉ chốt sau review.
+Tên 52 bảng và các cột là tên chính thức dùng trong PROJECT_RULES và cả hai ERD. Các cột bổ sung ở B22/B33/B37/B41 là hệ quả trực tiếp của Q04/Q05/Q07, không đổi naming convention. Q08 không thêm entitlement Workout; Q13 không thêm quyền/quota để PT tạo Proposal.

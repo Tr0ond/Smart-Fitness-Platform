@@ -5,10 +5,10 @@
 ## Trạng thái tài liệu
 
 - Tệp quy tắc chính thức: `PROJECT_RULES.md`.
-- Tên bảng/cột chính thức dùng theo [TU_DIEN_DU_LIEU.md](docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md), thống nhất với [ERD theo mẫu](docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio) và [ERD chi tiết](docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio). Đợt đồng bộ tên này không thay đổi business rule và không đồng nghĩa phê duyệt các điểm thiết kế còn chờ review.
+- Tên bảng/cột chính thức dùng theo [TU_DIEN_DU_LIEU.md](docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md), thống nhất với [ERD theo mẫu](docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio) và [ERD chi tiết](docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio). Tên chính thức được giữ nguyên; các quyết định Q01–Q13 đã được chủ dự án chốt và tích hợp vào các phần nghiệp vụ bên dưới. Trạng thái sẵn sàng lập kế hoạch migration xem THIET_KE_DATABASE.md; không có migration được tạo/chạy trong bước thiết kế này.
 - Ngày hợp nhất: **28/08/2026**.
 - Cập nhật đã chốt: tách quyền Chat PT khỏi quota buổi PT trực tiếp; cấp lại Role trên hàng hiện tại và lưu audit; Workout Mode chỉ bắt đầu từ lịch có sẵn; Chat chỉ ghi sử dụng quyền lợi khi tin nhắn Member kích hoạt kỳ.
-- Nguồn: Master Prompt của chủ dự án, bốn nghiệp vụ Membership/PT bổ sung và quyết định mới nhất về kích hoạt bằng lần sử dụng quyền lợi trả phí đầu tiên.
+- Nguồn: Master Prompt, các quyết định Membership/PT đã hợp nhất và vòng review Q01–Q13 ngày 28/08/2026. Q01–Q13 là business rules chính thức, không còn là câu hỏi mở.
 - Đây là bản hợp nhất có cập nhật, không phải bản sao nguyên văn của prompt ban đầu. Những phần không được chủ dự án thay đổi vẫn được giữ nguyên.
 - Quyết định kích hoạt mới nhất thay thế các mô tả kích hoạt mâu thuẫn trong những bản trước; áp dụng thống nhất cho gói kết hợp và gói chỉ có dịch vụ online.
 - Không dùng nội dung từ bản cũ để ghi đè các quy tắc đã hợp nhất ở đây. Chỉ thay đổi business rule khi chủ dự án có yêu cầu mới.
@@ -172,7 +172,10 @@ Không xây hai Backend riêng biệt.
 
 Sử dụng:
 
-* MySQL.
+* MariaDB 10.4.32.
+* InnoDB.
+
+Đích DBMS kỹ thuật chính thức của dự án là **MariaDB 10.4.32 / InnoDB** (XAMPP, cổng phát triển mặc định 3306). Laravel dùng PDO/MySQL-compatible driver hoặc connection `mariadb` tương ứng; PHP CLI phải lấy từ `E:\Fitness\.tools\php` và giữ theo `composer.lock`. Không coi MySQL 8.4, SQLite hoặc MariaDB phiên bản khác là môi trường preflight tương đương.
 
 Database cần được thiết kế cẩn thận để bảo toàn:
 
@@ -183,6 +186,17 @@ Database cần được thiết kế cẩn thận để bảo toàn:
 * AI Proposal.
 * Chat history.
 * Audit dữ liệu quan trọng.
+
+---
+
+# 6.1. Bảo toàn lịch sử — Q12
+
+Trong MVP không hard-delete lịch sử quan trọng: đơn/thanh toán/webhook, chuỗi/kỳ/snapshot Membership, sử dụng quyền lợi, check-in, phân công/lượt PT, Plan/Version/Schedule, phiên/bài/hiệp tập, Chat, AI request/provider/Proposal và audit.
+
+- Giữ cả lịch HUY/DA_THAY_THE, phiên HUY và phân công đã kết thúc.
+- Account/catalog khóa hoặc ngừng sử dụng theo rule hiện tại; không cascade xóa lịch sử.
+- Không xóa lịch sử để vượt UNIQUE hoặc tạo lại dữ liệu.
+- Anonymization, thời hạn lưu theo pháp luật và purge/archive tự động thuộc Future Development/vận hành sau MVP; không tự đặt số năm retention.
 
 ---
 
@@ -247,6 +261,16 @@ Không kích hoạt Membership chỉ dựa vào:
 * Client gửi `payment_success = true` (ví dụ cờ client tự khai báo, không phải cột database).
 
 Webhook mới là nguồn chính để xác nhận giao dịch.
+
+---
+
+# 8.1. Snapshot đơn, thứ tự thanh toán và đối soát — Q01, Q02, Q10
+
+**Q01:** Khi tạo `don_mua_goi`, chốt giá và snapshot gói/thời hạn/quyền lợi tại `ky_han_hoi_vien` ở trạng thái `CHO_THANH_TOAN` theo thiết kế hiện tại. Snapshot không đổi trong hạn đơn/payment link, kể cả Admin sửa catalog; đơn mua mới dùng catalog mới. Không kéo dài giữ giá quá `don_mua_goi.het_han_thanh_toan_luc`; hạn link không được vượt hạn đơn. Snapshot sau hạn vẫn giữ làm lịch sử, không có nghĩa tiếp tục được cấp quyền.
+
+**Q02:** “Thứ tự mua” dùng để xếp kỳ là thứ tự Backend **lần đầu xác nhận thanh toán hợp lệ**, được ghi dưới khóa Member/chuỗi và cùng transaction cấp kỳ. Dùng `lan_thanh_toan.xac_nhan_luc`, `ky_han_hoi_vien.mua_luc` và `so_thu_tu`; nếu mốc trùng thì thứ tự khóa/cấp `so_thu_tu` quyết định. Retry không đổi mốc/thứ tự. Không dựa thứ tự tạo đơn, thời điểm client/returnUrl hoặc chèn ngược kỳ vào chuỗi đã bắt đầu/đã dùng.
+
+**Q10:** Tiền sai số, trả sau hạn/hủy, payment không khớp, hai link cùng đơn nhận tiền hoặc callback bất thường phải giữ dấu vết để đối soát. Khoản bất thường được đánh dấu `CAN_DOI_SOAT` tại sự kiện/lần thanh toán liên quan, không cấp kỳ kép, cộng thêm ngày, tự hoàn tiền, xóa giao dịch hoặc bỏ qua webhook. Payload không xác thực vẫn bị từ chối và lưu dấu vết, không được coi là tiền hợp lệ. Mỗi đơn chỉ cấp một kỳ đúng theo idempotency; khoản bất thường đến sau không xóa nguồn cấp kỳ hợp lệ trước đó. Refund không thuộc CORE MVP.
 
 ---
 
@@ -419,6 +443,20 @@ Có thể:
 PT chỉ truy cập Member có quan hệ phụ trách hợp lệ. Không được thay `hoi_vien_id` trên URL để xem dữ liệu người khác.
 
 Thay đổi kế hoạch phải tuân thủ RULE GYM 24; không tự áp dụng thay đổi lớn khi Member chưa xác nhận. Không sửa Workout Session đã hoàn thành.
+
+---
+
+# 14.1. Phân công PT theo thời gian — Q04
+
+Một Member có thể chưa có PT hoặc có đúng một PT đang phụ trách: tối đa **0..1 PT hiệu lực tại một thời điểm**.
+
+`phan_cong_huan_luyen_vien` giữ mọi khoảng lịch sử `[ngay_bat_dau, ngay_ket_thuc)`; NULL ở cận cuối nghĩa là khoảng mở. Không overlap giữa bất kỳ PT nào của cùng Member.
+
+- Đổi PT: kết thúc phân công cũ trước hoặc đúng ranh giới bắt đầu phân công mới; giữ hàng cũ.
+- Hai Admin cùng phân công phải khóa `ho_so_hoi_vien` trước, đọc lại các khoảng phân công và kiểm tra overlap trong transaction; khóa các hàng phân công theo id thống nhất.
+- A kết thúc 15:00 và B bắt đầu 15:00 hợp lệ; A còn tới 16:00 trong khi B bắt đầu 15:00 bị từ chối.
+- UNIQUE cột sinh `hoi_vien_dang_phan_cong_id` chỉ ngăn hai khoảng có `ngay_ket_thuc IS NULL`, không thay thế kiểm tra overlap lịch sử/hữu hạn.
+- Không dùng CHECK chéo hàng hoặc NOW() trong generated column để giả giải quyết quy tắc thời gian.
 
 ---
 
@@ -1015,7 +1053,7 @@ Mọi quyền lợi có thời hạn của một kỳ dùng cùng `ngay_bat_dau`
 
 Membership/Subscription là chuỗi các kỳ quyền lợi. Mỗi kỳ có thời hạn và snapshot độc lập.
 
-- Khi đang ở BASIC, không dùng quyền PT/AI chỉ có trong PLUS đang xếp sau.
+- Khi đang ở BASIC, không dùng quyền Chat PT/buổi PT trực tiếp hoặc AI chỉ có trong PLUS đang xếp sau; PT Proposal theo Q13 không phụ thuộc gói.
 - Khi chuyển sang PLUS, quyền có hiệu lực là snapshot PLUS.
 - Số buổi PT và giới hạn dịch vụ thuộc kỳ tương ứng, không thuộc tên gói hiển thị.
 - Khi nhiều kỳ chưa bắt đầu, dùng thứ tự mua đã được lưu và kiểm tra ở Backend.
@@ -1054,6 +1092,7 @@ Quy tắc:
 - Bản ghi sử dụng phải gắn với đúng kỳ và PT xác nhận.
 - Retry hoặc hai request xác nhận cùng một buổi không được trừ hai lần.
 - Xác nhận đồng thời phải bảo vệ số lượt còn lại, không cho âm hoặc vượt tổng đã cấp.
+- **Q06:** PT phải xác nhận hợp lệ khi đúng kỳ của buổi còn hiệu lực và còn quota (hoặc head được phép kích hoạt theo rule chung). Kỳ đã hết trước xác nhận thì từ chối, không dùng thời điểm hoàn thành để backdate/trừ vào kỳ cũ, không mượn kỳ sau hoặc chọn kỳ khác còn lượt. Giữ lịch sử; correction Admin thuộc Future Development.
 - Lượt chưa dùng hết hết hiệu lực cùng kỳ; không chuyển sang kỳ tiếp theo.
 - PLUS cũ còn 2 lượt rồi hết hạn, PLUS mới cấp 4 lượt thì kỳ mới có 4, không phải 6.
 - Admin/Receptionist chỉ hỗ trợ ghi nhận hoặc điều chỉnh khi được cấp quyền rõ ràng và có audit; không mặc định thêm workflow điều chỉnh vào CORE.
@@ -1062,6 +1101,8 @@ Quy tắc:
 # RULE GYM 24 – PT tạo Proposal cho thay đổi kế hoạch
 
 PT được tạo và đề xuất chỉnh sửa kế hoạch tương lai của Member có quan hệ phụ trách hợp lệ.
+
+**Q13 đã chốt:** Điều kiện quyền nghiệp vụ của PT Proposal chỉ là PT đã xác thực và đang có đúng `phan_cong_huan_luyen_vien` hợp lệ với Member. Không yêu cầu cờ Chat, tổng/còn quota buổi PT hoặc active Membership. Tạo/apply Proposal không trừ lượt, không tạo usage Chat/buổi PT và không kích hoạt Membership; vẫn phải qua toàn bộ workflow xác nhận/validation bên dưới.
 
 Phạm vi:
 - Tạo Workout Plan mới.
@@ -1094,7 +1135,17 @@ Luồng thay đổi dữ liệu kế hoạch:
 - AI và PT đều không được sửa Workout Session `HOAN_THANH`.
 - Khi áp dụng phải kiểm tra ownership, quan hệ phụ trách còn hợp lệ, phiên bản, trạng thái Proposal, validation và idempotency.
 - Nếu kế hoạch đã thay đổi sau lúc tạo Proposal, không ghi đè; cần xử lý xung đột và cho Member xem lại đề xuất phù hợp.
+- Khi confirm, nếu phân công nguồn của PT đã hết hiệu lực (kể cả đã có phân công mới), không Apply; chuyển `XUNG_DOT` hoặc trạng thái kết thúc phù hợp. Kiểm tra base version, ownership, future schedule, TTL và trạng thái dưới khóa; không thêm điều kiện Chat/quota/Membership cho Proposal PT.
 - Cơ chế Proposal có thể dùng chung thành phần, nhưng phải phân biệt nguồn AI/PT và lưu người tạo; không biến đề xuất PT thành kết quả của một lần gọi LLM.
+
+---
+
+# RULE GYM 25 – Hạn QR vào phòng tập — Q09
+
+- QR Check-in có TTL mặc định **90 giây**, do server configuration/policy tập trung quyết định.
+- `ma_vao_phong_tap.het_han_luc` lưu hạn cụ thể từ lúc phát hành; không tính lại hạn QR cũ khi sửa cấu hình.
+- Chỉ còn hạn khi thời điểm kiểm tra < `het_han_luc`; đúng hoặc quá hạn bị từ chối.
+- Không hard-code TTL rải rác; phát hành QR không kích hoạt Membership.
 
 ---
 
@@ -1125,6 +1176,8 @@ Ví dụ:
 
 KHÔNG phải quản lý tài sản thiết bị.
 
+**Q11:** Mọi hàng `bai_tap_dung_cu` của một bài có nghĩa AND: bài cần Bench và Barbell thì phải có cả hai. Không xây nhóm dụng cụ OR trong MVP. Biến thể dùng dụng cụ khác quản lý như bài/biến thể bài khác trong Exercise Library; Rule Engine và Apply kiểm tra đủ tập dụng cụ.
+
 ---
 
 # 20. Equipment Maintenance đã loại khỏi Scope
@@ -1154,6 +1207,8 @@ Ví dụ:
 # 22. Workout Plan
 
 Là kế hoạch tập cá nhân của Member.
+
+**Q07A:** Mỗi Member có tối đa một `ke_hoach_tap.trang_thai = DANG_SU_DUNG`; Plan cũ chuyển `LUU_TRU` và giữ lịch sử. Cột sinh nullable `hoi_vien_dang_su_dung_id` bằng `hoi_vien_id` khi đang dùng, ngược lại NULL; UNIQUE bảo vệ một Active Plan. Đổi Plan dưới khóa Member/Plan, cùng transaction với version, lịch hợp lệ và audit; không xóa Plan cũ để né UNIQUE.
 
 Workout Plan có thể được tạo từ:
 
@@ -1199,6 +1254,8 @@ Ví dụ:
 Push Day
 ```
 
+**Q07B:** Mỗi Member tối đa một `buoi_tap_du_kien` còn giá trị cho mỗi `ngay_tap`. `CHUA_TAP`, `DANG_TAP`, `HOAN_THANH`, `BO_QUA` giữ slot ngày; `HUY`, `DA_THAY_THE` giải phóng slot nhưng giữ history. Cột sinh `ngay_tap_con_hieu_luc` nhận ngày khi giữ slot, ngược lại NULL; UNIQUE `(hoi_vien_id, ngay_tap_con_hieu_luc)` bảo vệ quy tắc. Giữ `ma_buoi_logic`, `thay_the_buoi_tap_id` và version; thay lịch dưới khóa Member, giải phóng slot cũ trước khi tạo hàng thay thế trong cùng transaction.
+
 ---
 
 # 25. Workout Session
@@ -1224,7 +1281,21 @@ Trong MVP, Member chỉ bắt đầu Workout Mode từ một `buoi_tap_du_kien` 
 - Không cho khởi tạo phiên chỉ từ danh sách bài tự chọn khi chưa có lịch.
 - Không tự tạo lịch giả hoặc cho phép FK NULL để đi vòng quy tắc.
 - Free Workout ngoài lịch là FUTURE DEVELOPMENT, không thuộc MVP.
-- Quy tắc này không tự quyết định quyền Workout miễn phí/trả phí; đó là câu hỏi entitlement riêng.
+- **Q08:** Workout Tracking là chức năng cơ bản của Member, không phải entitlement Membership trả phí. Không thêm cờ quyền Workout.
+- Không có Membership đang hoạt động hoặc Membership đã hết hạn vẫn được xem Exercise Library, Plan/Schedule của mình, Start từ lịch hợp lệ, ghi Sets/Reps/Weight, Complete, xem History và Progress.
+- Start/Save Set/Complete không yêu cầu active Membership, không tạo usage trả phí/kích hoạt kỳ; vẫn kiểm tra authenticated Member, ownership, Plan/Schedule, trạng thái, idempotency, concurrency và bất biến lịch sử. Quyền Gym/AI/PT Chat/buổi PT vẫn kiểm tra riêng.
+
+---
+
+# 25.1. Phiên đã hủy và tập lại — Q07C
+
+Giữ `phien_tap.buoi_tap_du_kien_id NOT NULL UNIQUE`: một lịch tối đa một phiên, kể cả phiên `HUY`.
+
+- Không Start phiên thứ hai trên cùng lịch; không xóa hoặc chuyển phiên HUY về đang tập để thử lại.
+- Nếu cần tập lại, tạo `buoi_tap_du_kien` thay thế hợp lệ theo workflow schedule/version đã có, rồi Start từ lịch mới.
+- Giữ phiên HUY và FK lịch cũ; hàng lịch cũ chuyển HUY/DA_THAY_THE theo bước hủy/thay.
+- Do UNIQUE `(phien_ban_ke_hoach_tap_id, ma_buoi_logic)`, thay cùng mã buổi cần version mới theo workflow được xác nhận. Không tạo lịch giả, không đổi FK phiên cũ.
+- Chỉ thay lịch chưa tập tương lai hoặc lịch có phiên HUY theo luồng này; không thay lịch đang tập/đã hoàn thành. Lịch mới vẫn phải đúng ownership, ngày và slot.
 
 ---
 
@@ -1380,7 +1451,15 @@ PT chỉ đọc:
 
 WebSocket không thay thế Backend Authorization.
 
-Chat PT đọc riêng `cho_phep_tro_chuyen_huan_luyen_vien` của kỳ Membership được phép sử dụng, cùng quan hệ phân công hợp lệ. Không dùng số buổi PT còn lại làm điều kiện chat; không mở quyền của kỳ tương lai. Chat không trừ số buổi PT.
+GỬI tin Chat PT đọc riêng `cho_phep_tro_chuyen_huan_luyen_vien` của kỳ Membership được phép sử dụng, cùng quan hệ phân công hợp lệ. Không dùng số buổi PT còn lại làm điều kiện gửi; không mở quyền kỳ tương lai. Chat không trừ số buổi PT.
+
+**Q05 — tách READ HISTORY và SEND NEW MESSAGE:**
+
+- Member luôn được đọc hội thoại/tin cũ của mình dù hết Membership hoặc đổi PT; không DELETE/sửa nội dung lịch sử.
+- Gửi mới phải còn quyền Chat và chính phân công của hội thoại còn hiệu lực. Mất quyền hoặc phân công đã kết thúc thì từ chối gửi, kể cả trả lời công việc đang dở.
+- `hoi_thoai.phan_cong_huan_luyen_vien_id` gắn hội thoại với lần phân công. Đổi PT tạo/dùng hội thoại riêng của phân công mới; hội thoại cũ là lịch sử đọc cho Member. Không đổi FK hoặc mở lại hội thoại cũ khi phân công lại PT cũ.
+- PT mới không được đọc hội thoại riêng của PT cũ. PT cũ mất resource scope khi phân công kết thúc, không được tiếp tục gửi/truy cập bằng scope cũ.
+- Subscribe/reconnect/broadcast kiểm tra đúng quyền đọc; không lấy điều kiện gửi trả phí để khóa Member đọc history, không phát dữ liệu tới PT đã mất scope.
 
 # 33.1. Chat chỉ ghi sử dụng quyền lợi khi kích hoạt kỳ
 
@@ -1443,6 +1522,20 @@ Transaction
 ↓
 Apply
 ```
+
+---
+
+# 34.1. Quota request AI — Q03
+
+**Một request nghiệp vụ AI hợp lệ = một lượt**, không tính từng message hoặc từng lần retry provider.
+
+1. Backend xác minh quyền AI và điều kiện request.
+2. Dưới khóa Member/chuỗi/kỳ/request: revalidate, giữ một lượt quota, lưu `yeu_cau_tro_ly`, `su_dung_quyen_loi` và domain record; nếu là lần dùng trả phí đầu tiên thì kích hoạt kỳ cùng transaction.
+3. Sau commit mới gọi provider.
+4. Kết quả nghiệp vụ hợp lệ: chuyển `GIU_CHO` sang `DA_TINH`, giảm giữ chỗ và tăng đã dùng đúng một.
+5. Lỗi kỹ thuật kết thúc request: trả lượt đúng một lần (`DA_TRA`), giảm counter giữ chỗ hoặc đã dùng tương ứng; không reset/lùi đồng hồ Membership đã kích hoạt.
+
+Request thiếu điều kiện/bị từ chối trước chấp nhận dịch vụ không giữ/trừ quota, không usage và không activation (`KHONG_AP_DUNG`). Hỏi bổ sung trước chấp nhận không tính lượt; các message/provider retry thuộc cùng request không tạo lượt mới. Retry dùng cùng request, không hồi sinh request đã trả quota bằng phản hồi trễ. Hoàn/trả quota, trạng thái request và audit phải transaction-safe/idempotent; không âm counter hoặc trả hai lần.
 
 ---
 
@@ -1671,6 +1764,12 @@ Cần xem xét:
 
 ---
 
+# 43.1. Hạn Proposal AI/PT — Q09
+
+TTL mặc định **24 giờ** cho cả AI và PT Proposal, lấy từ server configuration/policy tập trung. `de_xuat_ke_hoach_tap.het_han_luc` lưu mốc cụ thể từ lúc tạo; Preview/retry không kéo dài hạn. Confirm tại hoặc sau hạn không Apply; vẫn giữ Proposal làm lịch sử.
+
+---
+
 # PHẦN XI – DASHBOARD
 
 # 44. Dashboard cơ bản
@@ -1745,6 +1844,8 @@ Phải ưu tiên:
 # 46.1. FUTURE DEVELOPMENT
 
 - Free Workout: khởi tạo Workout Session tự do ngoài `buoi_tap_du_kien`. Không đưa vào MVP.
+- Correction Admin cho buổi PT xác nhận sau hạn (Q06).
+- Anonymization, legal retention period và purge/archive tự động sau MVP khi có yêu cầu vận hành/pháp lý cụ thể (Q12); không tự đặt số năm.
 
 ---
 
@@ -1950,12 +2051,12 @@ Các ánh xạ dễ nhầm:
 | Đơn mua, lần thanh toán payOS và webhook | `don_mua_goi`, `lan_thanh_toan`, `su_kien_thanh_toan` là ba bảng riêng. |
 | QR vào phòng và lịch sử check-in | `ma_vao_phong_tap`, `lich_su_vao_phong_tap`; không nhầm với QR thanh toán payOS. |
 | Hồ sơ và phân công PT | `ho_so_huan_luyen_vien`, `phan_cong_huan_luyen_vien`. |
-| Chat PT 1–1 | `hoi_thoai` có `hoi_vien_id` và `huan_luyen_vien_id`; tin và outbox ở `tin_nhan`, `su_kien_phat_tin_nhan`. Không có bảng thành viên hội thoại riêng trong mô hình hiện tại. |
+| Chat PT 1–1 | `hoi_thoai` có `hoi_vien_id`, `huan_luyen_vien_id`, `phan_cong_huan_luyen_vien_id`, thuộc một lần phân công; tin và outbox ở `tin_nhan`, `su_kien_phat_tin_nhan`. Không có bảng thành viên hội thoại riêng. |
 | Hội thoại, yêu cầu AI và lần gọi LLM | `hoi_thoai_tro_ly`, `tin_nhan_tro_ly`, `yeu_cau_tro_ly`, `lan_goi_mo_hinh`; một yêu cầu nghiệp vụ không đồng nghĩa một lần gọi mô hình. |
 | Proposal AI/PT | Dùng chung `de_xuat_ke_hoach_tap`, phân biệt bằng `nguon_de_xuat`; không tách thêm bảng Proposal cho AI. |
 | Workout Plan Version và Workout History | `phien_ban_ke_hoach_tap` lưu phiên bản kế hoạch; `phien_tap`, `bai_tap_trong_phien`, `hiep_tap` lưu thực tế. Mốc phiên tập là `phien_tap.bat_dau_luc` / `phien_tap.ket_thuc_luc`. |
 
-Tên bảng/cột đã được đồng bộ; các điểm nghiệp vụ hoặc thiết kế còn chờ review vẫn giữ nguyên trạng thái chờ review. Danh mục này không phải lệnh tạo bảng, tạo/chạy migration hoặc triển khai chức năng.
+Tên bảng/cột đã được đồng bộ; Q01–Q13 đã chốt, các cột/ràng buộc bổ sung trực tiếp theo các quyết định này được liệt kê trong từ điển và ERD. Danh mục này không phải lệnh tạo bảng, tạo/chạy migration hoặc triển khai chức năng.
 
 Không tự ý đổi convention hoặc tên chính thức sau khi đã chốt.
 ---
@@ -2361,6 +2462,14 @@ Phải test:
 
 ---
 
+Các ca bổ sung Q04/Q12:
+
+- Hai Admin đồng thời gán hai PT khác nhau cho cùng Member: chỉ một phân công hiệu lực; không overlap.
+- Member không có PT hợp lệ; đổi PT đúng ranh giới hợp lệ, hai khoảng hữu hạn giao nhau bị từ chối.
+- Xóa account/catalog không cascade mất history; khóa/ngừng sử dụng giữ đầy đủ tham chiếu.
+
+---
+
 # 49. Payment Test
 
 Phải test:
@@ -2384,6 +2493,13 @@ Gui 10 lan
 Kết quả:
 
 > Một giao dịch chỉ cấp quyền một lần.
+
+Bổ sung Q01/Q02/Q10:
+
+- Admin sửa giá/quyền sau tạo đơn: đơn trong hạn giữ snapshot cũ; đơn mới dùng catalog mới.
+- Đơn/link hết hạn: không tự kéo dài giữ giá, không cấp quyền từ khoản trả muộn.
+- Webhook lệch thứ tự: cấp thứ tự theo Backend xác nhận hợp lệ lần đầu dưới khóa Member; không chèn ngược chuỗi đã dùng, retry không đổi thứ tự.
+- Sai tiền, đơn hủy/hết hạn, không khớp hoặc hai link cùng nhận tiền: giữ dấu vết CAN_DOI_SOAT, tối đa một kỳ, không tự refund.
 
 ---
 
@@ -2427,6 +2543,7 @@ Phải test:
 
 * QR hợp lệ.
 * QR hết hạn.
+* Q09: QR mặc định 90 giây; đúng/quá het_han_luc bị từ chối, ngay trước hạn còn được kiểm tra các điều kiện khác.
 * QR đã sử dụng.
 * Membership không hợp lệ.
 * Membership hết hạn.
@@ -2447,6 +2564,9 @@ Phải test:
 * Start Workout từ lịch có sẵn thuộc chính Member.
 * Start không có buoi_tap_du_kien_id, lịch của người khác hoặc lịch không đủ điều kiện: từ chối, không tạo phiên/lịch giả.
 * Không có Free Workout ngoài lịch trong MVP.
+* Q07: hai Plan DANG_SU_DUNG cùng Member hoặc hai lịch giữ slot cùng ngày bị từ chối, kể cả request đồng thời; Plan LUU_TRU/lịch HUY/DA_THAY_THE vẫn giữ history.
+* Q07: phiên HUY không Start lại trên lịch cũ; lịch thay thế đúng version/slot thì Start được, phiên HUY và FK cũ còn nguyên.
+* Q08: không có gói hoặc Membership HET_HAN vẫn Start lịch hợp lệ, Save Set và Complete được; không usage/activation. Gym/AI/PT Chat/buổi trực tiếp vẫn theo entitlement tương ứng.
 * Save Set.
 * Retry request.
 * Complete Workout.
@@ -2476,6 +2596,10 @@ Phải test:
 * yêu cầu mâu thuẫn.
 * không có phương án hợp lệ.
 * LLM Timeout.
+* Q03: request hợp lệ giữ một lượt; provider retry không thêm quota; lỗi kỹ thuật trả đúng một lượt, retry trả quota không trả hai lần.
+* Q03: provider lỗi sau activation không rollback đồng hồ; request bị từ chối trước chấp nhận không quota/activation; không đếm message cùng request.
+* Q09: Proposal AI/PT đúng/quá 24 giờ mặc định không Apply; preview/retry không gia hạn.
+* Q11: nhiều hàng dụng cụ là AND; thiếu một dụng cụ bị từ chối, không tự hiểu OR.
 * LLM trả nội dung ngoài Scope.
 * Proposal hết hạn.
 * Proposal của người khác.
@@ -2507,6 +2631,8 @@ Phải test:
 * Hai tin đầu đồng thời và Chat tranh kích hoạt với AI/QR: chỉ một nguồn kích hoạt; retry tin đầu trả lại tin/usage cũ.
 * Tin PT chủ động, đọc/subscribe/mở màn hình không kích hoạt; lỗi lưu tin/outbox rollback nguồn kích hoạt của chính transaction đó.
 * Mỗi tin sau vẫn kiểm tra quyền hiện thời, từ chối khi kỳ hết hạn hoặc mất phân công; không mượn Chat của kỳ tương lai.
+* Q05: Member đọc Chat cũ sau đổi PT/hết Membership được phép; gửi mới vào hội thoại PT cũ hoặc khi hết quyền bị từ chối.
+* Q05: PT mới không đọc hội thoại PT cũ; PT cũ không gửi sau hết phân công. Quay lại PT cũ bằng phân công mới phải dùng hội thoại mới; tin cũ không bị chuyển/xóa.
 
 ---
 
@@ -2522,6 +2648,7 @@ Phải test:
 - Retry cùng buổi hoặc hai request cùng xác nhận: chỉ một bản ghi sử dụng và một lượt bị trừ.
 - Hai buổi khác nhau cùng tranh lượt cuối: không cho số lượt âm.
 - Lượt cũ hết hiệu lực cùng kỳ; không carry-over sang kỳ mới.
+- Q06: PT xác nhận sau khi kỳ của buổi hết hạn bị từ chối; không backdate, không lấy quota kỳ sau và không tạo correction.
 - Mỗi bản ghi truy được kỳ, PT, thời điểm và nguồn thao tác.
 - Nếu mở quyền hỗ trợ cho Admin/Receptionist, phải test quyền cụ thể và audit.
 
@@ -2538,6 +2665,8 @@ Phải test:
 - Xác nhận hai lần hoặc đồng thời: chỉ áp dụng một lần.
 - Ghi chú không cần xác nhận nhưng không được sửa Plan hoặc Session hoàn thành.
 - AI/PT cùng đề xuất từ một version: áp dụng đề xuất đầu không cho đề xuất cũ ghi đè phiên bản mới.
+- Q13: PT Proposal vẫn hợp lệ khi Member không có Chat, tổng buổi bằng 0/hết quota hoặc không có active Membership, miễn phân công hợp lệ; không trừ lượt/usage/activation.
+- Q13: phân công nguồn kết thúc trước confirm thì không Apply, chuyển XUNG_DOT; không dùng một phân công mới để cứu Proposal cũ.
 
 ---
 
@@ -2666,7 +2795,7 @@ Khi tôi yêu cầu bạn viết hoặc sửa code Smart Fitness Platform:
 18. Payment phải Idempotent.
 19. Kỳ đầu Membership bắt đầu tại lần sử dụng quyền lợi trả phí đầu tiên hợp lệ (AI/PT/check-in); mọi quyền lợi của kỳ dùng chung thời hạn.
 20. Gia hạn phải bảo toàn thời gian còn dư bằng các kỳ nối tiếp, giữ snapshot riêng; quyền lợi mới không có hiệu lực trước lượt.
-21. Quyền PT phụ thuộc snapshot kỳ Membership và quan hệ phân công; lượt PT không carry-over.
+21. Quyền Chat PT/buổi PT trực tiếp phụ thuộc snapshot kỳ và phân công; lượt buổi không carry-over. PT Proposal chỉ cần phân công hợp lệ theo Q13.
 22. Membership hết hạn vẫn xem Workout History.
 23. Workout Session hoàn thành không được sửa.
 24. AI không được sửa dữ liệu lịch sử đã hoàn thành.
@@ -2694,6 +2823,7 @@ Khi tôi yêu cầu bạn viết hoặc sửa code Smart Fitness Platform:
 46. Cấp lại Role cập nhật hàng hiện tại; lịch sử thu hồi/cấp lại lưu audit cùng transaction, không thêm bảng lịch sử Role.
 47. Workout Mode chỉ bắt đầu từ lịch có sẵn; phien_tap.buoi_tap_du_kien_id NOT NULL; Free Workout thuộc FUTURE DEVELOPMENT.
 48. Chỉ tin Chat Member thực sự kích hoạt kỳ tạo usage Chat; tin sau vẫn kiểm tra quyền nhưng không tạo usage/counter tin nhắn.
+49. Tuân thủ toàn bộ Q01–Q13 đã chốt ở các phần nghiệp vụ; không coi chúng là câu hỏi mở. Workout và PT Proposal không phụ thuộc Membership theo Q08/Q13; không hard-delete history theo Q12.
 
 ---
 
