@@ -1,0 +1,64 @@
+# Local environment files (examples stay versioned)
+**/.env
+**/.env.*
+!**/.env.example
+!.env.example
+
+# Backend
+/BE/vendor/
+/BE/node_modules/
+/BE/public/build/
+/BE/public/hot
+/BE/public/storage
+/BE/storage/*.key
+/BE/.phpunit.cache/
+/BE/.phpunit.result.cache
+/BE/database/*.sqlite*
+
+# Web
+/FE/node_modules/
+/FE/dist/
+/FE/dist-ssr/
+/FE/.vite/
+
+# Mobile dependencies, native builds and caches
+/Mobile/node_modules/
+/Mobile/.metro-cache/
+/Mobile/.expo/
+/Mobile/coverage/
+/Mobile/dist/
+/Mobile/android/.gradle/
+/Mobile/android/.kotlin/
+/Mobile/android/build/
+/Mobile/android/app/build/
+/Mobile/android/app/.cxx/
+/Mobile/android/.cxx/
+/Mobile/android/local.properties
+/Mobile/ios/Pods/
+/Mobile/ios/build/
+/Mobile/ios/DerivedData/
+/Mobile/vendor/
+**/xcuserdata/
+*.xcuserstate
+*.apk
+*.aab
+*.hprof
+*.jks
+*.keystore
+!/Mobile/android/app/debug.keystore
+
+# Local portable runtimes and verification output
+/.tools/
+/.tmp/
+
+# Editor / OS / logs
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Intentionally track composer.lock, package-lock.json and Gradle wrapper files.
