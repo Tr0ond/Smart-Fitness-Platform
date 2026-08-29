@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Membership\MembershipController;
+use App\Http\Controllers\Api\Package\PackageController;
 use App\Http\Controllers\Api\Profile\MemberProfileController;
 use App\Http\Controllers\Api\Profile\ProfileController;
 use App\Http\Controllers\Api\Profile\TrainerProfileController;
@@ -34,3 +36,11 @@ Route::middleware('auth:api')->prefix('profile')->group(function (): void {
         Route::patch('/', [TrainerProfileController::class, 'capNhat']);
     });
 });
+
+Route::middleware('auth:api')->prefix('packages')->group(function (): void {
+    Route::get('/', [PackageController::class, 'danhSach']);
+    Route::get('/{package}', [PackageController::class, 'chiTiet'])->whereNumber('package');
+});
+
+Route::middleware(['auth:api', 'role:MEMBER'])
+    ->get('/membership', [MembershipController::class, 'hienThi']);
