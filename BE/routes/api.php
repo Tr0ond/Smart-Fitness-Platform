@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\Payment\PayOSWebhookController;
 use App\Http\Controllers\Api\Profile\MemberProfileController;
 use App\Http\Controllers\Api\Profile\ProfileController;
 use App\Http\Controllers\Api\Profile\TrainerProfileController;
+use App\Http\Controllers\Api\Pt\PtAssignmentController;
+use App\Http\Controllers\Api\Pt\PtDirectServiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -74,3 +76,21 @@ Route::middleware(['auth:api', 'role:MEMBER'])->prefix('assistant')->group(funct
 
 Route::middleware(['auth:api', 'role:RECEPTIONIST,ADMIN'])
     ->post('/gym/check-in', [GymController::class, 'xacNhan']);
+
+Route::middleware(['auth:api', 'role:ADMIN'])->prefix('pt/assignments')->group(function (): void {
+    Route::post('/', [PtAssignmentController::class, 'tao']);
+    Route::patch('/{assignment}/end', [PtAssignmentController::class, 'ketThuc'])->whereNumber('assignment');
+    Route::post('/{assignment}/reassign', [PtAssignmentController::class, 'phanCongLai'])->whereNumber('assignment');
+});
+
+Route::middleware(['auth:api', 'role:MEMBER'])
+    ->get('/pt/assignment', [PtAssignmentController::class, 'cuaHoiVien']);
+
+Route::middleware(['auth:api', 'role:PT'])
+    ->get('/pt/members', [PtAssignmentController::class, 'thanhVienCuaHuanLuyenVien']);
+
+Route::middleware(['auth:api', 'role:MEMBER,PT'])
+    ->get('/pt/direct-sessions', [PtDirectServiceController::class, 'lichSu']);
+
+Route::middleware(['auth:api', 'role:PT'])
+    ->post('/pt/direct-sessions/complete', [PtDirectServiceController::class, 'hoanTat']);
