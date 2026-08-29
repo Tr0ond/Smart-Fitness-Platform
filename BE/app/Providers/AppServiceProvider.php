@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Auth\AccessTokenGuard;
+use App\Contracts\Payments\PaymentGateway;
+use App\Gateways\PayOSGateway;
 use App\Services\AuthenticationService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -17,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(PaymentGateway::class, PayOSGateway::class);
     }
 
     /**

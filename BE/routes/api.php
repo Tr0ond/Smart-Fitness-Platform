@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Membership\MembershipController;
 use App\Http\Controllers\Api\Package\PackageController;
+use App\Http\Controllers\Api\Payment\OrderController;
+use App\Http\Controllers\Api\Payment\PayOSWebhookController;
 use App\Http\Controllers\Api\Profile\MemberProfileController;
 use App\Http\Controllers\Api\Profile\ProfileController;
 use App\Http\Controllers\Api\Profile\TrainerProfileController;
@@ -40,6 +42,15 @@ Route::middleware('auth:api')->prefix('profile')->group(function (): void {
 Route::middleware('auth:api')->prefix('packages')->group(function (): void {
     Route::get('/', [PackageController::class, 'danhSach']);
     Route::get('/{package}', [PackageController::class, 'chiTiet'])->whereNumber('package');
+});
+
+Route::post('/webhooks/payos', [PayOSWebhookController::class, 'xuLy']);
+
+Route::middleware(['auth:api', 'role:MEMBER'])->group(function (): void {
+    Route::post('/packages/{package}/orders', [OrderController::class, 'tao'])->whereNumber('package');
+    Route::get('/orders', [OrderController::class, 'danhSach']);
+    Route::get('/orders/{order}', [OrderController::class, 'chiTiet'])->whereNumber('order');
+    Route::get('/orders/{order}/payment', [OrderController::class, 'thanhToan'])->whereNumber('order');
 });
 
 Route::middleware(['auth:api', 'role:MEMBER'])
