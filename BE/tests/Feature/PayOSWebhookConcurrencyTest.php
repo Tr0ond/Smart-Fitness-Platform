@@ -23,7 +23,7 @@ class PayOSWebhookConcurrencyTest extends TestCase
     {
         parent::setUp();
         $database = (string) DB::selectOne('SELECT DATABASE() AS ten')->ten;
-        $this->assertMatchesRegularExpression('/^smart_fitness_payment_test_20260829_[a-z0-9_]+$/i', $database);
+        $this->assertMatchesRegularExpression('/\Asmart_fitness_[a-z0-9_]*test(?:_[a-z0-9_]+)?\z/i', $database);
         $this->assertNotSame('smart_fitness', strtolower($database));
         $this->cauHinhPaymentTest();
     }

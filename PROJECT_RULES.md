@@ -1146,6 +1146,7 @@ Luồng thay đổi dữ liệu kế hoạch:
 - `ma_vao_phong_tap.het_han_luc` lưu hạn cụ thể từ lúc phát hành; không tính lại hạn QR cũ khi sửa cấu hình.
 - Chỉ còn hạn khi thời điểm kiểm tra < `het_han_luc`; đúng hoặc quá hạn bị từ chối.
 - Không hard-code TTL rải rác; phát hành QR không kích hoạt Membership.
+- QR là credential dùng một lần. Sau check-in thành công, quét lại cùng token bị từ chối bằng conflict có kiểm soát; không trả success lần hai, không tạo thêm usage/lịch sử và không kích hoạt lại Membership.
 
 ---
 
@@ -2544,13 +2545,13 @@ Phải test:
 * QR hợp lệ.
 * QR hết hạn.
 * Q09: QR mặc định 90 giây; đúng/quá het_han_luc bị từ chối, ngay trước hạn còn được kiểm tra các điều kiện khác.
-* QR đã sử dụng.
+* QR đã sử dụng: lần quét sau bị từ chối có kiểm soát, không trả lại success.
 * Membership không hợp lệ.
 * Membership hết hạn.
 * Kỳ đầu chờ kích hoạt có quyền check-in: kích hoạt khi quét hợp lệ.
 * Kỳ đã bắt đầu bằng AI/PT: check-in không reset thời hạn.
 * Gói không có quyền check-in: từ chối, không kích hoạt.
-* QR scan hai lần.
+* QR scan hai lần: đúng một success, một usage và một lịch sử; lần hai bị conflict.
 * Hai Receptionist scan đồng thời.
 * QR không thuộc Member.
 * Receptionist không có quyền.

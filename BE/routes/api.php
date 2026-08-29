@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Gym\GymController;
 use App\Http\Controllers\Api\Membership\MembershipController;
 use App\Http\Controllers\Api\Package\PackageController;
 use App\Http\Controllers\Api\Payment\OrderController;
@@ -55,3 +56,11 @@ Route::middleware(['auth:api', 'role:MEMBER'])->group(function (): void {
 
 Route::middleware(['auth:api', 'role:MEMBER'])
     ->get('/membership', [MembershipController::class, 'hienThi']);
+
+Route::middleware(['auth:api', 'role:MEMBER'])->prefix('gym')->group(function (): void {
+    Route::post('/qr', [GymController::class, 'phatHanhQr']);
+    Route::get('/check-ins', [GymController::class, 'lichSu']);
+});
+
+Route::middleware(['auth:api', 'role:RECEPTIONIST,ADMIN'])
+    ->post('/gym/check-in', [GymController::class, 'xacNhan']);

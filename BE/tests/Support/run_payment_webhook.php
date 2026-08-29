@@ -8,7 +8,7 @@ use Illuminate\Contracts\Console\Kernel;
 require dirname(__DIR__, 2).'/vendor/autoload.php';
 
 [$script, $database, $payloadPath, $barrier] = $argv;
-if (preg_match('/^smart_fitness_payment_test_20260829_[a-z0-9_]+$/i', $database) !== 1 || strtolower($database) === 'smart_fitness') {
+if (preg_match('/\Asmart_fitness_[a-z0-9_]*test(?:_[a-z0-9_]+)?\z/i', $database) !== 1 || strtolower($database) === 'smart_fitness') {
     fwrite(STDERR, 'Unsafe payment concurrency database.'.PHP_EOL);
     exit(2);
 }

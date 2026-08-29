@@ -862,7 +862,7 @@
 
 **Được tham chiếu bởi:** Chưa có bảng con tham chiếu trong MVP.
 
-**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không thêm UNIQUE theo hội viên/ngày vì chưa có quy tắc chỉ được check-in một lần mỗi ngày. Quét lại QR thành công trả kết quả cũ; QR không hợp lệ chỉ ghi audit, không tạo check-in.
+**Bảo toàn và lưu ý:**Snapshot/ledger append-only; không sửa/xóa hàng đã công bố. Không thêm UNIQUE theo hội viên/ngày vì chưa có quy tắc chỉ được check-in một lần mỗi ngày. Quét lại QR đã check-in bị từ chối bằng conflict có kiểm soát; không trả success lần hai và không tạo thêm check-in/usage. QR không hợp lệ chỉ ghi audit khi catalog audit tương ứng được phê duyệt, không tạo check-in.
 
 <a id="b22"></a>
 
