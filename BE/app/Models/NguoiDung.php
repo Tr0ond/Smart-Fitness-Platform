@@ -2,39 +2,31 @@
 
 namespace App\Models;
 
+use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\BaiTap;
-use App\Models\ChiNhanh;
-use App\Models\DeXuatKeHoachTap;
-use App\Models\GhiChuHuanLuyen;
-use App\Models\GiaoAnMau;
-use App\Models\GoiTap;
-use App\Models\HoSoHoiVien;
-use App\Models\HoSoHuanLuyenVien;
-use App\Models\KeHoachTap;
-use App\Models\LichSuVaoPhongTap;
-use App\Models\NhatKyHeThong;
-use App\Models\PhanCongHuanLuyenVien;
-use App\Models\PhanQuyenNguoiDung;
-use App\Models\PhienBanKeHoachTap;
-use App\Models\SuDungQuyenLoi;
-use App\Models\TheTruyCap;
-use App\Models\TinNhan;
-use App\Models\YeuCauChongLap;
-use App\Models\YeuCauDatLaiMatKhau;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class NguoiDung extends Model
+class NguoiDung extends Model implements AuthenticatableContract
 {
+    use AuthenticatableTrait;
+
     protected $table = 'nguoi_dung';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = true;
+
     public const CREATED_AT = 'ngay_tao';
+
     public const UPDATED_AT = 'ngay_cap_nhat';
 
     protected $fillable = [
@@ -51,6 +43,10 @@ class NguoiDung extends Model
         'ngay_cap_nhat',
     ];
 
+    protected $hidden = [
+        'mat_khau_bam',
+    ];
+
     protected $casts = [
         'id' => 'integer',
         'chi_nhanh_id' => 'integer',
@@ -59,6 +55,18 @@ class NguoiDung extends Model
         'ngay_tao' => 'datetime',
         'ngay_cap_nhat' => 'datetime',
     ];
+
+    /** Tên cột hash mật khẩu chính thức dùng bởi Laravel authentication. */
+    public function getAuthPasswordName(): string
+    {
+        return 'mat_khau_bam';
+    }
+
+    /** Schema không có remember token vì API dùng Bearer token. */
+    public function getRememberTokenName(): string
+    {
+        return '';
+    }
 
     public function chiNhanh(): BelongsTo
     {
