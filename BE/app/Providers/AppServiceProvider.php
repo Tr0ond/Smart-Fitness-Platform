@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Auth\AccessTokenGuard;
+use App\Contracts\Ai\WorkoutAiProvider;
 use App\Contracts\Payments\PaymentGateway;
+use App\Gateways\UnavailableWorkoutAiProvider;
 use App\Gateways\PayOSGateway;
 use App\Services\AuthenticationService;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -20,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(PaymentGateway::class, PayOSGateway::class);
+        $this->app->bind(WorkoutAiProvider::class, UnavailableWorkoutAiProvider::class);
     }
 
     /**

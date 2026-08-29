@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Ai\AiRequestController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Gym\GymController;
 use App\Http\Controllers\Api\Membership\MembershipController;
@@ -60,6 +61,15 @@ Route::middleware(['auth:api', 'role:MEMBER'])
 Route::middleware(['auth:api', 'role:MEMBER'])->prefix('gym')->group(function (): void {
     Route::post('/qr', [GymController::class, 'phatHanhQr']);
     Route::get('/check-ins', [GymController::class, 'lichSu']);
+});
+
+Route::middleware(['auth:api', 'role:MEMBER'])->prefix('assistant')->group(function (): void {
+    Route::post('/requests', [AiRequestController::class, 'tao']);
+    Route::get('/requests', [AiRequestController::class, 'danhSach']);
+    Route::get('/requests/{assistantRequest}', [AiRequestController::class, 'chiTiet'])
+        ->whereNumber('assistantRequest');
+    Route::get('/proposals/{proposal}', [AiRequestController::class, 'deXuat'])
+        ->whereNumber('proposal');
 });
 
 Route::middleware(['auth:api', 'role:RECEPTIONIST,ADMIN'])
