@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Profile\MemberProfileController;
 use App\Http\Controllers\Api\Profile\ProfileController;
 use App\Http\Controllers\Api\Profile\TrainerProfileController;
 use App\Http\Controllers\Api\Pt\PtAssignmentController;
+use App\Http\Controllers\Api\Pt\PtChatController;
 use App\Http\Controllers\Api\Pt\PtDirectServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -94,3 +95,14 @@ Route::middleware(['auth:api', 'role:MEMBER,PT'])
 
 Route::middleware(['auth:api', 'role:PT'])
     ->post('/pt/direct-sessions/complete', [PtDirectServiceController::class, 'hoanTat']);
+
+Route::middleware(['auth:api', 'role:MEMBER,PT'])->prefix('pt/chat')->group(function (): void {
+    Route::get('/conversations', [PtChatController::class, 'danhSach']);
+    Route::post('/conversations/current', [PtChatController::class, 'hienTai']);
+    Route::get('/conversations/{conversation}', [PtChatController::class, 'chiTiet'])
+        ->whereNumber('conversation');
+    Route::get('/conversations/{conversation}/messages', [PtChatController::class, 'tinNhans'])
+        ->whereNumber('conversation');
+    Route::post('/conversations/{conversation}/messages', [PtChatController::class, 'gui'])
+        ->whereNumber('conversation');
+});
