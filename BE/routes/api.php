@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Profile\TrainerProfileController;
 use App\Http\Controllers\Api\Pt\PtAssignmentController;
 use App\Http\Controllers\Api\Pt\PtChatController;
 use App\Http\Controllers\Api\Pt\PtDirectServiceController;
+use App\Http\Controllers\Api\Workout\WorkoutController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -105,4 +106,19 @@ Route::middleware(['auth:api', 'role:MEMBER,PT'])->prefix('pt/chat')->group(func
         ->whereNumber('conversation');
     Route::post('/conversations/{conversation}/messages', [PtChatController::class, 'gui'])
         ->whereNumber('conversation');
+});
+
+Route::middleware(['auth:api', 'role:MEMBER'])->prefix('workout')->group(function (): void {
+    Route::get('/templates', [WorkoutController::class, 'templates']);
+    Route::get('/templates/{template}', [WorkoutController::class, 'template'])->whereNumber('template');
+    Route::get('/plans/current', [WorkoutController::class, 'currentPlan']);
+    Route::get('/plans', [WorkoutController::class, 'plans']);
+    Route::get('/plans/{plan}', [WorkoutController::class, 'plan'])->whereNumber('plan');
+    Route::get('/schedule', [WorkoutController::class, 'schedule']);
+    Route::post('/scheduled-sessions/{scheduled}/start', [WorkoutController::class, 'start'])->whereNumber('scheduled');
+    Route::post('/scheduled-sessions/{scheduled}/skip', [WorkoutController::class, 'skip'])->whereNumber('scheduled');
+    Route::get('/sessions', [WorkoutController::class, 'sessions']);
+    Route::get('/sessions/{session}', [WorkoutController::class, 'session'])->whereNumber('session');
+    Route::post('/sessions/{session}/exercises/{exercise}/sets', [WorkoutController::class, 'recordSet'])->whereNumber(['session', 'exercise']);
+    Route::post('/sessions/{session}/complete', [WorkoutController::class, 'complete'])->whereNumber('session');
 });
