@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\Ai;
 
 use App\Exceptions\Ai\AiWorkflowException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Ai\ApplyAiProposalRequest;
 use App\Http\Requests\Ai\CreateAiRequest;
 use App\Models\NguoiDung;
+use App\Services\Ai\AiProposalApplyService;
 use App\Services\Ai\AiRequestQueryService;
 use App\Services\Ai\AiRequestService;
 use Illuminate\Http\JsonResponse;
@@ -52,6 +54,20 @@ class AiRequestController extends Controller
         $nguoiDung = $request->user();
 
         return response()->json(['data' => $query->deXuat($nguoiDung, $proposal)]);
+    }
+
+    public function apDung(ApplyAiProposalRequest $request, int $proposal, AiProposalApplyService $service): JsonResponse
+    {
+        try {
+            /** @var NguoiDung $nguoiDung */
+            $nguoiDung = $request->user();
+
+            return response()->json([
+                'data' => $service->apDung($nguoiDung, $proposal, $request->idempotencyKey()),
+            ]);
+        } catch (AiWorkflowException $exception) {
+            return $this->loi($exception);
+        }
     }
 
     private function loi(AiWorkflowException $exception): JsonResponse

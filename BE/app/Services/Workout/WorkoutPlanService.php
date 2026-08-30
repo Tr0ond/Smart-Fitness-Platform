@@ -21,14 +21,19 @@ class WorkoutPlanService
     /**
      * Tạo Plan cùng snapshot version 1 từ cấu trúc đã được Backend kiểm định.
      *
-     * Đây là API service nội bộ cho fixture và workflow Apply tương lai; task này
-     * không mở HTTP mutation thủ công. Member → Plan được khóa theo thứ tự cố định.
+     * Đây là API service nội bộ dùng chung cho fixture và các workflow Apply đã
+     * revalidate; không mở HTTP mutation thủ công. Member → Plan được khóa cố định.
      *
      * @param  array{name:string,goal:string,effective_from:string,template_id?:int|null,template_name?:string|null,days:array<int,array{logical_id?:string,order:int,weekday:int,name:string,estimated_minutes:int,exercises:array<int,array{exercise_id:int,logical_id?:string,order:int,target_sets:int,min_reps:int,max_reps:int,target_weight_kg?:float|int|string|null,rest_seconds:int,notes?:string|null}>}>}  $cauTruc
      */
-    public function taoMoi(NguoiDung $nguoiDung, array $cauTruc, string $maLanTao, bool $kichHoat = true): KeHoachTap
-    {
-        return DB::transaction(function () use ($nguoiDung, $cauTruc, $maLanTao, $kichHoat): KeHoachTap {
+    public function taoMoi(
+        NguoiDung $nguoiDung,
+        array $cauTruc,
+        string $maLanTao,
+        bool $kichHoat = true,
+        array $nguonSnapshot = [],
+    ): KeHoachTap {
+        return DB::transaction(function () use ($nguoiDung, $cauTruc, $maLanTao, $kichHoat, $nguonSnapshot): KeHoachTap {
             $hoiVien = $this->members->hoiVienCuaNguoiDung($nguoiDung, true);
             $this->damBaoUuid($maLanTao, 'INVALID_PLAN_REQUEST_ID');
 
@@ -54,7 +59,7 @@ class WorkoutPlanService
                 'ngay_cap_nhat' => $hienTai,
             ]);
 
-            $phienBan = $this->taoSnapshot($keHoach, $nguoiDung, $cauTruc, null, 1);
+            $phienBan = $this->taoSnapshot($keHoach, $nguoiDung, $cauTruc, null, 1, $nguonSnapshot);
             $keHoach->forceFill(['phien_ban_hien_tai_id' => $phienBan->getKey(), 'ngay_cap_nhat' => $hienTai])->save();
             if ($kichHoat) {
                 $this->kichHoatDaKhoa($hoiVien, $keHoach, $hienTai);
@@ -69,9 +74,13 @@ class WorkoutPlanService
      *
      * @param  array{name:string,goal:string,effective_from:string,template_id?:int|null,template_name?:string|null,days:array<int,array{logical_id?:string,order:int,weekday:int,name:string,estimated_minutes:int,exercises:array<int,array{exercise_id:int,logical_id?:string,order:int,target_sets:int,min_reps:int,max_reps:int,target_weight_kg?:float|int|string|null,rest_seconds:int,notes?:string|null}>}>}  $cauTruc
      */
-    public function taoPhienBanTiepTheo(NguoiDung $nguoiDung, int $keHoachId, array $cauTruc): PhienBanKeHoachTap
-    {
-        return DB::transaction(function () use ($nguoiDung, $keHoachId, $cauTruc): PhienBanKeHoachTap {
+    public function taoPhienBanTiepTheo(
+        NguoiDung $nguoiDung,
+        int $keHoachId,
+        array $cauTruc,
+        array $nguonSnapshot = [],
+    ): PhienBanKeHoachTap {
+        return DB::transaction(function () use ($nguoiDung, $keHoachId, $cauTruc, $nguonSnapshot): PhienBanKeHoachTap {
             $hoiVien = $this->members->hoiVienCuaNguoiDung($nguoiDung, true);
             $keHoach = KeHoachTap::query()
                 ->where('hoi_vien_id', $hoiVien->getKey())
@@ -95,7 +104,7 @@ class WorkoutPlanService
             $soPhienBan = (int) PhienBanKeHoachTap::query()
                 ->where('ke_hoach_tap_id', $keHoach->getKey())
                 ->max('so_phien_ban') + 1;
-            $phienBan = $this->taoSnapshot($keHoach, $nguoiDung, $cauTruc, $phienBanTruoc, $soPhienBan);
+            $phienBan = $this->taoSnapshot($keHoach, $nguoiDung, $cauTruc, $phienBanTruoc, $soPhienBan, $nguonSnapshot);
             $keHoach->forceFill([
                 'ten_ke_hoach' => trim($cauTruc['name']),
                 'phien_ban_hien_tai_id' => $phienBan->getKey(),
@@ -147,8 +156,14 @@ class WorkoutPlanService
         $keHoach->forceFill(['trang_thai' => 'DANG_SU_DUNG', 'ngay_cap_nhat' => $hienTai])->save();
     }
 
-    private function taoSnapshot(KeHoachTap $keHoach, NguoiDung $nguoiDung, array $cauTruc, ?PhienBanKeHoachTap $truoc, int $soPhienBan): PhienBanKeHoachTap
-    {
+    private function taoSnapshot(
+        KeHoachTap $keHoach,
+        NguoiDung $nguoiDung,
+        array $cauTruc,
+        ?PhienBanKeHoachTap $truoc,
+        int $soPhienBan,
+        array $nguonSnapshot,
+    ): PhienBanKeHoachTap {
         $hienTai = CarbonImmutable::now('UTC');
         $phienBan = PhienBanKeHoachTap::query()->create([
             'ke_hoach_tap_id' => $keHoach->getKey(),
@@ -156,12 +171,12 @@ class WorkoutPlanService
             'phien_ban_truoc_id' => $truoc?->getKey(),
             'giao_an_mau_id' => $cauTruc['template_id'] ?? null,
             'ten_giao_an_da_chon' => $cauTruc['template_name'] ?? null,
-            'de_xuat_ke_hoach_tap_id' => null,
-            'nguon_tao' => 'HOI_VIEN',
+            'de_xuat_ke_hoach_tap_id' => $nguonSnapshot['proposal_id'] ?? null,
+            'nguon_tao' => $nguonSnapshot['source'] ?? 'HOI_VIEN',
             'nguoi_tao_id' => $nguoiDung->getKey(),
             'muc_tieu' => trim($cauTruc['goal']),
             'ap_dung_tu_ngay' => $cauTruc['effective_from'],
-            'ly_do_thay_doi' => $truoc === null ? null : 'Cập nhật kế hoạch tập.',
+            'ly_do_thay_doi' => $nguonSnapshot['reason'] ?? ($truoc === null ? null : 'Cập nhật kế hoạch tập.'),
             'ma_bam_noi_dung' => hash('sha256', json_encode($cauTruc, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE)),
             'ngay_tao' => $hienTai,
         ]);

@@ -74,6 +74,8 @@ Route::middleware(['auth:api', 'role:MEMBER'])->prefix('assistant')->group(funct
         ->whereNumber('assistantRequest');
     Route::get('/proposals/{proposal}', [AiRequestController::class, 'deXuat'])
         ->whereNumber('proposal');
+    Route::post('/proposals/{proposal}/apply', [AiRequestController::class, 'apDung'])
+        ->whereNumber('proposal');
 });
 
 Route::middleware(['auth:api', 'role:RECEPTIONIST,ADMIN'])

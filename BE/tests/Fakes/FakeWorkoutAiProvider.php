@@ -85,7 +85,7 @@ class FakeWorkoutAiProvider implements WorkoutAiProvider
             $output = ['du_lieu' => 'khong_dung_schema'];
         }
 
-        return new WorkoutAiResult($output, 'fake-request-'.$this->callCount, 120, 80);
+        return new WorkoutAiResult($output, 'fake-request-'.bin2hex(random_bytes(12)), 120, 80);
     }
 
     /** @param array<string, mixed> $context @return array<string, mixed> */
