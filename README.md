@@ -2,7 +2,14 @@
 
 Repository hiện tại là gốc dự án (`E:\Fitness` trên máy khởi tạo); không có thư mục `Smart_Fitness` lồng bên trong.
 
-**Trạng thái: chỉ khởi tạo skeleton.** Chưa triển khai database nghiệp vụ, authentication, Member, Membership, Payment/payOS, QR, Workout, PT, Realtime Chat hoặc AI. Đọc toàn bộ [PROJECT_RULES.md](PROJECT_RULES.md) trước khi thay đổi source. File quy tắc và `AGENTS.md` gốc được giữ nguyên.
+**Trạng thái Backend:** core REST API đã triển khai trên schema 52 bảng/M001–M060, gồm Auth/Role, catalog, Profile, Membership, payOS, QR check-in, PT, Realtime Chat, Workout, Progress, Dashboard và Gemini AI Proposal/Apply. Đọc toàn bộ [PROJECT_RULES.md](PROJECT_RULES.md) trước khi thay đổi source. FE và Mobile vẫn là skeleton tích hợp, chưa triển khai màn hình nghiệp vụ.
+
+Tài liệu vận hành chính:
+
+- [Backend README](BE/README.md)
+- [Backend API contract](docs/BACKEND_API_CONTRACT.md)
+- [Backend completion report](docs/thiet_ke_co_so_du_lieu/BACKEND_CORE_COMPLETION_REPORT.md)
+- [Database dictionary](docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md)
 
 ## Các project
 
@@ -118,11 +125,11 @@ php artisan serve --host=127.0.0.1 --port=8000
 Chỉ tạo key khi thiết lập môi trường lần đầu; không chạy lại `key:generate` tùy tiện trên môi trường đang có dữ liệu.
 
 - Trang skeleton: `http://127.0.0.1:8000/`; health mặc định Laravel: `/up`.
-- `routes/api.php` đã được đăng ký với prefix `/api`, nhưng **chưa có endpoint nghiệp vụ**. Truy cập `/api` hiện trả 404 là bình thường.
-- `.env.example` dùng connection Laravel/PDO MySQL-compatible tới MariaDB (`smart_fitness`); điều chỉnh tài khoản cục bộ khi bắt đầu triển khai database.
-- Chưa tạo database/bảng, chưa chạy migration/seed, chưa kiểm tra kết nối MariaDB.
-- Session/cache dùng file và queue dùng `sync`; skeleton và health không cần database.
-- Đã bỏ User model/factory và các migration mặc định; `DatabaseSeeder` chưa tạo dữ liệu. Authentication chưa có guard/provider.
+- API nghiệp vụ nằm dưới `/api`; xem contract để biết actor, middleware và idempotency header.
+- `.env.example` dùng Laravel/PDO tới MariaDB 10.4.32. Chỉ chạy M001–M060 trên database development/test đã chọn đúng; test phải dùng schema cô lập có tên `smart_fitness_*test*`.
+- `DatabaseSeeder` tạo catalog nền, tài khoản demo chỉ trong `local/testing`, và import Exercise Dataset từ checkout cục bộ đã pin commit.
+- Gemini key, payOS credentials và Reverb secret chỉ nằm ở Backend environment. Không đưa secret vào `VITE_*`, Mobile hoặc Git.
+- PT Chat outbox retry cần Laravel Scheduler: chạy `php artisan schedule:work` khi phát triển hoặc cấu hình cron `schedule:run` ở môi trường triển khai.
 - Backend không có pipeline Vite riêng: web client nằm ở `FE/`; Blade chỉ có trang trạng thái tĩnh. Không cần `npm install` trong `BE/`.
 - Composer setup/dev không tự chạy migration hoặc cài dependency frontend.
 
@@ -187,7 +194,7 @@ node node_modules/react-native/cli.js bundle --platform android --dev false --en
 
 Bundle JavaScript thành công không đồng nghĩa với build APK hoặc chạy thành công trên thiết bị. Debug keystore trong template chỉ dùng phát triển; chưa cấu hình ký/phát hành production.
 
-## Kết quả kiểm tra khởi tạo — 28/08/2026
+## Mốc kiểm tra khởi tạo — 28/08/2026
 
 | Kiểm tra | Kết quả |
 | --- | --- |
@@ -202,7 +209,7 @@ Bundle JavaScript thành công không đồng nghĩa với build APK hoặc ch�
 | Dependency audit | Composer, FE, Mobile: không có lỗ hổng được báo tại thời điểm kiểm tra |
 | `PROJECT_RULES.md` | Giữ nguyên, SHA-256 trước/sau trùng nhau |
 
-**Giới hạn:** chưa build APK, chạy emulator/thiết bị hoặc kiểm tra kết nối MariaDB. Máy đã có SDK Platform 36 nhưng còn thiếu Build Tools 36.0.0, NDK 27.1.12297006 và Android SDK Command-line Tools; cần chuẩn bị trước khi `npm run android`. npm vẫn báo một số package công cụ đã deprecated (ESLint 8 và dependency gián tiếp như glob 7, inflight...). Metro có cảnh báo màu terminal `NO_COLOR`/`FORCE_COLOR`, không làm hỏng bundle. Không tự chạy `npm audit fix --force` vì có thể thay đổi bộ phiên bản tương thích.
+Đây là evidence lịch sử của bước khởi tạo. Trạng thái Backend mới nhất nằm trong completion report; chưa có nghĩa FE/Mobile nghiệp vụ hoặc Android release build đã hoàn thành.
 
 ## Git và cấu hình cục bộ
 

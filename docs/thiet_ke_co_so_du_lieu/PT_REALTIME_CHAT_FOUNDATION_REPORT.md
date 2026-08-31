@@ -78,7 +78,7 @@ Unauthenticated trả 401; Admin/Receptionist không có quyền Chat; foreign p
 | Channel type | **PRIVATE** |
 | Pattern | `pt.conversation.{hoiThoaiId}` |
 | Broadcast event alias | `pt.chat.message.sent` |
-| Authorization | Active account/role và exact historical participant |
+| Authorization | Member participant được đọc lịch sử; PT phải thuộc exact assignment đang hiệu lực |
 | Custom `AccessTokenGuard` | **PASS** |
 
 `route:list -v` xác nhận broadcast auth middleware `api`, `auth:api`, `role:MEMBER,PT`. `channel:list` xác nhận một private channel đúng pattern. Channel auth không kiểm tra entitlement gửi và không kích hoạt Membership.
@@ -127,11 +127,11 @@ Tin Member tiếp theo, mọi tin PT và tin đầu sau khi AI/QR/PT đã kích 
 
 | Case | Kết quả |
 | --- | --- |
-| Old conversation | **READABLE** cho exact participants theo prompt module |
+| Old conversation | **READABLE** cho Member; PT cũ mất toàn bộ resource scope |
 | Old conversation send | **BLOCKED** khi assignment hết hiệu lực |
 | New assignment | Conversation mới, ID khác |
 | Member | Thấy history cũ và conversation hiện tại |
-| Old PT | Đọc history cũ; không gửi mới |
+| Old PT | Không list/read/send/subscribe sau khi assignment kết thúc |
 | New PT | Không đọc/subscribe conversation của PT cũ |
 
 Không mutate conversation cũ, không rewrite sender, không chuyển/xóa message cũ.
@@ -190,6 +190,7 @@ Không gọi internet, không dùng credential thật. Startup smoke, event cont
 | Conversation/message IDOR | PASS |
 | Private channel | PASS |
 | Foreign Member/PT | BLOCKED |
+| Old PT đọc/subscribe conversation cũ | BLOCKED |
 | New PT đọc conversation cũ | BLOCKED |
 | Admin/Receptionist Chat access | BLOCKED |
 | Client-supplied sender/member/PT/assignment/usage/status | BLOCKED |
@@ -215,7 +216,7 @@ Exact assignment end và Membership end còn được kiểm tra riêng: `end - 
 
 | Case | HTTP history | New send |
 | --- | --- | --- |
-| Assignment kết thúc/reassign | READABLE cho participant được phê duyệt | BLOCKED |
+| Assignment kết thúc/reassign | Member vẫn READABLE; PT cũ/new PT bị BLOCKED | BLOCKED |
 | Chat entitlement/Membership hết hạn | READABLE | BLOCKED nếu không có term áp dụng mới |
 
 History query không kích hoạt, không tạo usage và không yêu cầu quyền gửi hiện tại. Pagination dùng sequence cursor ổn định, giới hạn tối đa 100, không trả truy vấn không giới hạn.
@@ -319,7 +320,8 @@ Giới hạn được báo cáo rõ, không coi là đã thực hiện: actual W
 | PT CHAT MESSAGE API | PASS |
 | CONVERSATION BOUND TO ASSIGNMENT | PASS |
 | REASSIGNMENT CREATES NEW CONVERSATION | PASS |
-| OLD CHAT HISTORY PRESERVED / READABLE | PASS |
+| MEMBER OLD CHAT HISTORY PRESERVED / READABLE | PASS |
+| OLD PT HISTORICAL READ / SUBSCRIBE | BLOCKED |
 | OLD CONVERSATION SEND | BLOCKED |
 | CHAT ENTITLEMENT | PASS |
 | PT DIRECT QUOTA INDEPENDENT | PASS |
@@ -364,3 +366,14 @@ Giới hạn được báo cáo rõ, không coi là đã thực hiện: actual W
 **DATABASE = READY FOR WORKOUT FOUNDATION**
 
 Recommended next step: **WORKOUT PLAN + WORKOUT SESSION FOUNDATION**. Không bắt đầu trong nhiệm vụ này.
+
+## 23. Post-audit correction — Q05 historical PT scope
+
+Foundation report ban đầu đã dùng oracle sai khi cho PT cũ đọc lịch sử. Theo `PROJECT_RULES.md` Q05, quyền lịch sử không đối xứng:
+
+- Member historical read: **YES**; list/detail/messages và reconnect private channel không kích hoạt Membership.
+- Old PT sau `ngay_ket_thuc`: **NO** cho list/detail/messages/send/subscribe.
+- New PT: **NO** đối với conversation cũ; chỉ đọc/subscribe conversation mới của exact assignment đang hiệu lực.
+- Biên hiệu lực PT là `[ngay_bat_dau, ngay_ket_thuc)`: trước end được đọc, tại end bị chặn.
+
+Correction đã được kiểm chứng trong Critical Backend Security Fix: focused Chat/security **49 tests / 708 assertions**, full Backend hai lượt và random seed `20260830` đều **211 tests / 3.028 assertions**. Conversation/message cũ vẫn được lưu nguyên vẹn; thay đổi chỉ siết resource scope của PT.
