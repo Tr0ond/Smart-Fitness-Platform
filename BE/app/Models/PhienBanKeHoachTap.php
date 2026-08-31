@@ -3,12 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\BuoiTapDuKien;
-use App\Models\DeXuatKeHoachTap;
-use App\Models\GiaoAnMau;
-use App\Models\KeHoachTap;
-use App\Models\NgayTrongKeHoach;
-use App\Models\NguoiDung;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -16,10 +10,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class PhienBanKeHoachTap extends Model
 {
     protected $table = 'phien_ban_ke_hoach_tap';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -54,6 +53,7 @@ class PhienBanKeHoachTap extends Model
     {
         return $this->belongsTo(KeHoachTap::class, 'ke_hoach_tap_id', 'id');
     }
+
     public function phienBanTruoc(): BelongsTo
     {
         return $this->belongsTo(PhienBanKeHoachTap::class, 'phien_ban_truoc_id', 'id');

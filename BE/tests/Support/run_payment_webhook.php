@@ -4,29 +4,18 @@ declare(strict_types=1);
 
 use App\Services\Payments\PayOSWebhookService;
 use Illuminate\Contracts\Console\Kernel;
+use Tests\Support\TestDatabaseGuard;
 
 require dirname(__DIR__, 2).'/vendor/autoload.php';
 
 [$script, $database, $payloadPath, $barrier] = $argv;
-if (preg_match('/\Asmart_fitness_[a-z0-9_]*test(?:_[a-z0-9_]+)?\z/i', $database) !== 1 || strtolower($database) === 'smart_fitness') {
-    fwrite(STDERR, 'Unsafe payment concurrency database.'.PHP_EOL);
-    exit(2);
-}
-
-putenv('APP_ENV=testing');
-putenv('DB_CONNECTION=mysql');
-putenv('DB_DATABASE='.$database);
-putenv('PAYOS_CLIENT_ID=test-client-id');
-putenv('PAYOS_API_KEY=test-api-key');
-putenv('PAYOS_CHECKSUM_KEY=test-checksum-key-20260829');
-putenv('PAYOS_RETURN_URL=https://frontend.test/payment/return');
-putenv('PAYOS_CANCEL_URL=https://frontend.test/payment/cancel');
-$_ENV['APP_ENV'] = 'testing';
-$_ENV['DB_CONNECTION'] = 'mysql';
-$_ENV['DB_DATABASE'] = $database;
-$_ENV['PAYOS_CLIENT_ID'] = 'test-client-id';
-$_ENV['PAYOS_API_KEY'] = 'test-api-key';
-$_ENV['PAYOS_CHECKSUM_KEY'] = 'test-checksum-key-20260829';
+TestDatabaseGuard::khoiTaoTienTrinhCon($database, [
+    'PAYOS_CLIENT_ID' => 'test-client-id',
+    'PAYOS_API_KEY' => 'test-api-key',
+    'PAYOS_CHECKSUM_KEY' => 'test-checksum-key-20260829',
+    'PAYOS_RETURN_URL' => 'https://frontend.test/payment/return',
+    'PAYOS_CANCEL_URL' => 'https://frontend.test/payment/cancel',
+]);
 
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();

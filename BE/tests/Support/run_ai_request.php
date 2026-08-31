@@ -8,21 +8,12 @@ use App\Models\NguoiDung;
 use App\Services\Ai\AiRequestService;
 use Illuminate\Contracts\Console\Kernel;
 use Tests\Fakes\FakeWorkoutAiProvider;
+use Tests\Support\TestDatabaseGuard;
 
 require dirname(__DIR__, 2).'/vendor/autoload.php';
 
 [$script, $database, $userId, $idempotencyKey, $startBarrier, $providerEntered, $providerRelease, $providerCalls] = $argv;
-if (preg_match('/^smart_fitness_.*test/i', $database) !== 1 || strtolower($database) === 'smart_fitness') {
-    fwrite(STDERR, 'Unsafe AI concurrency database.'.PHP_EOL);
-    exit(2);
-}
-
-putenv('APP_ENV=testing');
-putenv('DB_CONNECTION=mysql');
-putenv('DB_DATABASE='.$database);
-$_ENV['APP_ENV'] = 'testing';
-$_ENV['DB_CONNECTION'] = 'mysql';
-$_ENV['DB_DATABASE'] = $database;
+TestDatabaseGuard::khoiTaoTienTrinhCon($database);
 
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();

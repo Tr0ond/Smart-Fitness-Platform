@@ -3,19 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\GiaoAnMau;
-use App\Models\YeuCauTroLy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GiaoAnUngVien extends Model
 {
     protected $table = 'giao_an_ung_vien';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = false;
 
     protected $fillable = [

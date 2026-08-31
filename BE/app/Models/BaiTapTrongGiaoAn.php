@@ -3,21 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\BaiTap;
-use App\Models\NgayTrongGiaoAn;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BaiTapTrongGiaoAn extends Model
 {
     protected $table = 'bai_tap_trong_giao_an';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = true;
+
     public const CREATED_AT = 'ngay_tao';
+
     public const UPDATED_AT = 'ngay_cap_nhat';
 
     protected $fillable = [

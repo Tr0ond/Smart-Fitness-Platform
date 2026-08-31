@@ -26,8 +26,9 @@
         <!-- The Feature suite exercises MariaDB DDL and Eloquent mappings.  An
              isolated smart_fitness_*test schema is required; callers may
              override DB_DATABASE for a uniquely provisioned test schema. -->
-        <env name="DB_CONNECTION" value="mysql"/>
-        <env name="DB_DATABASE" value="smart_fitness_test"/>
+        <env name="DB_CONNECTION" value="mysql" force="false"/>
+        <env name="DB_DATABASE" value="smart_fitness_test" force="false"/>
+        <env name="SMART_FITNESS_TEST_DATABASE" value="smart_fitness_test" force="false"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

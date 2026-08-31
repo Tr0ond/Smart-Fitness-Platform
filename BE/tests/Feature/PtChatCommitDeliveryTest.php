@@ -15,6 +15,7 @@ use App\Services\Pt\Chat\PtChatQueryService;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Mockery;
 use RuntimeException;
@@ -23,6 +24,7 @@ use Tests\Concerns\CreatesMembershipFixtures;
 use Tests\Concerns\CreatesProfileFixtures;
 use Tests\Concerns\CreatesPtChatFixtures;
 use Tests\Concerns\CreatesPtFixtures;
+use Tests\Support\TestDatabaseGuard;
 use Tests\TestCase;
 
 /**
@@ -120,7 +122,7 @@ class PtChatCommitDeliveryTest extends TestCase
             'tin_nhan_id' => $tinNhan->getKey(),
             'trang_thai' => 'CHO_THU_LAI',
             'so_lan_thu' => 1,
-            'loi_gan_nhat' => 'Reverb test transport unavailable',
+            'loi_gan_nhat' => 'REALTIME_DELIVERY_FAILED',
         ]);
         $this->assertSame('Tin vẫn phải tồn tại', app(PtChatQueryService::class)
             ->tinNhans($fixture['member_a']['user'], (int) $hoiThoai['id'])['data'][0]['content']);
@@ -155,6 +157,121 @@ class PtChatCommitDeliveryTest extends TestCase
         $this->assertSame(0, DB::table('su_kien_phat_tin_nhan')->count());
     }
 
+    public function test_scheduler_retry_respects_due_time_and_has_no_business_side_effects(): void
+    {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-08-31 04:00:00.123456', 'UTC'));
+        config([
+            'pt_chat.outbox_retry_base_seconds' => 15,
+            'pt_chat.outbox_retry_max_seconds' => 60,
+            'pt_chat.outbox_retry_batch_size' => 10,
+        ]);
+        $fixture = $this->taoBoPtChatFixtures();
+        $this->fixturesCanDon[] = $fixture;
+        $ky = $this->taoMembershipPtChat($fixture, $fixture['member_a_id']);
+        $hoiThoai = app(PtChatConversationService::class)->hienTai($fixture['member_a']['user']);
+        $failure = Mockery::mock(Dispatcher::class);
+        $failure->shouldReceive('dispatch')->once()->andThrow(new RuntimeException('secret transport detail'));
+        $ketQua = $this->messageService($failure)->gui(
+            $fixture['member_a']['user'],
+            (int) $hoiThoai['id'],
+            ['client_message_id' => $this->uuidPtChat(), 'content' => 'Tin cần scheduler retry'],
+        );
+        $tinNhanId = (int) $ketQua['message']['id'];
+        $termBefore = DB::table('ky_han_hoi_vien')->find($ky->getKey());
+        $usageBefore = DB::table('su_dung_quyen_loi')->where('hoi_vien_id', $fixture['member_a_id'])->count();
+
+        $success = Mockery::mock(Dispatcher::class);
+        $success->shouldReceive('dispatch')->once()->with(Mockery::type(PtChatMessageSent::class))->andReturn([]);
+        app()->instance(Dispatcher::class, $success);
+        Artisan::call('pt-chat:retry-outbox');
+        $this->assertSame(0, json_decode(trim(Artisan::output()), true, 512, JSON_THROW_ON_ERROR)['selected']);
+
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-08-31 04:00:16.123456', 'UTC'));
+        Artisan::call('pt-chat:retry-outbox');
+        $this->assertSame(
+            ['selected' => 1, 'delivered' => 1, 'retrying' => 0],
+            json_decode(trim(Artisan::output()), true, 512, JSON_THROW_ON_ERROR),
+        );
+        $this->assertDatabaseHas('su_kien_phat_tin_nhan', [
+            'tin_nhan_id' => $tinNhanId,
+            'trang_thai' => 'DA_PHAT',
+            'so_lan_thu' => 2,
+            'loi_gan_nhat' => null,
+        ]);
+        $termAfter = DB::table('ky_han_hoi_vien')->find($ky->getKey());
+        $this->assertSame($termBefore->ngay_bat_dau, $termAfter->ngay_bat_dau);
+        $this->assertSame($termBefore->ngay_ket_thuc, $termAfter->ngay_ket_thuc);
+        $this->assertSame($usageBefore, DB::table('su_dung_quyen_loi')->where('hoi_vien_id', $fixture['member_a_id'])->count());
+        $this->assertSame(1, DB::table('tin_nhan')->where('id', $tinNhanId)->count());
+    }
+
+    public function test_retry_failure_uses_capped_exponential_backoff_and_safe_error(): void
+    {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-08-31 05:00:00.000001', 'UTC'));
+        config([
+            'pt_chat.outbox_retry_base_seconds' => 10,
+            'pt_chat.outbox_retry_max_seconds' => 15,
+        ]);
+        $fixture = $this->taoBoPtChatFixtures();
+        $this->fixturesCanDon[] = $fixture;
+        $this->taoMembershipPtChat($fixture, $fixture['member_a_id']);
+        $hoiThoai = app(PtChatConversationService::class)->hienTai($fixture['member_a']['user']);
+        $failure = Mockery::mock(Dispatcher::class);
+        $failure->shouldReceive('dispatch')->twice()->andThrow(new RuntimeException('must not persist raw detail'));
+        $ketQua = $this->messageService($failure)->gui(
+            $fixture['member_a']['user'],
+            (int) $hoiThoai['id'],
+            ['client_message_id' => $this->uuidPtChat(), 'content' => 'Backoff'],
+        );
+        $tinNhanId = (int) $ketQua['message']['id'];
+        $first = DB::table('su_kien_phat_tin_nhan')->where('tin_nhan_id', $tinNhanId)->first();
+        $this->assertSame('2026-08-31 05:00:10.000001', $first->thu_lai_luc);
+
+        CarbonImmutable::setTestNow(CarbonImmutable::parse($first->thu_lai_luc, 'UTC'));
+        $this->assertSame('CHO_THU_LAI', (new PtChatDeliveryService($failure))->phat($tinNhanId));
+        $second = DB::table('su_kien_phat_tin_nhan')->where('tin_nhan_id', $tinNhanId)->first();
+        $this->assertSame(2, (int) $second->so_lan_thu);
+        $this->assertSame('2026-08-31 05:00:25.000001', $second->thu_lai_luc);
+        $this->assertSame('REALTIME_DELIVERY_FAILED', $second->loi_gan_nhat);
+        $this->assertStringNotContainsString('raw detail', (string) $second->loi_gan_nhat);
+    }
+
+    public function test_two_actual_processes_retry_same_outbox_with_one_dispatch_and_no_business_mutation(): void
+    {
+        $fixture = $this->taoBoPtChatFixtures();
+        $this->fixturesCanDon[] = $fixture;
+        $ky = $this->taoMembershipPtChat($fixture, $fixture['member_a_id']);
+        $hoiThoai = app(PtChatConversationService::class)->hienTai($fixture['member_a']['user']);
+        $failure = Mockery::mock(Dispatcher::class);
+        $failure->shouldReceive('dispatch')->once()->andThrow(new RuntimeException('initial failure'));
+        $ketQua = $this->messageService($failure)->gui(
+            $fixture['member_a']['user'],
+            (int) $hoiThoai['id'],
+            ['client_message_id' => $this->uuidPtChat(), 'content' => 'Retry concurrency'],
+        );
+        $tinNhanId = (int) $ketQua['message']['id'];
+        DB::table('su_kien_phat_tin_nhan')->where('tin_nhan_id', $tinNhanId)->update([
+            'thu_lai_luc' => CarbonImmutable::now('UTC')->subSecond(),
+        ]);
+        $usageBefore = DB::table('su_dung_quyen_loi')->where('hoi_vien_id', $fixture['member_a_id'])->count();
+        $termBefore = DB::table('ky_han_hoi_vien')->find($ky->getKey());
+
+        [$results, $dispatchCount] = $this->chayHaiTienTrinhRetry($tinNhanId);
+
+        $this->assertSame(['DA_PHAT', 'DA_PHAT'], collect($results)->sort()->values()->all());
+        $this->assertSame(1, $dispatchCount);
+        $this->assertDatabaseHas('su_kien_phat_tin_nhan', [
+            'tin_nhan_id' => $tinNhanId,
+            'trang_thai' => 'DA_PHAT',
+            'so_lan_thu' => 2,
+        ]);
+        $this->assertSame(1, DB::table('tin_nhan')->where('id', $tinNhanId)->count());
+        $this->assertSame($usageBefore, DB::table('su_dung_quyen_loi')->where('hoi_vien_id', $fixture['member_a_id'])->count());
+        $termAfter = DB::table('ky_han_hoi_vien')->find($ky->getKey());
+        $this->assertSame($termBefore->ngay_bat_dau, $termAfter->ngay_bat_dau);
+        $this->assertSame($termBefore->ngay_ket_thuc, $termAfter->ngay_ket_thuc);
+    }
+
     private function messageService(Dispatcher $dispatcher): PtChatMessageService
     {
         return new PtChatMessageService(
@@ -164,6 +281,55 @@ class PtChatCommitDeliveryTest extends TestCase
             app(MembershipEntitlementService::class),
             app(MembershipActivationService::class),
         );
+    }
+
+    /** @return array{0: array<int, string>, 1: int} */
+    private function chayHaiTienTrinhRetry(int $tinNhanId): array
+    {
+        $database = (string) DB::selectOne('SELECT DATABASE() AS ten')->ten;
+        $suffix = bin2hex(random_bytes(8));
+        $start = sys_get_temp_dir().DIRECTORY_SEPARATOR.'pt_chat_retry_start_'.$suffix;
+        $marker = sys_get_temp_dir().DIRECTORY_SEPARATOR.'pt_chat_retry_dispatch_'.$suffix;
+        $script = base_path('tests/Support/run_pt_chat_outbox_retry.php');
+        $spec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+        $processes = [];
+        foreach ([0, 1] as $index) {
+            $pipes = [];
+            $process = proc_open([
+                PHP_BINARY,
+                $script,
+                $database,
+                (string) $tinNhanId,
+                $start,
+                $marker,
+            ], $spec, $pipes, base_path(), TestDatabaseGuard::moiTruongTienTrinhCon());
+            $this->assertIsResource($process, 'Cannot start retry process '.$index);
+            fclose($pipes[0]);
+            $processes[] = [$process, $pipes];
+        }
+        touch($start);
+
+        try {
+            $results = [];
+            foreach ($processes as [$process, $pipes]) {
+                $stdout = stream_get_contents($pipes[1]);
+                $stderr = stream_get_contents($pipes[2]);
+                fclose($pipes[1]);
+                fclose($pipes[2]);
+                $exit = proc_close($process);
+                $this->assertSame(0, $exit, trim((string) $stderr));
+                $results[] = (string) json_decode(trim((string) $stdout), true, 512, JSON_THROW_ON_ERROR)['status'];
+            }
+            $lines = is_file($marker) ? file($marker, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
+
+            return [$results, count($lines ?: [])];
+        } finally {
+            foreach ([$start, $marker] as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+        }
     }
 
     /**

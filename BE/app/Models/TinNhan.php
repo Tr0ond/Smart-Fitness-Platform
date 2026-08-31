@@ -3,24 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\HoSoHoiVien;
-use App\Models\HoSoHuanLuyenVien;
-use App\Models\HoiThoai;
-use App\Models\NguoiDung;
-use App\Models\PhanCongHuanLuyenVien;
-use App\Models\SuDungQuyenLoi;
-use App\Models\SuKienPhatTinNhan;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class TinNhan extends Model
 {
     protected $table = 'tin_nhan';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = false;
 
     protected $fillable = [

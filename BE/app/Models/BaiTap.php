@@ -3,26 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\BaiTapDungCu;
-use App\Models\BaiTapNhomCo;
-use App\Models\BaiTapTrongGiaoAn;
-use App\Models\BaiTapTrongKeHoach;
-use App\Models\BaiTapTrongPhien;
-use App\Models\BaiTapUngVien;
-use App\Models\NguoiDung;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BaiTap extends Model
 {
     protected $table = 'bai_tap';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = true;
+
     public const CREATED_AT = 'ngay_tao';
+
     public const UPDATED_AT = 'ngay_cap_nhat';
 
     protected $fillable = [

@@ -3,25 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\DangKyGoiTap;
-use App\Models\HoSoHoiVien;
-use App\Models\KyHanHoiVien;
-use App\Models\LichSuSuDungHuanLuyenVien;
-use App\Models\LichSuVaoPhongTap;
-use App\Models\NguoiDung;
-use App\Models\TinNhan;
-use App\Models\YeuCauTroLy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class SuDungQuyenLoi extends Model
 {
     protected $table = 'su_dung_quyen_loi';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = false;
 
     protected $fillable = [

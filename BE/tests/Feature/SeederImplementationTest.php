@@ -4,30 +4,26 @@ namespace Tests\Feature;
 
 use App\Models\BaiTap;
 use App\Models\BaiTapDungCu;
-use App\Models\BaiTapNhomCo;
+use App\Models\BuoiTapDuKien;
+use App\Models\DangKyGoiTap;
 use Database\Seeders\ExerciseDatasetSeeder;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\TestDatabaseGuard;
 use Tests\TestCase;
 
 class SeederImplementationTest extends TestCase
 {
     private function requireIsolatedDatabase(): void
     {
-        $database = (string) config('database.connections.mysql.database');
-        $this->assertSame('mysql', (string) config('database.default'));
-        $this->assertMatchesRegularExpression(
-            '/^smart_fitness_.*test/i',
-            $database,
-            'Seeder tests require a dedicated smart_fitness_*test database; refusing to run against a development database.',
-        );
+        TestDatabaseGuard::damBaoDatabaseHienTai();
 
         // A test process may start with a freshly migrated schema or with a
         // schema prepared by the suite runner. Provision the deterministic
         // baseline in the isolated database when it is absent so test order
         // never decides whether these read-only assertions have fixtures.
-        if (!DB::table('bai_tap')->exists()) {
+        if (! DB::table('bai_tap')->exists()) {
             Artisan::call('db:seed', ['--force' => true]);
         }
     }
@@ -43,7 +39,7 @@ class SeederImplementationTest extends TestCase
             'DemoNguoiDungSeeder',
             'ExerciseDatasetSeeder',
         ] as $seeder) {
-            $this->assertTrue(class_exists('Database\\Seeders\\' . $seeder));
+            $this->assertTrue(class_exists('Database\\Seeders\\'.$seeder));
         }
         $this->assertSame(1, DB::table('chi_nhanh')->count());
         $this->assertSame(4, DB::table('vai_tro')->count());
@@ -64,8 +60,8 @@ class SeederImplementationTest extends TestCase
     public function test_external_dataset_mapping_and_relations(): void
     {
         $this->requireIsolatedDatabase();
-        $source = dirname(base_path()) . DIRECTORY_SEPARATOR . '.tmp' . DIRECTORY_SEPARATOR . 'exercises-dataset';
-        $records = json_decode((string) file_get_contents($source . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'exercises.json'), true, 512, JSON_THROW_ON_ERROR);
+        $source = dirname(base_path()).DIRECTORY_SEPARATOR.'.tmp'.DIRECTORY_SEPARATOR.'exercises-dataset';
+        $records = json_decode((string) file_get_contents($source.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'exercises.json'), true, 512, JSON_THROW_ON_ERROR);
         $normalizer = app(ExerciseDatasetSeeder::class);
         $equipment = [];
         $muscles = [];
@@ -92,7 +88,7 @@ class SeederImplementationTest extends TestCase
     public function test_media_paths_are_copied_without_binary_database_storage(): void
     {
         $this->requireIsolatedDatabase();
-        $source = dirname(base_path()) . DIRECTORY_SEPARATOR . '.tmp' . DIRECTORY_SEPARATOR . 'exercises-dataset' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'exercises.json';
+        $source = dirname(base_path()).DIRECTORY_SEPARATOR.'.tmp'.DIRECTORY_SEPARATOR.'exercises-dataset'.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'exercises.json';
         $expected = count(json_decode((string) file_get_contents($source), true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame($expected, iterator_count(new \FilesystemIterator(storage_path('app/public/exercises/images'))));
         $this->assertSame($expected, iterator_count(new \FilesystemIterator(storage_path('app/public/exercises/videos'))));
@@ -106,7 +102,7 @@ class SeederImplementationTest extends TestCase
     {
         $this->requireIsolatedDatabase();
         $sourcePath = app(ExerciseDatasetSeeder::class)->sourcePath();
-        $record = json_decode((string) file_get_contents($sourcePath . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'exercises.json'), true, 512, JSON_THROW_ON_ERROR)[0];
+        $record = json_decode((string) file_get_contents($sourcePath.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'exercises.json'), true, 512, JSON_THROW_ON_ERROR)[0];
         $record['id'] = 'TEST_MISSING_MEDIA';
         $record['image'] = 'images/does-not-exist.jpg';
         $record['gif_url'] = 'videos/does-not-exist.gif';
@@ -130,16 +126,16 @@ class SeederImplementationTest extends TestCase
         }
         Artisan::call('db:seed', ['--class' => ExerciseDatasetSeeder::class, '--force' => true]);
         foreach ($before as $table => $count) {
-            $this->assertSame($count, DB::table($table)->count(), $table . ' changed on rerun');
+            $this->assertSame($count, DB::table($table)->count(), $table.' changed on rerun');
         }
     }
 
     public function test_generated_columns_are_never_written_by_seeders(): void
     {
         $this->requireIsolatedDatabase();
-        $this->assertNotContains('hoi_vien_chua_ket_thuc_id', (new \App\Models\DangKyGoiTap())->getFillable());
-        $this->assertNotContains('ma_buoi_con_hieu_luc', (new \App\Models\BuoiTapDuKien())->getFillable());
-        $this->assertNotContains('ngay_tap_con_hieu_luc', (new \App\Models\BuoiTapDuKien())->getFillable());
+        $this->assertNotContains('hoi_vien_chua_ket_thuc_id', (new DangKyGoiTap)->getFillable());
+        $this->assertNotContains('ma_buoi_con_hieu_luc', (new BuoiTapDuKien)->getFillable());
+        $this->assertNotContains('ngay_tap_con_hieu_luc', (new BuoiTapDuKien)->getFillable());
     }
 
     public function test_junction_unique_constraint_rejects_duplicate_relation(): void

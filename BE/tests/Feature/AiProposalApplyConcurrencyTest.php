@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\Concerns\CreatesWorkoutFixtures;
 use Tests\Fakes\FakeWorkoutAiProvider;
+use Tests\Support\TestDatabaseGuard;
 use Tests\TestCase;
 
 class AiProposalApplyConcurrencyTest extends TestCase
@@ -21,9 +22,7 @@ class AiProposalApplyConcurrencyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $database = (string) DB::selectOne('SELECT DATABASE() AS ten')->ten;
-        $this->assertMatchesRegularExpression('/^smart_fitness_ai_apply_test_/i', $database);
-        $this->assertNotSame('smart_fitness', strtolower($database));
+        TestDatabaseGuard::damBaoDatabaseHienTai();
         config(['ai.idempotency_ttl_hours' => 24, 'ai.proposal_ttl_hours' => 24]);
         app()->instance(WorkoutAiProvider::class, new FakeWorkoutAiProvider);
     }
@@ -140,7 +139,7 @@ class AiProposalApplyConcurrencyTest extends TestCase
                 (string) $proposalIds[$index],
                 $keys[$index],
                 $barrier,
-            ], $spec, $pipes, base_path());
+            ], $spec, $pipes, base_path(), TestDatabaseGuard::moiTruongTienTrinhCon());
             $this->assertIsResource($process);
             fclose($pipes[0]);
             $processes[] = [$process, $pipes];
@@ -190,7 +189,7 @@ class AiProposalApplyConcurrencyTest extends TestCase
             $start,
             $locked,
             $release,
-        ], $spec, $planPipes, base_path());
+        ], $spec, $planPipes, base_path(), TestDatabaseGuard::moiTruongTienTrinhCon());
         $this->assertIsResource($planProcess);
         fclose($planPipes[0]);
         touch($start);
@@ -209,7 +208,7 @@ class AiProposalApplyConcurrencyTest extends TestCase
             (string) $proposalId,
             (string) Str::uuid(),
             $applyStart,
-        ], $spec, $applyPipes, base_path());
+        ], $spec, $applyPipes, base_path(), TestDatabaseGuard::moiTruongTienTrinhCon());
         $this->assertIsResource($applyProcess);
         fclose($applyPipes[0]);
         touch($applyStart);

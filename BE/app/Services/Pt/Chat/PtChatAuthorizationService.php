@@ -7,6 +7,8 @@ use App\Models\HoiThoai;
 use App\Models\HoSoHoiVien;
 use App\Models\HoSoHuanLuyenVien;
 use App\Models\NguoiDung;
+use App\Models\PhanCongHuanLuyenVien;
+use Carbon\CarbonImmutable;
 
 class PtChatAuthorizationService
 {
@@ -42,6 +44,7 @@ class PtChatAuthorizationService
                 ->first();
             if ($huanLuyenVien instanceof HoSoHuanLuyenVien
                 && (int) $huanLuyenVien->getKey() === (int) $hoiThoai->huan_luyen_vien_id
+                && $this->phanCongCuaHoiThoaiDangHieuLuc($hoiThoai)
                 && (! $yeuCauDuDieuKienGui || $huanLuyenVien->trang_thai === 'HOAT_DONG')) {
                 return self::PT;
             }
@@ -50,7 +53,7 @@ class PtChatAuthorizationService
         throw $this->khongTimThay();
     }
 
-    /** Channel auth chỉ kiểm tra participant lịch sử, không đụng Membership/activation. */
+    /** Member được đọc lịch sử; PT chỉ subscribe khi exact assignment còn hiệu lực. */
     public function laNguoiThamGia(NguoiDung $nguoiDung, int $hoiThoaiId): bool
     {
         $hoiThoai = HoiThoai::query()->find($hoiThoaiId);
@@ -73,6 +76,22 @@ class PtChatAuthorizationService
             ->whereNull('thu_hoi_luc')
             ->whereHas('vaiTro', fn ($truyVan) => $truyVan->where('ma_vai_tro', $maVaiTro))
             ->exists();
+    }
+
+    private function phanCongCuaHoiThoaiDangHieuLuc(HoiThoai $hoiThoai): bool
+    {
+        $phanCong = $hoiThoai->phanCongHuanLuyenVien()->first();
+        if (! $phanCong instanceof PhanCongHuanLuyenVien
+            || (int) $phanCong->hoi_vien_id !== (int) $hoiThoai->hoi_vien_id
+            || (int) $phanCong->huan_luyen_vien_id !== (int) $hoiThoai->huan_luyen_vien_id) {
+            return false;
+        }
+
+        $hienTai = CarbonImmutable::now('UTC');
+
+        return CarbonImmutable::instance($phanCong->ngay_bat_dau)->lessThanOrEqualTo($hienTai)
+            && ($phanCong->ngay_ket_thuc === null
+                || $hienTai->lessThan(CarbonImmutable::instance($phanCong->ngay_ket_thuc)));
     }
 
     private function khongTimThay(): PtChatWorkflowException

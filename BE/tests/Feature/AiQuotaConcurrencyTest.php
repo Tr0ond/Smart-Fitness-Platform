@@ -8,6 +8,7 @@ use Tests\Concerns\CreatesAiFixtures;
 use Tests\Concerns\CreatesAuthenticationFixtures;
 use Tests\Concerns\CreatesMembershipFixtures;
 use Tests\Concerns\CreatesProfileFixtures;
+use Tests\Support\TestDatabaseGuard;
 use Tests\TestCase;
 
 class AiQuotaConcurrencyTest extends TestCase
@@ -23,9 +24,7 @@ class AiQuotaConcurrencyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $database = (string) DB::selectOne('SELECT DATABASE() AS ten')->ten;
-        $this->assertMatchesRegularExpression('/^smart_fitness_.*test/i', $database);
-        $this->assertNotSame('smart_fitness', strtolower($database));
+        TestDatabaseGuard::damBaoDatabaseHienTai();
     }
 
     protected function tearDown(): void
@@ -90,7 +89,7 @@ class AiQuotaConcurrencyTest extends TestCase
                 $entered,
                 $release,
                 $calls,
-            ], $pipesSpec, $pipes, base_path());
+            ], $pipesSpec, $pipes, base_path(), TestDatabaseGuard::moiTruongTienTrinhCon());
             $this->assertIsResource($process);
             fclose($pipes[0]);
             $processes[] = [$process, $pipes];

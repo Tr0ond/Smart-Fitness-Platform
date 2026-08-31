@@ -10,21 +10,12 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Tests\Support\TestDatabaseGuard;
 
 require dirname(__DIR__, 2).'/vendor/autoload.php';
 
 [$script, $database, $userId, $memberId, $planId, $exerciseId, $start, $locked, $release] = $argv;
-if (preg_match('/^smart_fitness_ai_apply_test_/i', $database) !== 1 || strtolower($database) === 'smart_fitness') {
-    fwrite(STDERR, 'Unsafe AI Apply plan-change database.'.PHP_EOL);
-    exit(2);
-}
-
-putenv('APP_ENV=testing');
-putenv('DB_CONNECTION=mysql');
-putenv('DB_DATABASE='.$database);
-$_ENV['APP_ENV'] = 'testing';
-$_ENV['DB_CONNECTION'] = 'mysql';
-$_ENV['DB_DATABASE'] = $database;
+TestDatabaseGuard::khoiTaoTienTrinhCon($database);
 
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();

@@ -3,22 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\ChiNhanh;
-use App\Models\HoSoHoiVien;
-use App\Models\LichSuVaoPhongTap;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class MaVaoPhongTap extends Model
 {
     protected $table = 'ma_vao_phong_tap';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = true;
+
     public const CREATED_AT = 'ngay_tao';
+
     public const UPDATED_AT = 'ngay_cap_nhat';
 
     protected $fillable = [

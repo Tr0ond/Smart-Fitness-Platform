@@ -1,0 +1,107 @@
+name: Backend
+
+on:
+  push:
+    paths:
+      - 'BE/**'
+      - 'PROJECT_RULES.md'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    paths:
+      - 'BE/**'
+      - 'PROJECT_RULES.md'
+      - '.github/workflows/backend.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:10.4.32
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: smart_fitness_ci_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: smart_fitness_ci_test
+      SMART_FITNESS_TEST_DATABASE: smart_fitness_ci_test
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      AI_PROVIDER: unavailable
+      BROADCAST_CONNECTION: 'null'
+      CACHE_STORE: array
+      MAIL_MAILER: array
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: array
+      EXERCISE_DATASET_PATH: ../.tmp/exercises-dataset
+      EXERCISE_DATASET_COMMIT: 7455efae41b330c265e7cd4b78dfa848e7ce5ebd
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: curl, dom, fileinfo, filter, hash, intl, json, mbstring, openssl, pcre, pdo_mysql, session, tokenizer, xml, xmlwriter
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --working-dir=BE --no-interaction --prefer-dist --no-progress
+
+      - name: Checkout approved exercise dataset
+        shell: bash
+        run: |
+          mkdir -p .tmp/exercises-dataset
+          git -C .tmp/exercises-dataset init
+          git -C .tmp/exercises-dataset remote add origin https://github.com/hasaneyldrm/exercises-dataset.git
+          git -C .tmp/exercises-dataset fetch --depth 1 origin "$EXERCISE_DATASET_COMMIT"
+          git -C .tmp/exercises-dataset checkout --detach FETCH_HEAD
+          test "$(git -C .tmp/exercises-dataset rev-parse HEAD)" = "$EXERCISE_DATASET_COMMIT"
+
+      - name: Configure Laravel
+        working-directory: BE
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan config:clear
+
+      - name: Validate dependencies and formatting
+        working-directory: BE
+        run: |
+          composer validate --strict
+          composer audit --locked --no-interaction
+          composer check-platform-reqs
+          vendor/bin/pint --test
+
+      - name: Build isolated database
+        working-directory: BE
+        run: |
+          php artisan migrate --force
+          php artisan db:seed --force
+
+      - name: Run Backend tests
+        working-directory: BE
+        run: php artisan test
+
+      - name: Secret hygiene
+        shell: bash
+        run: |
+          test -z "$(git ls-files | grep -E '(^|/)\.env$|\.pem$|\.key$' || true)"
+          ! git grep -nE '(GEMINI_API_KEY|PAYOS_API_KEY|REVERB_APP_SECRET)=[^[:space:]]+' -- BE/app BE/config BE/routes BE/database ':!BE/.env.example'

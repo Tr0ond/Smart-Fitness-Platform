@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Contracts\Ai\WorkoutAiProvider;
 use App\Data\Ai\WorkoutAiResult;
 use App\Exceptions\Ai\AiProviderException;
+use App\Gateways\GeminiWorkoutAiProvider;
 use App\Services\Ai\AiRequestService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Tests\Concerns\CreatesAiFixtures;
 use Tests\Concerns\CreatesAuthenticationFixtures;
 use Tests\Concerns\CreatesMembershipFixtures;
@@ -100,6 +102,72 @@ class AiRequestApiTest extends TestCase
         $this->assertSame(1, DB::table('lan_goi_mo_hinh')->where('yeu_cau_tro_ly_id', $requestId)->count());
         $this->assertSame(0, DB::table('ke_hoach_tap')->count());
         $this->assertSame(0, DB::table('phien_tap')->count());
+    }
+
+    public function test_gemini_transport_success_consumes_exactly_one_quota_and_persists_immutable_proposal(): void
+    {
+        $bo = $this->taoBoAi(true, 2);
+        $exerciseId = (int) DB::table('bai_tap')
+            ->where('nguoi_tao_id', $bo['fixture']['user']->getKey())
+            ->latest('id')
+            ->value('id');
+        $output = $this->geminiOutput($exerciseId);
+        config([
+            'ai.provider' => 'gemini',
+            'ai.model' => 'gemini-runtime-test',
+            'ai.gemini.api_key' => 'dummy-testing-key',
+            'ai.gemini.base_url' => 'https://generativelanguage.googleapis.com',
+        ]);
+        app()->instance(WorkoutAiProvider::class, app(GeminiWorkoutAiProvider::class));
+        Http::fake(['*' => Http::response([
+            'responseId' => 'runtime-response-id',
+            'candidates' => [['content' => ['parts' => [['text' => json_encode($output, JSON_THROW_ON_ERROR)]]]]],
+            'usageMetadata' => ['promptTokenCount' => 101, 'candidatesTokenCount' => 41],
+        ], 200)]);
+
+        $response = $this->guiYeuCau($bo, $this->uuidAi())->assertCreated();
+        $requestId = (int) $response->json('data.id');
+        $proposalId = (int) $response->json('data.proposal.id');
+        $call = DB::table('lan_goi_mo_hinh')->where('yeu_cau_tro_ly_id', $requestId)->sole();
+        $proposal = DB::table('de_xuat_ke_hoach_tap')->find($proposalId);
+
+        $this->assertSame('gemini', $call->nha_cung_cap);
+        $this->assertSame('gemini-runtime-test', $call->ten_mo_hinh);
+        $this->assertSame('runtime-response-id', $call->ma_yeu_cau_nha_cung_cap);
+        $this->assertSame(101, (int) $call->so_don_vi_dau_vao);
+        $this->assertSame(41, (int) $call->so_don_vi_dau_ra);
+        $this->assertSame(1, (int) DB::table('ky_han_hoi_vien')->where('id', $bo['term']->getKey())->value('so_luot_tro_ly_da_dung'));
+        $this->assertSame(0, (int) DB::table('ky_han_hoi_vien')->where('id', $bo['term']->getKey())->value('so_luot_tro_ly_giu_cho'));
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{64}$/', (string) $call->ma_bam_phan_hoi);
+        $this->assertSame($proposal->ma_bam_noi_dung, DB::table('de_xuat_ke_hoach_tap')->where('id', $proposalId)->value('ma_bam_noi_dung'));
+        Http::assertSentCount(1);
+    }
+
+    public function test_gemini_rate_limit_refunds_exactly_once_and_idempotent_replay_does_not_call_provider_again(): void
+    {
+        $bo = $this->taoBoAi(true, 1);
+        $key = $this->uuidAi();
+        config([
+            'ai.provider' => 'gemini',
+            'ai.model' => 'gemini-runtime-test',
+            'ai.gemini.api_key' => 'dummy-testing-key',
+            'ai.gemini.base_url' => 'https://generativelanguage.googleapis.com',
+        ]);
+        app()->instance(WorkoutAiProvider::class, app(GeminiWorkoutAiProvider::class));
+        Http::fake(['*' => Http::response(['error' => ['message' => 'provider detail must stay private']], 429)]);
+
+        $this->guiYeuCau($bo, $key)->assertStatus(503)->assertJsonPath('code', 'AI_PROVIDER_RATE_LIMITED');
+        $this->guiYeuCau($bo, $key)->assertStatus(503)->assertJsonPath('code', 'AI_PROVIDER_RATE_LIMITED');
+
+        $term = DB::table('ky_han_hoi_vien')->find($bo['term']->getKey());
+        $request = DB::table('yeu_cau_tro_ly')->where('hoi_vien_id', $bo['member_id'])->sole();
+        $this->assertSame('DANG_HOAT_DONG', $term->trang_thai);
+        $this->assertSame(0, (int) $term->so_luot_tro_ly_da_dung);
+        $this->assertSame(0, (int) $term->so_luot_tro_ly_giu_cho);
+        $this->assertSame('DA_TRA', $request->trang_thai_han_muc);
+        $this->assertSame(1, DB::table('su_dung_quyen_loi')->where('hoi_vien_id', $bo['member_id'])->where('loai_su_dung', 'YEU_CAU_TRO_LY')->count());
+        $this->assertSame(0, DB::table('de_xuat_ke_hoach_tap')->where('hoi_vien_id', $bo['member_id'])->count());
+        Http::assertSentCount(1);
     }
 
     public function test_provider_failure_modes_refund_quota_keep_activation_and_create_no_proposal(): void
@@ -365,5 +433,27 @@ class AiRequestApiTest extends TestCase
                 'request_type' => 'TAO_KE_HOACH',
                 'prompt' => 'Tạo cho tôi kế hoạch tập ba buổi mỗi tuần.',
             ]);
+    }
+
+    /** @return array<string, mixed> */
+    private function geminiOutput(int $exerciseId): array
+    {
+        return [
+            'loai_thay_doi' => 'TAO_MOI',
+            'tieu_de' => 'Kế hoạch Gemini đã kiểm tra',
+            'giai_thich' => 'Chỉ sử dụng candidate đã được Backend cấp.',
+            'ap_dung_tu_ngay' => CarbonImmutable::now('UTC')->addDay()->format('Y-m-d'),
+            'ngay_trong_ke_hoach' => array_map(fn (int $day): array => [
+                'thu_trong_tuan' => $day,
+                'bai_tap_trong_ke_hoach' => [[
+                    'bai_tap_id' => $exerciseId,
+                    'thu_tu' => 1,
+                    'so_hiep_muc_tieu' => 3,
+                    'so_lan_lap_toi_thieu' => 8,
+                    'so_lan_lap_toi_da' => 12,
+                    'thoi_gian_nghi_giay' => 90,
+                ]],
+            ], [2, 4, 6]),
+        ];
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Tests\Concerns\CreatesAuthenticationFixtures;
 use Tests\Concerns\CreatesMembershipFixtures;
 use Tests\Concerns\CreatesProfileFixtures;
+use Tests\Support\TestDatabaseGuard;
 use Tests\TestCase;
 
 class MembershipConcurrencyTest extends TestCase
@@ -21,9 +22,7 @@ class MembershipConcurrencyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $database = (string) DB::selectOne('SELECT DATABASE() AS ten')->ten;
-        $this->assertMatchesRegularExpression('/^smart_fitness_.*test/i', $database);
-        $this->assertNotSame('smart_fitness', strtolower($database));
+        TestDatabaseGuard::damBaoDatabaseHienTai();
     }
 
     protected function tearDown(): void
@@ -107,7 +106,7 @@ class MembershipConcurrencyTest extends TestCase
                 (string) $idThuNhat,
                 (string) $idThuHai,
                 $barrier,
-            ], $moTaOng, $cacOng, base_path());
+            ], $moTaOng, $cacOng, base_path(), TestDatabaseGuard::moiTruongTienTrinhCon());
             $this->assertIsResource($tienTrinh);
             fclose($cacOng[0]);
             $cacTienTrinh[] = [$tienTrinh, $cacOng];

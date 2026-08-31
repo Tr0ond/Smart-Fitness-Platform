@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use LogicException;
+use Tests\Support\TestDatabaseGuard;
 
 /**
  * Dựng dữ liệu PT Chat trên schema MariaDB kiểm thử cô lập.
@@ -340,19 +341,7 @@ trait CreatesPtChatFixtures
      */
     private function damBaoDatabasePtChatCoLap(): void
     {
-        $connection = (string) config('database.default');
-        $databaseCauHinh = (string) config("database.connections.{$connection}.database");
-        $databaseThucTe = (string) (DB::selectOne('SELECT DATABASE() AS ten_database')->ten_database ?? '');
-
-        if ($connection !== 'mysql'
-            || $databaseCauHinh !== $databaseThucTe
-            || preg_match('/^smart_fitness_.*test/i', $databaseThucTe) !== 1
-            || strtolower($databaseThucTe) === 'smart_fitness') {
-            throw new LogicException(sprintf(
-                'PT Chat fixtures chỉ được chạy trên schema smart_fitness_*test cô lập (hiện tại: %s).',
-                $databaseThucTe !== '' ? $databaseThucTe : 'NONE',
-            ));
-        }
+        TestDatabaseGuard::damBaoDatabaseHienTai();
     }
 
     /** @param array<string, mixed> $fixture */

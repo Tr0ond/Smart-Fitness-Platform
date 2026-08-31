@@ -6,8 +6,8 @@ use App\Models\BaiTap;
 use App\Models\BaiTapDungCu;
 use App\Models\BaiTapNhomCo;
 use App\Models\DungCu;
-use App\Models\NhomCo;
 use App\Models\NguoiDung;
+use App\Models\NhomCo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +25,7 @@ class ExerciseDatasetSeeder extends Seeder
     use WithoutModelEvents;
 
     private const DEFAULT_DIFFICULTY = 'CHUA_XAC_DINH';
+
     private const DATASET_RELATIVE_PATH = '.tmp/exercises-dataset';
 
     /** @var array<int, string> */
@@ -38,7 +39,7 @@ class ExerciseDatasetSeeder extends Seeder
             ->where('thu_dien_tu', 'dev.admin@smartfitness.local')
             ->first();
 
-        if (!$admin) {
+        if (! $admin) {
             throw new \RuntimeException('EXERCISE DATASET SEEDER REQUIRES dev.admin@smartfitness.local. Run DemoNguoiDungSeeder first.');
         }
 
@@ -69,7 +70,8 @@ class ExerciseDatasetSeeder extends Seeder
 
     /**
      * Public entry point used by isolated seeder tests with fixture records.
-     * @param array<int, array<string, mixed>> $records
+     *
+     * @param  array<int, array<string, mixed>>  $records
      * @return array<string, int>
      */
     public function importFromRecords(array $records, int $adminId, ?string $sourcePath = null): array
@@ -81,6 +83,7 @@ class ExerciseDatasetSeeder extends Seeder
     public function normalizeForLookup(string $value): string
     {
         $value = Str::lower(Str::ascii(trim($value)));
+
         return (string) preg_replace('/\s+/', ' ', $value);
     }
 
@@ -91,31 +94,33 @@ class ExerciseDatasetSeeder extends Seeder
             $isAbsolute = (bool) preg_match('/^(?:[A-Za-z]:[\\\\\/]|[\\\\\/]{2})/', $configured);
             $candidate = $isAbsolute ? $configured : base_path($configured);
         } else {
-            $candidate = dirname(base_path()) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, self::DATASET_RELATIVE_PATH);
+            $candidate = dirname(base_path()).DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, self::DATASET_RELATIVE_PATH);
         }
         $resolved = realpath($candidate);
-        if ($resolved === false || !is_dir($resolved)) {
+        if ($resolved === false || ! is_dir($resolved)) {
             throw new \RuntimeException('EXERCISE DATASET SOURCE NOT FOUND. Expected EXERCISE_DATASET_PATH or project-local .tmp/exercises-dataset.');
         }
+
         return $resolved;
     }
 
     /** @return array<int, array<string, mixed>> */
     private function readRecords(string $sourcePath): array
     {
-        $file = $sourcePath . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'exercises.json';
-        if (!is_file($file) || filesize($file) < 1) {
+        $file = $sourcePath.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'exercises.json';
+        if (! is_file($file) || filesize($file) < 1) {
             throw new \RuntimeException("EXERCISE DATASET FILE NOT FOUND: {$file}");
         }
         $data = json_decode((string) file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             throw new \RuntimeException('EXERCISE DATASET JSON MUST BE AN ARRAY.');
         }
+
         return array_values(array_filter($data, static fn ($record): bool => is_array($record)));
     }
 
     /**
-     * @param array<int, array<string, mixed>> $records
+     * @param  array<int, array<string, mixed>>  $records
      * @return array<string, int>
      */
     private function importRecords(array $records, int $adminId, ?string $sourcePath): array
@@ -177,7 +182,7 @@ class ExerciseDatasetSeeder extends Seeder
             $oldMetadata = is_array($existing?->thong_tin_bo_sung) ? $existing->thong_tin_bo_sung : [];
             $metadata = array_merge($oldMetadata, $metadata);
 
-            $exercise = $existing ?: new BaiTap();
+            $exercise = $existing ?: new BaiTap;
             $exercise->ma_bai_tap = $code;
             $exercise->ten_bai_tap = $name;
             $exercise->do_kho = self::DEFAULT_DIFFICULTY;
@@ -204,7 +209,7 @@ class ExerciseDatasetSeeder extends Seeder
             $primary = $this->primaryMuscle($record);
             foreach ($this->muscleValues($record) as $muscle) {
                 $lookup = $this->normalizeForLookup($muscle);
-                if (!isset($muscleMap[$lookup])) {
+                if (! isset($muscleMap[$lookup])) {
                     continue;
                 }
                 BaiTapNhomCo::query()->firstOrCreate(
@@ -231,6 +236,7 @@ class ExerciseDatasetSeeder extends Seeder
         $equipment->mo_ta = 'Danh muc dung cu tu Exercise Dataset; khong phai tai san gym.';
         $equipment->trang_thai = 'HOAT_DONG';
         $equipment->save();
+
         return (int) $equipment->id;
     }
 
@@ -240,6 +246,7 @@ class ExerciseDatasetSeeder extends Seeder
         $muscle->ten_nhom_co = $name;
         $muscle->mo_ta = 'Nhom co duoc chuan hoa tu truong muscle/target cua Exercise Dataset.';
         $muscle->save();
+
         return (int) $muscle->id;
     }
 
@@ -257,6 +264,7 @@ class ExerciseDatasetSeeder extends Seeder
                 return trim((string) $value);
             }
         }
+
         return 'Chua co huong dan tu nguon du lieu.';
     }
 
@@ -269,6 +277,7 @@ class ExerciseDatasetSeeder extends Seeder
                 return $value;
             }
         }
+
         return 'other';
     }
 
@@ -281,48 +290,52 @@ class ExerciseDatasetSeeder extends Seeder
         }
         $result = [];
         foreach ($values as $value) {
-            if ($value !== '' && !isset($result[$this->normalizeForLookup($value)])) {
+            if ($value !== '' && ! isset($result[$this->normalizeForLookup($value)])) {
                 $result[$this->normalizeForLookup($value)] = $value;
             }
         }
+
         return array_values($result);
     }
 
     /** @param array<string, mixed> $record @return array{image_path:?string,video_path:?string,copied:int,missing:int} */
     private function copyMedia(array $record, ?string $sourcePath): array
     {
-        if (!$sourcePath) {
+        if (! $sourcePath) {
             return ['image_path' => null, 'video_path' => null, 'copied' => 0, 'missing' => 0];
         }
         $result = ['image_path' => null, 'video_path' => null, 'copied' => 0, 'missing' => 0];
         foreach ([['field' => 'image', 'folder' => 'images', 'column' => 'image_path'], ['field' => 'gif_url', 'folder' => 'videos', 'column' => 'video_path']] as $media) {
             $relative = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim((string) ($record[$media['field']] ?? '')));
             $relative = ltrim($relative, DIRECTORY_SEPARATOR);
-            if ($relative === '' || !str_starts_with($relative, $media['folder'] . DIRECTORY_SEPARATOR)) {
+            if ($relative === '' || ! str_starts_with($relative, $media['folder'].DIRECTORY_SEPARATOR)) {
                 $result['missing']++;
+
                 continue;
             }
-            $source = realpath($sourcePath . DIRECTORY_SEPARATOR . $relative);
-            $approvedRoot = realpath($sourcePath . DIRECTORY_SEPARATOR . $media['folder']);
-            $sourcePrefix = $approvedRoot === false ? '' : rtrim($approvedRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-            if ($source === false || $sourcePrefix === '' || !str_starts_with(strtolower($source), strtolower($sourcePrefix)) || !is_file($source) || filesize($source) < 1) {
+            $source = realpath($sourcePath.DIRECTORY_SEPARATOR.$relative);
+            $approvedRoot = realpath($sourcePath.DIRECTORY_SEPARATOR.$media['folder']);
+            $sourcePrefix = $approvedRoot === false ? '' : rtrim($approvedRoot, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+            if ($source === false || $sourcePrefix === '' || ! str_starts_with(strtolower($source), strtolower($sourcePrefix)) || ! is_file($source) || filesize($source) < 1) {
                 $result['missing']++;
+
                 continue;
             }
             $filename = basename($source);
-            $targetRelative = 'exercises/' . $media['folder'] . '/' . $filename;
-            $target = storage_path('app/public/' . $targetRelative);
+            $targetRelative = 'exercises/'.$media['folder'].'/'.$filename;
+            $target = storage_path('app/public/'.$targetRelative);
             File::ensureDirectoryExists(dirname($target));
             $targetExisted = is_file($target);
-            if (!copy($source, $target)) {
+            if (! copy($source, $target)) {
                 throw new \RuntimeException("Unable to copy exercise media: {$source}");
             }
-            if (!$targetExisted && !in_array($target, $this->copiedFiles, true)) {
+            if (! $targetExisted && ! in_array($target, $this->copiedFiles, true)) {
                 $this->copiedFiles[] = $target;
             }
             $result[$media['column']] = $targetRelative;
             $result['copied']++;
         }
+
         return $result;
     }
 
@@ -336,11 +349,12 @@ class ExerciseDatasetSeeder extends Seeder
         $ascii = strtoupper(Str::ascii(trim($value)));
         $slug = (string) preg_replace('/[^A-Z0-9]+/', '_', $ascii);
         $slug = trim($slug, '_');
-        $code = $prefix . '_' . ($slug !== '' ? $slug : 'OTHER');
+        $code = $prefix.'_'.($slug !== '' ? $slug : 'OTHER');
         if (strlen($code) <= $maxLength) {
             return $code;
         }
-        return substr($code, 0, $maxLength - 7) . '_' . substr(sha1($this->normalizeForLookup($value)), 0, 6);
+
+        return substr($code, 0, $maxLength - 7).'_'.substr(sha1($this->normalizeForLookup($value)), 0, 6);
     }
 
     private function sourceCommit(?string $sourcePath): ?string
@@ -349,11 +363,12 @@ class ExerciseDatasetSeeder extends Seeder
         if ($configured !== '') {
             return $configured;
         }
-        if (!$sourcePath || !is_dir($sourcePath . DIRECTORY_SEPARATOR . '.git')) {
+        if (! $sourcePath || ! is_dir($sourcePath.DIRECTORY_SEPARATOR.'.git')) {
             return null;
         }
-        $command = 'git -C ' . escapeshellarg($sourcePath) . ' rev-parse HEAD 2>&1';
+        $command = 'git -C '.escapeshellarg($sourcePath).' rev-parse HEAD 2>&1';
         $commit = trim((string) @shell_exec($command));
+
         return preg_match('/^[0-9a-f]{40}$/i', $commit) ? $commit : null;
     }
 }

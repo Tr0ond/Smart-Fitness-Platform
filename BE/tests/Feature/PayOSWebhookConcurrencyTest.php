@@ -7,6 +7,7 @@ use Tests\Concerns\CreatesAuthenticationFixtures;
 use Tests\Concerns\CreatesMembershipFixtures;
 use Tests\Concerns\CreatesPaymentFixtures;
 use Tests\Concerns\CreatesProfileFixtures;
+use Tests\Support\TestDatabaseGuard;
 use Tests\TestCase;
 
 class PayOSWebhookConcurrencyTest extends TestCase
@@ -22,9 +23,7 @@ class PayOSWebhookConcurrencyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $database = (string) DB::selectOne('SELECT DATABASE() AS ten')->ten;
-        $this->assertMatchesRegularExpression('/\Asmart_fitness_[a-z0-9_]*test(?:_[a-z0-9_]+)?\z/i', $database);
-        $this->assertNotSame('smart_fitness', strtolower($database));
+        TestDatabaseGuard::damBaoDatabaseHienTai();
         $this->cauHinhPaymentTest();
     }
 
@@ -75,7 +74,7 @@ class PayOSWebhookConcurrencyTest extends TestCase
 
         for ($i = 0; $i < 2; $i++) {
             $pipes = [];
-            $process = proc_open([PHP_BINARY, $script, $database, $payloadPath, $barrier], $descriptor, $pipes, base_path());
+            $process = proc_open([PHP_BINARY, $script, $database, $payloadPath, $barrier], $descriptor, $pipes, base_path(), TestDatabaseGuard::moiTruongTienTrinhCon());
             $this->assertIsResource($process);
             fclose($pipes[0]);
             $processes[] = [$process, $pipes];

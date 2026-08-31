@@ -3,12 +3,14 @@
 namespace Tests\Feature;
 
 use App\Contracts\Ai\WorkoutAiProvider;
+use App\Gateways\GeminiWorkoutAiProvider;
 use App\Services\Ai\AiProposalApplyService;
 use App\Services\Ai\AiProposalAuditService;
 use App\Services\Workout\WorkoutScheduleService;
 use App\Services\Workout\WorkoutSessionService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Tests\Concerns\CreatesWorkoutFixtures;
@@ -48,6 +50,14 @@ class AiProposalApplyWorkoutPlanTest extends TestCase
         $chatUsageTruoc = DB::table('su_dung_quyen_loi')->where('hoi_vien_id', $bo['member_id'])->where('loai_su_dung', 'TRO_CHUYEN_HUAN_LUYEN_VIEN')->count();
         $deXuatTruoc = DB::table('de_xuat_ke_hoach_tap')->find($proposalId);
         $calls = $this->fake->callCount;
+        config([
+            'ai.provider' => 'gemini',
+            'ai.model' => 'gemini-apply-must-not-call',
+            'ai.gemini.api_key' => 'dummy-testing-key',
+            'ai.gemini.base_url' => 'https://generativelanguage.googleapis.com',
+        ]);
+        app()->instance(WorkoutAiProvider::class, app(GeminiWorkoutAiProvider::class));
+        Http::preventStrayRequests();
 
         $lanDau = $this->apply($bo, $proposalId, $key)->assertOk()
             ->assertJsonPath('data.proposal.status', 'DA_AP_DUNG')
@@ -64,6 +74,7 @@ class AiProposalApplyWorkoutPlanTest extends TestCase
             ->assertJsonPath('data.replayed', true);
 
         $this->assertSame($calls, $this->fake->callCount);
+        Http::assertNothingSent();
         $this->assertSame(1, DB::table('ke_hoach_tap')->where('hoi_vien_id', $bo['member_id'])->count());
         $this->assertSame(1, DB::table('phien_ban_ke_hoach_tap')->where('de_xuat_ke_hoach_tap_id', $proposalId)->count());
         $this->assertGreaterThan(0, DB::table('buoi_tap_du_kien')->where('phien_ban_ke_hoach_tap_id', $versionId)->count());
@@ -319,7 +330,9 @@ class AiProposalApplyWorkoutPlanTest extends TestCase
         $bo = $this->taoBoApply();
         $proposalId = $this->taoProposal($bo, 'TAO_KE_HOACH');
         $audit = $this->createMock(AiProposalAuditService::class);
-        $audit->method('ghiDaApDung')->willThrowException(new RuntimeException('controlled audit failure'));
+        $audit->expects($this->once())
+            ->method('ghiDaApDung')
+            ->willThrowException(new RuntimeException('controlled audit failure'));
         app()->instance(AiProposalAuditService::class, $audit);
 
         try {

@@ -29,15 +29,29 @@ class PtChatQueryService
             return [];
         }
 
+        $hienTai = CarbonImmutable::now('UTC');
+
         return HoiThoai::query()
             ->with(['hoiVien.nguoiDung', 'huanLuyenVien.nguoiDung', 'phanCongHuanLuyenVien'])
-            ->where(function (Builder $truyVan) use ($hoiVienId, $huanLuyenVienId): void {
+            ->where(function (Builder $truyVan) use ($hoiVienId, $huanLuyenVienId, $hienTai): void {
                 if ($hoiVienId !== null) {
                     $truyVan->where('hoi_vien_id', $hoiVienId);
                 }
                 if ($huanLuyenVienId !== null) {
                     $phuongThuc = $hoiVienId === null ? 'where' : 'orWhere';
-                    $truyVan->{$phuongThuc}('huan_luyen_vien_id', $huanLuyenVienId);
+                    $truyVan->{$phuongThuc}(function (Builder $truyVanPt) use ($huanLuyenVienId, $hienTai): void {
+                        $truyVanPt
+                            ->where('huan_luyen_vien_id', $huanLuyenVienId)
+                            ->whereHas('phanCongHuanLuyenVien', function (Builder $phanCong) use ($hienTai): void {
+                                $phanCong
+                                    ->where('ngay_bat_dau', '<=', $hienTai)
+                                    ->where(function (Builder $mocKetThuc) use ($hienTai): void {
+                                        $mocKetThuc
+                                            ->whereNull('ngay_ket_thuc')
+                                            ->orWhere('ngay_ket_thuc', '>', $hienTai);
+                                    });
+                            });
+                    });
                 }
             })
             ->orderByDesc('ngay_cap_nhat')

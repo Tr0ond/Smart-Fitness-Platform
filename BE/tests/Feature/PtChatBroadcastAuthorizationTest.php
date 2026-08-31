@@ -48,7 +48,7 @@ class PtChatBroadcastAuthorizationTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_actual_broadcast_auth_allows_exact_historical_participants_only_without_activation(): void
+    public function test_actual_broadcast_auth_allows_member_history_but_denies_old_and_new_pt_on_old_channel(): void
     {
         $fixture = $this->taoBoPtChatFixtures(kemTheoToken: true);
         $ky = $this->taoMembershipPtChat($fixture, $fixture['member_a_id']);
@@ -58,30 +58,48 @@ class PtChatBroadcastAuthorizationTest extends TestCase
             'ly_do_ket_thuc' => 'Historical channel auth test',
             'ngay_cap_nhat' => now('UTC'),
         ]);
+        $phanCongMoiId = $this->taoPhanCongPtChat(
+            $fixture,
+            $fixture['member_a_id'],
+            $fixture['pt_b_id'],
+            now('UTC')->toImmutable(),
+        );
+        $hoiThoaiMoi = $this->taoHoiThoaiPtChat($phanCongMoiId);
 
         $this->assertTrue(app(PtChatAuthorizationService::class)->laNguoiThamGia(
             $fixture['member_a']['user'],
             (int) $hoiThoai->getKey(),
         ));
-        $this->assertTrue(app(PtChatAuthorizationService::class)->laNguoiThamGia(
+        $this->assertFalse(app(PtChatAuthorizationService::class)->laNguoiThamGia(
             $fixture['pt_a']['user'],
             (int) $hoiThoai->getKey(),
         ));
+        $this->assertFalse(app(PtChatAuthorizationService::class)->laNguoiThamGia(
+            $fixture['pt_b']['user'],
+            (int) $hoiThoai->getKey(),
+        ));
+        $this->assertTrue(app(PtChatAuthorizationService::class)->laNguoiThamGia(
+            $fixture['pt_b']['user'],
+            (int) $hoiThoaiMoi->getKey(),
+        ));
 
-        foreach ([$fixture['member_a_token'], $fixture['pt_a_token']] as $token) {
-            $this->postJson(
-                '/api/broadcasting/auth',
-                $this->duLieuKenh((int) $hoiThoai->getKey()),
-                $this->bearer($token),
-            )->assertOk()->assertJsonStructure(['auth']);
-        }
-        foreach ([$fixture['member_b_token'], $fixture['pt_b_token']] as $token) {
+        $this->postJson(
+            '/api/broadcasting/auth',
+            $this->duLieuKenh((int) $hoiThoai->getKey()),
+            $this->bearer($fixture['member_a_token']),
+        )->assertOk()->assertJsonStructure(['auth']);
+        foreach ([$fixture['pt_a_token'], $fixture['member_b_token'], $fixture['pt_b_token']] as $token) {
             $this->postJson(
                 '/api/broadcasting/auth',
                 $this->duLieuKenh((int) $hoiThoai->getKey()),
                 $this->bearer($token),
             )->assertForbidden();
         }
+        $this->postJson(
+            '/api/broadcasting/auth',
+            $this->duLieuKenh((int) $hoiThoaiMoi->getKey()),
+            $this->bearer($fixture['pt_b_token']),
+        )->assertOk()->assertJsonStructure(['auth']);
         $this->postJson('/api/broadcasting/auth', $this->duLieuKenh((int) $hoiThoai->getKey()))
             ->assertUnauthorized();
         $this->postJson(

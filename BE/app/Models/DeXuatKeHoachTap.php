@@ -3,25 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\HoSoHoiVien;
-use App\Models\KeHoachTap;
-use App\Models\NguoiDung;
-use App\Models\PhanCongHuanLuyenVien;
-use App\Models\PhienBanKeHoachTap;
-use App\Models\YeuCauTroLy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DeXuatKeHoachTap extends Model
 {
     protected $table = 'de_xuat_ke_hoach_tap';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = true;
+
     public const CREATED_AT = 'ngay_tao';
+
     public const UPDATED_AT = 'ngay_cap_nhat';
 
     protected $fillable = [

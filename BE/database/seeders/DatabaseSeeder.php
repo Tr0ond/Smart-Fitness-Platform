@@ -9,21 +9,22 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed dữ liệu danh mục và tài khoản demo cho môi trường phát triển.
-     * Các bảng vận hành/lịch sử vẫn để trống; ExerciseDatasetSeeder có thể
-     * chạy riêng bằng `php artisan db:seed --class=ExerciseDatasetSeeder`.
-     */
+    /** Seed catalog an toàn ở mọi môi trường; demo chỉ dành cho local/testing. */
     public function run(): void
     {
         $this->call([
             ChiNhanhSeeder::class,
             VaiTroSeeder::class,
-            // Tài khoản demo phải có trước vì bai_tap.nguoi_tao_id là bắt buộc.
-            DemoNguoiDungSeeder::class,
             GoiTapSeeder::class,
             QuyenLoiGoiTapSeeder::class,
-            ExerciseDatasetSeeder::class,
         ]);
+
+        if (app()->environment('local', 'testing')) {
+            $this->call([
+                DemoNguoiDungSeeder::class,
+                // Dataset hiện cần actor demo vì bai_tap.nguoi_tao_id là bắt buộc.
+                ExerciseDatasetSeeder::class,
+            ]);
+        }
     }
 }

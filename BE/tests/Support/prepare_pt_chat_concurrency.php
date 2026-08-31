@@ -11,23 +11,12 @@ use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Tests\Support\TestDatabaseGuard;
 
 require dirname(__DIR__, 2).'/vendor/autoload.php';
 
 [$script, $database, $mode] = $argv;
-if (preg_match('/^smart_fitness_chat_test_/i', $database) !== 1 || strtolower($database) === 'smart_fitness') {
-    fwrite(STDERR, "Unsafe PT Chat fixture database.\n");
-    exit(2);
-}
-
-putenv('APP_ENV=testing');
-putenv('DB_CONNECTION=mysql');
-putenv('DB_DATABASE='.$database);
-putenv('BROADCAST_CONNECTION=null');
-$_ENV['APP_ENV'] = 'testing';
-$_ENV['DB_CONNECTION'] = 'mysql';
-$_ENV['DB_DATABASE'] = $database;
-$_ENV['BROADCAST_CONNECTION'] = 'null';
+TestDatabaseGuard::khoiTaoTienTrinhCon($database, ['BROADCAST_CONNECTION' => 'null']);
 
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();

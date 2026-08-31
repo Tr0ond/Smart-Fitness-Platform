@@ -5,8 +5,10 @@ namespace App\Providers;
 use App\Auth\AccessTokenGuard;
 use App\Contracts\Ai\WorkoutAiProvider;
 use App\Contracts\Payments\PaymentGateway;
-use App\Gateways\UnavailableWorkoutAiProvider;
+use App\Exceptions\Ai\AiProviderException;
+use App\Gateways\GeminiWorkoutAiProvider;
 use App\Gateways\PayOSGateway;
+use App\Gateways\UnavailableWorkoutAiProvider;
 use App\Services\AuthenticationService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -22,7 +24,13 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(PaymentGateway::class, PayOSGateway::class);
-        $this->app->bind(WorkoutAiProvider::class, UnavailableWorkoutAiProvider::class);
+        $this->app->bind(WorkoutAiProvider::class, function ($app): WorkoutAiProvider {
+            return match (strtolower(trim((string) config('ai.provider', 'unavailable')))) {
+                'gemini' => $app->make(GeminiWorkoutAiProvider::class),
+                'unavailable' => $app->make(UnavailableWorkoutAiProvider::class),
+                default => throw AiProviderException::unsupportedProvider(),
+            };
+        });
     }
 
     /**
@@ -44,6 +52,21 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('dang-nhap', function (Request $request): Limit {
             $soLanMoiPhut = max(1, (int) config('auth.login_rate_limit_per_minute', 5));
+
+            return Limit::perMinute($soLanMoiPhut)->by((string) $request->ip());
+        });
+        RateLimiter::for('dang-ky', function (Request $request): Limit {
+            $soLanMoiPhut = max(1, (int) config('auth.register_rate_limit_per_minute', 5));
+
+            return Limit::perMinute($soLanMoiPhut)->by((string) $request->ip());
+        });
+        RateLimiter::for('quen-mat-khau', function (Request $request): Limit {
+            $soLanMoiPhut = max(1, (int) config('auth.forgot_password_rate_limit_per_minute', 5));
+
+            return Limit::perMinute($soLanMoiPhut)->by((string) $request->ip());
+        });
+        RateLimiter::for('dat-lai-mat-khau', function (Request $request): Limit {
+            $soLanMoiPhut = max(1, (int) config('auth.reset_password_rate_limit_per_minute', 10));
 
             return Limit::perMinute($soLanMoiPhut)->by((string) $request->ip());
         });

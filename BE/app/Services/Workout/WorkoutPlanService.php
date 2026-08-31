@@ -18,6 +18,13 @@ class WorkoutPlanService
 {
     public function __construct(private readonly WorkoutMemberService $members) {}
 
+    /** Revalidate cấu trúc Plan mà workflow Proposal sắp công bố, không tạo dữ liệu. */
+    public function kiemTraCauTruc(NguoiDung $nguoiDung, array $cauTruc): void
+    {
+        $hoiVien = $this->members->hoiVienCuaNguoiDung($nguoiDung);
+        $this->damBaoCauTruc($hoiVien, $cauTruc);
+    }
+
     /**
      * Tạo Plan cùng snapshot version 1 từ cấu trúc đã được Backend kiểm định.
      *
@@ -48,12 +55,13 @@ class WorkoutPlanService
 
             $this->damBaoCauTruc($hoiVien, $cauTruc);
             $hienTai = CarbonImmutable::now('UTC');
+            $nguoiTaoId = (int) ($nguonSnapshot['creator_user_id'] ?? $nguoiDung->getKey());
             $keHoach = KeHoachTap::query()->create([
                 'hoi_vien_id' => $hoiVien->getKey(),
                 'ten_ke_hoach' => trim($cauTruc['name']),
                 'trang_thai' => 'LUU_TRU',
                 'phien_ban_hien_tai_id' => null,
-                'nguoi_tao_id' => $nguoiDung->getKey(),
+                'nguoi_tao_id' => $nguoiTaoId,
                 'ma_lan_tao' => $maLanTao,
                 'ngay_tao' => $hienTai,
                 'ngay_cap_nhat' => $hienTai,
@@ -173,7 +181,7 @@ class WorkoutPlanService
             'ten_giao_an_da_chon' => $cauTruc['template_name'] ?? null,
             'de_xuat_ke_hoach_tap_id' => $nguonSnapshot['proposal_id'] ?? null,
             'nguon_tao' => $nguonSnapshot['source'] ?? 'HOI_VIEN',
-            'nguoi_tao_id' => $nguoiDung->getKey(),
+            'nguoi_tao_id' => (int) ($nguonSnapshot['creator_user_id'] ?? $nguoiDung->getKey()),
             'muc_tieu' => trim($cauTruc['goal']),
             'ap_dung_tu_ngay' => $cauTruc['effective_from'],
             'ly_do_thay_doi' => $nguonSnapshot['reason'] ?? ($truoc === null ? null : 'Cập nhật kế hoạch tập.'),

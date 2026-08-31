@@ -282,6 +282,42 @@ class PtChatApiTest extends TestCase
             ->where('hoi_vien_id', $fixture['member_a_id'])->count());
     }
 
+    public function test_member_historical_read_survives_assignment_end_without_activation_but_old_pt_loses_scope(): void
+    {
+        $fixture = $this->taoBoPtChatFixtures(kemTheoToken: true);
+        $ky = $this->taoMembershipPtChat($fixture, $fixture['member_a_id']);
+        $hoiThoai = $this->taoHoiThoaiPtChat($fixture['assignment_a_id']);
+        $this->taoTinNhanPtChat($hoiThoai, $fixture['pt_a'], 'Lịch sử trước khi kết thúc');
+        DB::table('phan_cong_huan_luyen_vien')->where('id', $fixture['assignment_a_id'])->update([
+            'ngay_ket_thuc' => CarbonImmutable::now('UTC'),
+            'ly_do_ket_thuc' => 'Kết thúc để kiểm tra Q05',
+            'ngay_cap_nhat' => CarbonImmutable::now('UTC'),
+        ]);
+
+        $this->getJson('/api/pt/chat/conversations', $this->bearer($fixture['member_a_token']))
+            ->assertOk()->assertJsonPath('data.0.id', (int) $hoiThoai->getKey());
+        $this->getJson('/api/pt/chat/conversations/'.$hoiThoai->getKey(), $this->bearer($fixture['member_a_token']))
+            ->assertOk();
+        $this->getJson('/api/pt/chat/conversations/'.$hoiThoai->getKey().'/messages', $this->bearer($fixture['member_a_token']))
+            ->assertOk()->assertJsonPath('data.0.content', 'Lịch sử trước khi kết thúc');
+
+        $this->getJson('/api/pt/chat/conversations', $this->bearer($fixture['pt_a_token']))
+            ->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson('/api/pt/chat/conversations/'.$hoiThoai->getKey(), $this->bearer($fixture['pt_a_token']))
+            ->assertNotFound();
+        $this->getJson('/api/pt/chat/conversations/'.$hoiThoai->getKey().'/messages', $this->bearer($fixture['pt_a_token']))
+            ->assertNotFound();
+        $this->postJson(
+            '/api/pt/chat/conversations/'.$hoiThoai->getKey().'/messages',
+            $this->tinMoi('PT cũ không còn scope'),
+            $this->bearer($fixture['pt_a_token']),
+        )->assertNotFound();
+
+        $this->assertSame('CHO_KICH_HOAT', $ky->fresh()->trang_thai);
+        $this->assertSame(0, DB::table('su_dung_quyen_loi')
+            ->where('hoi_vien_id', $fixture['member_a_id'])->count());
+    }
+
     public function test_chat_and_direct_pt_quota_are_independent(): void
     {
         $fixture = $this->taoBoPtChatFixtures(kemTheoToken: true);
@@ -439,21 +475,43 @@ class PtChatApiTest extends TestCase
         )->assertOk()->json('data.id');
 
         $this->assertNotSame($hoiThoaiCuId, $hoiThoaiMoiId);
-        foreach ([$fixture['member_a_token'], $fixture['pt_a_token']] as $token) {
-            $this->getJson(
-                "/api/pt/chat/conversations/{$hoiThoaiCuId}/messages",
-                $this->bearer($token),
-            )->assertOk()->assertJsonPath('data.0.content', 'Lịch sử cũ');
-            $this->postJson(
-                "/api/pt/chat/conversations/{$hoiThoaiCuId}/messages",
-                $this->tinMoi('Không được gửi hội thoại cũ'),
-                $this->bearer($token),
-            )->assertStatus(409)->assertJsonPath('code', 'CHAT_ASSIGNMENT_NOT_ACTIVE');
-        }
+        $this->getJson(
+            "/api/pt/chat/conversations/{$hoiThoaiCuId}/messages",
+            $this->bearer($fixture['member_a_token']),
+        )->assertOk()->assertJsonPath('data.0.content', 'Lịch sử cũ');
+        $this->postJson(
+            "/api/pt/chat/conversations/{$hoiThoaiCuId}/messages",
+            $this->tinMoi('Member không được gửi hội thoại cũ'),
+            $this->bearer($fixture['member_a_token']),
+        )->assertStatus(409)->assertJsonPath('code', 'CHAT_ASSIGNMENT_NOT_ACTIVE');
+
+        $this->getJson('/api/pt/chat/conversations', $this->bearer($fixture['pt_a_token']))
+            ->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson(
+            "/api/pt/chat/conversations/{$hoiThoaiCuId}",
+            $this->bearer($fixture['pt_a_token']),
+        )->assertNotFound();
+        $this->getJson(
+            "/api/pt/chat/conversations/{$hoiThoaiCuId}/messages",
+            $this->bearer($fixture['pt_a_token']),
+        )->assertNotFound();
+        $this->postJson(
+            "/api/pt/chat/conversations/{$hoiThoaiCuId}/messages",
+            $this->tinMoi('PT cũ không được gửi hội thoại cũ'),
+            $this->bearer($fixture['pt_a_token']),
+        )->assertNotFound();
         $this->getJson(
             "/api/pt/chat/conversations/{$hoiThoaiCuId}",
             $this->bearer($fixture['pt_b_token']),
         )->assertNotFound();
+        $this->getJson(
+            "/api/pt/chat/conversations/{$hoiThoaiCuId}/messages",
+            $this->bearer($fixture['pt_b_token']),
+        )->assertNotFound();
+        $this->getJson(
+            "/api/pt/chat/conversations/{$hoiThoaiMoiId}",
+            $this->bearer($fixture['pt_b_token']),
+        )->assertOk()->assertJsonPath('data.id', $hoiThoaiMoiId);
         $this->getJson('/api/pt/chat/conversations', $this->bearer($fixture['member_a_token']))
             ->assertOk()->assertJsonCount(2, 'data');
     }
@@ -516,6 +574,10 @@ class PtChatApiTest extends TestCase
             $this->tinMoi('Hợp lệ ngay trước end'),
             $this->bearer($fixture['member_a_token']),
         )->assertCreated();
+        $this->getJson(
+            '/api/pt/chat/conversations/'.$hoiThoaiId,
+            $this->bearer($fixture['pt_a_token']),
+        )->assertOk();
 
         CarbonImmutable::setTestNow($moc);
 
@@ -528,6 +590,14 @@ class PtChatApiTest extends TestCase
             $this->tinMoi('Không hợp lệ tại end'),
             $this->bearer($fixture['member_a_token']),
         )->assertStatus(409)->assertJsonPath('code', 'CHAT_ASSIGNMENT_NOT_ACTIVE');
+        $this->getJson(
+            '/api/pt/chat/conversations/'.$hoiThoaiId,
+            $this->bearer($fixture['pt_a_token']),
+        )->assertNotFound();
+        $this->getJson(
+            '/api/pt/chat/conversations/'.$hoiThoaiId.'/messages',
+            $this->bearer($fixture['pt_a_token']),
+        )->assertNotFound();
     }
 
     public function test_message_history_uses_stable_sequence_cursor_without_duplicates(): void

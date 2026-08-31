@@ -9,6 +9,7 @@ use Tests\Concerns\CreatesAuthenticationFixtures;
 use Tests\Concerns\CreatesGymFixtures;
 use Tests\Concerns\CreatesMembershipFixtures;
 use Tests\Concerns\CreatesProfileFixtures;
+use Tests\Support\TestDatabaseGuard;
 use Tests\TestCase;
 
 class GymCheckInConcurrencyTest extends TestCase
@@ -24,9 +25,7 @@ class GymCheckInConcurrencyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $database = (string) DB::selectOne('SELECT DATABASE() AS ten')->ten;
-        $this->assertMatchesRegularExpression('/^smart_fitness_.*test/i', $database);
-        $this->assertNotSame('smart_fitness', strtolower($database));
+        TestDatabaseGuard::damBaoDatabaseHienTai();
         config(['gym.qr_ttl_seconds' => 90]);
     }
 
@@ -91,7 +90,7 @@ class GymCheckInConcurrencyTest extends TestCase
                 (string) $staffId,
                 $secretFile,
                 $barrier,
-            ], $moTaOng, $cacOng, base_path());
+            ], $moTaOng, $cacOng, base_path(), TestDatabaseGuard::moiTruongTienTrinhCon());
             $this->assertIsResource($tienTrinh);
             fclose($cacOng[0]);
             $cacTienTrinh[] = [$tienTrinh, $cacOng];

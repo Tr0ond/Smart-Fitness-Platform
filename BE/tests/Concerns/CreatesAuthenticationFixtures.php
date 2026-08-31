@@ -9,6 +9,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\TestDatabaseGuard;
 
 trait CreatesAuthenticationFixtures
 {
@@ -16,17 +17,7 @@ trait CreatesAuthenticationFixtures
 
     protected function batDauGiaoDichAuthCoLap(): void
     {
-        $databaseCauHinh = (string) config('database.connections.mysql.database');
-        $databaseThucTe = (string) (DB::selectOne('SELECT DATABASE() AS ten_database')->ten_database ?? '');
-
-        $this->assertSame('mysql', (string) config('database.default'));
-        $this->assertSame($databaseCauHinh, $databaseThucTe);
-        $this->assertMatchesRegularExpression(
-            '/^smart_fitness_.*test/i',
-            $databaseThucTe,
-            'Auth tests require a disposable smart_fitness_*test schema.',
-        );
-        $this->assertNotSame('smart_fitness', strtolower($databaseThucTe));
+        TestDatabaseGuard::damBaoDatabaseHienTai();
 
         DB::beginTransaction();
     }

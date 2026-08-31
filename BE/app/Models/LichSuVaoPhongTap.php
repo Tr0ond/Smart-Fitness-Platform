@@ -3,23 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\ChiNhanh;
-use App\Models\HoSoHoiVien;
-use App\Models\KyHanHoiVien;
-use App\Models\MaVaoPhongTap;
-use App\Models\NguoiDung;
-use App\Models\SuDungQuyenLoi;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class LichSuVaoPhongTap extends Model
 {
     protected $table = 'lich_su_vao_phong_tap';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = false;
 
     protected $fillable = [

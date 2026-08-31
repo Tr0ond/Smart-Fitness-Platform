@@ -3,14 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\DeXuatKeHoachTap;
-use App\Models\GhiChuHuanLuyen;
-use App\Models\HoSoHoiVien;
-use App\Models\HoSoHuanLuyenVien;
-use App\Models\HoiThoai;
-use App\Models\LichSuSuDungHuanLuyenVien;
-use App\Models\NguoiDung;
-use App\Models\TinNhan;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -18,12 +10,19 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class PhanCongHuanLuyenVien extends Model
 {
     protected $table = 'phan_cong_huan_luyen_vien';
+
     protected $primaryKey = 'id';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $timestamps = true;
+
     public const CREATED_AT = 'ngay_tao';
+
     public const UPDATED_AT = 'ngay_cap_nhat';
 
     protected $fillable = [
