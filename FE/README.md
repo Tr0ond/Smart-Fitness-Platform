@@ -18,3 +18,23 @@ npm run build
 - Foundation pages: ba actor login, chọn vai trò, quên/đặt lại mật khẩu, 403 và 404.
 - Trạng thái thực thi và gate gần nhất: `docs/VUE_WEB_COMPLETION_CHECKPOINT.md`.
 - Không chứa secret trong biến `VITE_*`. Không đưa `.env`, `node_modules/`, `dist/` lên Git.
+
+## Cấu trúc chức năng Vue
+
+Mỗi màn hình được đặt trong một feature folder theo vai trò, dùng `index.vue` làm entry point. Một file chức năng được đọc theo thứ tự `template`, `script setup`, rồi `style scoped`, tương tự frontend tham chiếu `E:\IxtalTravel\fe_travel`:
+
+```text
+src/components/
+├── Admin/DangNhap/index.vue
+├── PT/DangNhap/index.vue
+├── LeTan/DangNhap/index.vue
+└── Chung/
+    ├── ChonVaiTro/index.vue
+    ├── QuenMatKhau/index.vue
+    └── DatLaiMatKhau/index.vue
+```
+
+- Logic điều khiển riêng của màn hình đặt trong chính `index.vue`.
+- Thành phần dùng chung đặt tại `components/dung_chung` hoặc `components/xac_thuc`.
+- Gọi API, Auth Store và logic dùng chung vẫn giữ ở `services`, `stores`, `composables` để không nhân bản luồng xác thực.
+- Business rule, authorization, payment, membership và dữ liệu quan trọng vẫn do Backend làm authority.

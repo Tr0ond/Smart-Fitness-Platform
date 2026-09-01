@@ -58,27 +58,52 @@ function xuLyDangXuat() {
 
 <template>
   <header class="thanh-tren">
-    <button
-      class="thanh-tren__nut-menu"
-      type="button"
-      data-testid="nut-mo-menu"
-      :aria-expanded="props.dangMoThanhBen"
-      :aria-controls="props.idThanhBen"
-      :aria-label="props.dangMoThanhBen ? 'Đóng menu điều hướng' : 'Mở menu điều hướng'"
-      @click="xuLyMoThanhBen"
-    >
-      <span aria-hidden="true">☰</span>
-      <span>Menu</span>
-    </button>
+    <div class="thanh-tren__bo-cuc">
+      <button
+        class="thanh-tren__nut-menu"
+        type="button"
+        data-testid="nut-mo-menu"
+        :aria-expanded="props.dangMoThanhBen"
+        :aria-controls="props.idThanhBen"
+        :aria-label="props.dangMoThanhBen ? 'Đóng menu điều hướng' : 'Mở menu điều hướng'"
+        @click="xuLyMoThanhBen"
+      >
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M3 5h14M3 10h14M3 15h14"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        </svg>
+        <span>Menu</span>
+      </button>
 
-    <p
-      class="thanh-tren__vai-tro"
-      data-testid="nhan-vai-tro"
-    >
-      {{ props.nhanVaiTro }}
-    </p>
+      <div>
+        <p class="thanh-tren__nhan-khu-vuc">
+          CỔNG VẬN HÀNH
+        </p>
+        <p
+          class="thanh-tren__vai-tro"
+          data-testid="nhan-vai-tro"
+        >
+          {{ props.nhanVaiTro }}
+        </p>
+      </div>
+    </div>
 
     <div class="thanh-tren__tai-khoan">
+      <span class="thanh-tren__trang-thai">
+        <span
+          class="thanh-tren__trang-thai-cham"
+          aria-hidden="true"
+        />
+        Đang hoạt động
+      </span>
       <div
         class="thanh-tren__danh-tinh"
         aria-label="Tài khoản hiện tại"

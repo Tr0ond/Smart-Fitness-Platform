@@ -66,8 +66,33 @@ function xuLyChonMuc(muc) {
     aria-label="Điều hướng khu vực"
   >
     <div class="thanh-ben-dieu-huong__dau">
-      <p class="thanh-ben-dieu-huong__tieu-de">
-        Smart Fitness
+      <div class="thanh-ben-dieu-huong__thuong-hieu">
+        <span
+          class="thanh-ben-dieu-huong__dau-hieu"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 32 32"
+            fill="none"
+          >
+            <path
+              d="M7 6v20M25 6v20M4 11h6M22 11h6M4 21h6M22 21h6"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M12 16h8"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+            />
+          </svg>
+        </span>
+        <span class="thanh-ben-dieu-huong__tieu-de">SMART FITNESS</span>
+      </div>
+      <p class="thanh-ben-dieu-huong__nhan">
+        OPERATIONS / 01
       </p>
       <button
         class="thanh-ben-dieu-huong__nut-dong"
@@ -75,6 +100,18 @@ function xuLyChonMuc(muc) {
         aria-label="Đóng menu điều hướng"
         @click="emit('dong')"
       >
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="m5 5 10 10M15 5 5 15"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        </svg>
         Đóng menu
       </button>
     </div>
@@ -106,7 +143,7 @@ function xuLyChonMuc(muc) {
         v-else
         class="thanh-ben-dieu-huong__rong"
       >
-        Chưa có mục điều hướng.
+        Chưa có mục điều hướng. Khu vực nghiệp vụ đang được hoàn thiện.
       </p>
     </nav>
   </aside>

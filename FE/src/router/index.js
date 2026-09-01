@@ -1,13 +1,13 @@
 import { nextTick } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import BieuMauDangNhapAdmin from '../pages/admin/dang_nhap/dang_nhap.index.vue'
-import BieuMauDangNhapLeTan from '../pages/le_tan/dang_nhap/dang_nhap.index.vue'
-import BieuMauDangNhapPt from '../pages/pt/dang_nhap/dang_nhap.index.vue'
-import ChonVaiTro from '../pages/chung/chon_vai_tro/chon_vai_tro.index.vue'
-import DatLaiMatKhau from '../pages/chung/dat_lai_mat_khau/dat_lai_mat_khau.index.vue'
-import KhongCoQuyen from '../pages/chung/loi/khong_co_quyen.vue'
-import KhongTimThay from '../pages/chung/loi/khong_tim_thay.vue'
-import QuenMatKhau from '../pages/chung/quen_mat_khau/quen_mat_khau.index.vue'
+import BieuMauDangNhapAdmin from '../components/Admin/DangNhap/index.vue'
+import BieuMauDangNhapLeTan from '../components/LeTan/DangNhap/index.vue'
+import BieuMauDangNhapPt from '../components/PT/DangNhap/index.vue'
+import ChonVaiTro from '../components/Chung/ChonVaiTro/index.vue'
+import DatLaiMatKhau from '../components/Chung/DatLaiMatKhau/index.vue'
+import KhongCoQuyen from '../components/Chung/Loi/KhongCoQuyen.vue'
+import KhongTimThay from '../components/Chung/Loi/KhongTimThay.vue'
+import QuenMatKhau from '../components/Chung/QuenMatKhau/index.vue'
 import { useXacThucStore } from '../stores/xac_thuc.store.js'
 import { taoBaoVeTuyenDuong } from './bao_ve_tuyen_duong.js'
 
@@ -69,6 +69,13 @@ const boDinhTuyen = createRouter({
     {
       path: '/dat-lai-mat-khau',
       name: 'datLaiMatKhau',
+      component: DatLaiMatKhau,
+      meta: { boCuc: 'cong_khai', congKhai: true, tinhNang: 'datLaiMatKhau' },
+    },
+    {
+      // Giữ tương thích với các email reset đã phát hành dùng URL tiếng Anh.
+      path: '/reset-password',
+      name: 'datLaiMatKhauCu',
       component: DatLaiMatKhau,
       meta: { boCuc: 'cong_khai', congKhai: true, tinhNang: 'datLaiMatKhau' },
     },

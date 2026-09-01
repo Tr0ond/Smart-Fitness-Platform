@@ -7,6 +7,7 @@ const ROUTE_MONG_DOI = {
   chonVaiTro: '/chon-vai-tro',
   quenMatKhau: '/quen-mat-khau',
   datLaiMatKhau: '/dat-lai-mat-khau',
+  datLaiMatKhauCu: '/reset-password',
   khongCoQuyen: '/khong-co-quyen',
   khongTimThay: '/khong-tim-thay',
   adminDangNhap: '/admin/dang-nhap',
@@ -47,6 +48,13 @@ describe('router foundation FE0-T05', () => {
     await boDinhTuyen.push('/pt/dang-nhap')
 
     expect(boDinhTuyen.currentRoute.value.name).toBe('ptDangNhap')
+  })
+
+  it('email reset cu van mo dung man hinh dat lai mat khau', async () => {
+    await boDinhTuyen.push({ name: 'datLaiMatKhauCu', query: { token: 'a'.repeat(64) } })
+
+    expect(boDinhTuyen.currentRoute.value.name).toBe('datLaiMatKhauCu')
+    expect(boDinhTuyen.currentRoute.value.query.token).toBe('a'.repeat(64))
   })
 
   it('selector restore session neu co token nhung van cho neutral pre-auth fallback', async () => {

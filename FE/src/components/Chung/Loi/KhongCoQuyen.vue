@@ -1,9 +1,8 @@
-<script setup>
-import { RouterLink } from 'vue-router'
-</script>
-
 <template>
-  <section aria-labelledby="tieu-de-khong-co-quyen">
+  <section
+    class="man-hinh-loi"
+    aria-labelledby="tieu-de-khong-co-quyen"
+  >
     <h1 id="tieu-de-khong-co-quyen">
       Bạn không có quyền truy cập
     </h1>
@@ -15,3 +14,15 @@ import { RouterLink } from 'vue-router'
     </p>
   </section>
 </template>
+
+<script setup>
+import { RouterLink } from 'vue-router'
+</script>
+
+<style scoped>
+.man-hinh-loi {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+</style>

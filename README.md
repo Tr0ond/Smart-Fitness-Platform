@@ -112,6 +112,18 @@ Set-Location BE
 
 ## Chạy Backend
 
+### Chạy nhanh trên Windows
+
+Sau khi đã cài dependency lần đầu, có thể double-click file `start.bat` tại gốc repository. Script sẽ mở hai cửa sổ riêng cho Laravel Backend và Vue Frontend:
+
+```text
+E:\Fitness\start.bat
+    ├── Backend:  http://127.0.0.1:8000
+    └── Frontend: http://127.0.0.1:5173
+```
+
+Script không tự chạy migration, seed hoặc `key:generate`. Nếu là lần thiết lập đầu tiên, cần chuẩn bị `BE/.env`, chạy `composer install` trong `BE/` và `npm ci` trong `FE/` trước.
+
 Lần đầu lấy source, với PHP/Composer phù hợp trên PATH:
 
 ```powershell
