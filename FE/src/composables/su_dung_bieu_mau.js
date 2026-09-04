@@ -18,6 +18,61 @@ function chuanHoaLoiTheoTruong(fieldErrors) {
 }
 
 /**
+ * Dat focus vao control loi dau tien hoac vung tom tat loi du phong.
+ *
+ * Dau vao: fieldErrors normalized, thu tu field, bang anh xa field -> DOM id va id du phong.
+ * Cach hoat dong: doi DOM render, uu tien control theo name, sau do id va cuoi cung error summary.
+ * Ket qua: true khi focus duoc mot phan tu kha dung, false khi khong co dich hop le.
+ * Side effect: thay doi document.activeElement; khong sua draft, error state hay goi API.
+ * Accessibility Rule: 422 luon dua nguoi dung den field loi dau hoac summary co the focus.
+ */
+export async function datFocusVaoTruongLoiDau(
+  fieldErrors = {},
+  thuTuTruong = [],
+  idTheoTruong = {},
+  idDuPhong = '',
+) {
+  await nextTick()
+
+  if (typeof document === 'undefined' || typeof HTMLElement === 'undefined') {
+    return false
+  }
+
+  const loiDaChuanHoa = chuanHoaLoiTheoTruong(fieldErrors)
+  const cacTruongCoLoi = Object.keys(loiDaChuanHoa)
+  const thuTuFocus = [
+    ...thuTuTruong.filter((tenTruong) => cacTruongCoLoi.includes(tenTruong)),
+    ...cacTruongCoLoi.filter((tenTruong) => !thuTuTruong.includes(tenTruong)),
+  ]
+
+  for (const tenTruong of thuTuFocus) {
+    const dieuKhienTheoTen = Array.from(document.getElementsByName(tenTruong))
+      .find((phanTu) => phanTu instanceof HTMLElement && !phanTu.hasAttribute('disabled'))
+    const idDieuKhien = typeof idTheoTruong?.[tenTruong] === 'string'
+      ? idTheoTruong[tenTruong]
+      : ''
+    const dieuKhienTheoId = idDieuKhien === '' ? null : document.getElementById(idDieuKhien)
+    const dieuKhien = dieuKhienTheoTen
+      ?? (dieuKhienTheoId instanceof HTMLElement && !dieuKhienTheoId.hasAttribute('disabled')
+        ? dieuKhienTheoId
+        : null)
+
+    if (dieuKhien instanceof HTMLElement) {
+      dieuKhien.focus({ preventScroll: true })
+      return true
+    }
+  }
+
+  const vungDuPhong = idDuPhong === '' ? null : document.getElementById(idDuPhong)
+  if (vungDuPhong instanceof HTMLElement) {
+    vungDuPhong.focus({ preventScroll: true })
+    return true
+  }
+
+  return false
+}
+
+/**
  * Quan ly field error, focus loi dau va Retry-After cho bieu mau Foundation.
  *
  * Dau vao: thuTuTruong la danh sach name cua cac control theo thu tu UX mong muon.
@@ -96,30 +151,8 @@ export function suDungBieuMau(thuTuTruong = []) {
     giayChoConLai.value = 0
   }
 
-  async function datFocusVaoTruongLoiDau() {
-    await nextTick()
-
-    if (typeof document === 'undefined') {
-      return false
-    }
-
-    const cacTruongCoLoi = Object.keys(loiTheoTruong.value)
-    const thuTuFocus = [
-      ...thuTuTruong.filter((tenTruong) => cacTruongCoLoi.includes(tenTruong)),
-      ...cacTruongCoLoi.filter((tenTruong) => !thuTuTruong.includes(tenTruong)),
-    ]
-
-    for (const tenTruong of thuTuFocus) {
-      const dieuKhien = Array.from(document.getElementsByName(tenTruong))
-        .find((phanTu) => phanTu instanceof HTMLElement && !phanTu.hasAttribute('disabled'))
-
-      if (dieuKhien instanceof HTMLElement) {
-        dieuKhien.focus({ preventScroll: true })
-        return true
-      }
-    }
-
-    return false
+  async function datFocusVaoTruongLoiDauCuaBieuMau() {
+    return datFocusVaoTruongLoiDau(loiTheoTruong.value, thuTuTruong)
   }
 
   function apDungLoiApi(error, fallback) {
@@ -135,7 +168,7 @@ export function suDungBieuMau(thuTuTruong = []) {
       giayChoConLai.value = 0
     }
 
-    void datFocusVaoTruongLoiDau()
+    void datFocusVaoTruongLoiDauCuaBieuMau()
   }
 
   if (getCurrentScope() !== undefined) {
@@ -152,7 +185,7 @@ export function suDungBieuMau(thuTuTruong = []) {
     xoaLoiTruong,
     xoaLoiHienThi,
     datLaiLoiBieuMau,
-    datFocusVaoTruongLoiDau,
+    datFocusVaoTruongLoiDau: datFocusVaoTruongLoiDauCuaBieuMau,
     apDungLoiApi,
   }
 }

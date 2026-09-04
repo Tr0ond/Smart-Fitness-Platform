@@ -23,6 +23,7 @@ function taoRouter() {
     history: createMemoryHistory(),
     routes: [
       { path: '/', name: 'chonVaiTro', component: { template: '<div />' } },
+      { path: '/admin/bang-dieu-khien', name: 'adminBangDieuKhien', component: { template: '<div />' } },
       { path: '/quen-mat-khau', name: 'quenMatKhau', component: { template: '<div />' } },
       { path: '/dat-lai-mat-khau', name: 'datLaiMatKhau', component: { template: '<div />' } },
     ],

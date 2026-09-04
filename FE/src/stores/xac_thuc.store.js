@@ -5,6 +5,7 @@ import {
   dangXuat as dangXuatApi,
   taiThongTinNguoiDung as taiThongTinNguoiDungApi,
 } from '../services/xac_thuc.api.js'
+import { xoaDuLieuTaiKhoanNeuDaKhoiTao } from './tai_khoan.store.js'
 import {
   docTokenPhienDangNhap,
   docVaiTroDangDung,
@@ -150,6 +151,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
       this.dangDangNhap = false
       this.loiKhoiPhucPhien = null
       xoaDuLieuPhienDangNhap()
+      xoaDuLieuTaiKhoanNeuDaKhoiTao()
     },
 
     /**
@@ -167,6 +169,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
       this.vaiTro = []
       this.vaiTroDangDung = null
       this.loiKhoiPhucPhien = taoLoiKhoiPhucAnToan(error)
+      xoaDuLieuTaiKhoanNeuDaKhoiTao()
     },
 
     /**
@@ -184,6 +187,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
         throw new Error('Phan hoi /auth/me khong hop le.')
       }
 
+      const actorTruocDo = this.vaiTroDangDung
       const danhSachVaiTro = layVaiTroTuBackend(nguoiDung)
 
       this.nguoiDung = nguoiDung
@@ -192,6 +196,10 @@ export const useXacThucStore = defineStore('xac_thuc', {
       if (!laVaiTroWeb(this.vaiTroDangDung) || !danhSachVaiTro.includes(this.vaiTroDangDung)) {
         this.vaiTroDangDung = null
         xoaVaiTroDangDung()
+      }
+
+      if (actorTruocDo !== this.vaiTroDangDung) {
+        xoaDuLieuTaiKhoanNeuDaKhoiTao()
       }
 
       return nguoiDung
@@ -337,8 +345,13 @@ export const useXacThucStore = defineStore('xac_thuc', {
         throw new Error('Vai tro actor khong hop le trong roles hien tai.')
       }
 
+      const actorTruocDo = this.vaiTroDangDung
       this.vaiTroDangDung = vaiTro
       luuVaiTroDangDung(vaiTro)
+
+      if (actorTruocDo !== vaiTro) {
+        xoaDuLieuTaiKhoanNeuDaKhoiTao()
+      }
 
       return vaiTro
     },

@@ -8,8 +8,16 @@ import DatLaiMatKhau from '../components/Chung/DatLaiMatKhau/index.vue'
 import KhongCoQuyen from '../components/Chung/Loi/KhongCoQuyen.vue'
 import KhongTimThay from '../components/Chung/Loi/KhongTimThay.vue'
 import QuenMatKhau from '../components/Chung/QuenMatKhau/index.vue'
+import BangDieuKhien from '../pages/admin/bang_dieu_khien/bang_dieu_khien.index.vue'
+import HoiVienChiTiet from '../pages/admin/hoi_vien/hoi_vien.chi_tiet.vue'
+import HoiVien from '../pages/admin/hoi_vien/hoi_vien.index.vue'
+import NhanVienLeTanChiTiet from '../pages/admin/nhan_vien_le_tan/nhan_vien_le_tan.chi_tiet.vue'
+import NhanVienLeTan from '../pages/admin/nhan_vien_le_tan/nhan_vien_le_tan.index.vue'
+import TaiKhoanChiTiet from '../pages/admin/tai_khoan/tai_khoan.chi_tiet.vue'
+import TaiKhoan from '../pages/admin/tai_khoan/tai_khoan.index.vue'
 import { useXacThucStore } from '../stores/xac_thuc.store.js'
 import { taoBaoVeTuyenDuong } from './bao_ve_tuyen_duong.js'
+import { taoMetaTuyenDuongAdmin } from './dieu_huong_admin.js'
 
 const TrangDieuPhoiRong = { template: '<span aria-hidden="true"></span>' }
 const { baoVeTuyenDuong } = taoBaoVeTuyenDuong()
@@ -96,6 +104,92 @@ const boDinhTuyen = createRouter({
       name: 'adminDangNhap',
       component: BieuMauDangNhapAdmin,
       meta: { boCuc: 'cong_khai', congKhai: true, vaiTro: 'ADMIN', tinhNang: 'adminDangNhap' },
+    },
+    {
+      path: '/admin/bang-dieu-khien',
+      name: 'adminBangDieuKhien',
+      component: BangDieuKhien,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminBangDieuKhien',
+        tieuDe: 'Bảng điều khiển',
+        duongDanPhanCap: [{ nhan: 'Bảng điều khiển' }],
+        hienTrongDieuHuong: true,
+      }),
+    },
+    {
+      path: '/admin/tai-khoan',
+      name: 'adminTaiKhoan',
+      component: TaiKhoan,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminTaiKhoan',
+        tieuDe: 'Danh sách tài khoản',
+        duongDanPhanCap: [{ nhan: 'Tài khoản' }],
+        hienTrongDieuHuong: true,
+      }),
+    },
+    {
+      path: '/admin/tai-khoan/:id',
+      name: 'adminChiTietTaiKhoan',
+      component: TaiKhoanChiTiet,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminChiTietTaiKhoan',
+        tieuDe: 'Chi tiết tài khoản',
+        duongDanPhanCap: [
+          { nhan: 'Tài khoản', tenTuyenDuong: 'adminTaiKhoan' },
+          { nhan: 'Chi tiết tài khoản' },
+        ],
+        hienTrongDieuHuong: false,
+      }),
+    },
+    {
+      path: '/admin/hoi-vien',
+      name: 'adminHoiVien',
+      component: HoiVien,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminHoiVien',
+        tieuDe: 'Danh sách Hội viên',
+        duongDanPhanCap: [{ nhan: 'Hội viên' }],
+        hienTrongDieuHuong: true,
+      }),
+    },
+    {
+      path: '/admin/hoi-vien/:id',
+      name: 'adminChiTietHoiVien',
+      component: HoiVienChiTiet,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminChiTietHoiVien',
+        tieuDe: 'Chi tiết Hội viên',
+        duongDanPhanCap: [
+          { nhan: 'Hội viên', tenTuyenDuong: 'adminHoiVien' },
+          { nhan: 'Chi tiết Hội viên' },
+        ],
+        hienTrongDieuHuong: false,
+      }),
+    },
+    {
+      path: '/admin/nhan-vien-le-tan',
+      name: 'adminNhanVienLeTan',
+      component: NhanVienLeTan,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminNhanVienLeTan',
+        tieuDe: 'Danh sách Nhân viên lễ tân',
+        duongDanPhanCap: [{ nhan: 'Nhân viên lễ tân' }],
+        hienTrongDieuHuong: true,
+      }),
+    },
+    {
+      path: '/admin/nhan-vien-le-tan/:id',
+      name: 'adminChiTietNhanVienLeTan',
+      component: NhanVienLeTanChiTiet,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminChiTietNhanVienLeTan',
+        tieuDe: 'Chi tiết Nhân viên lễ tân',
+        duongDanPhanCap: [
+          { nhan: 'Nhân viên lễ tân', tenTuyenDuong: 'adminNhanVienLeTan' },
+          { nhan: 'Chi tiết Nhân viên lễ tân' },
+        ],
+        hienTrongDieuHuong: false,
+      }),
     },
     {
       path: '/pt/dang-nhap',

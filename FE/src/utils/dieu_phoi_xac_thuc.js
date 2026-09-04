@@ -55,10 +55,12 @@ export async function dieuPhoiSauDangNhap(store, router, vaiTroMongDoi) {
     ? store.vaiTro.filter((vaiTro) => CAC_VAI_TRO_WEB.includes(vaiTro))
     : []
 
-  if (danhSachVaiTroWeb.length === 1 && danhSachVaiTroWeb[0] === vaiTroMongDoi) {
-    store.chonVaiTroDangDung(vaiTroMongDoi)
+  if (danhSachVaiTroWeb.length !== 1 || danhSachVaiTroWeb[0] !== vaiTroMongDoi) {
+    await router.push({ name: 'chonVaiTro' })
+    return
   }
 
+  store.chonVaiTroDangDung(vaiTroMongDoi)
   const diemDen = dieuPhoiTheoVaiTro(store, vaiTroMongDoi)
 
   if (diemDen !== null && diemDen.name !== 'khongCoQuyen') {

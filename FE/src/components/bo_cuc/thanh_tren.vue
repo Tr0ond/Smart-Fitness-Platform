@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   nhanVaiTro: {
@@ -21,6 +21,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['mo', 'dangXuat'])
+const nutMenu = ref(null)
 
 const tenAnToan = computed(() => {
   const ten = typeof props.nguoiDung?.name === 'string' ? props.nguoiDung.name.trim() : ''
@@ -54,12 +55,33 @@ function xuLyMoThanhBen() {
 function xuLyDangXuat() {
   emit('dangXuat')
 }
+
+/**
+ * Tra focus ve nut menu sau khi drawer mobile dong.
+ *
+ * Dau vao: khong co; dung ref cua button native trong topbar.
+ * Cach hoat dong: focus nut sau khi shell da go inert va render lai.
+ * Ket qua: true neu focus thanh cong, false neu button khong con trong DOM.
+ * Side effect: thay doi document.activeElement; khong mo drawer hay goi API.
+ * Accessibility Rule: close/Escape/overlay tra focus ve phan tu da kich hoat drawer.
+ */
+function datFocusNutMenu() {
+  if (!(nutMenu.value instanceof HTMLElement)) {
+    return false
+  }
+
+  nutMenu.value.focus({ preventScroll: true })
+  return true
+}
+
+defineExpose({ datFocusNutMenu })
 </script>
 
 <template>
   <header class="thanh-tren">
     <div class="thanh-tren__bo-cuc">
       <button
+        ref="nutMenu"
         class="thanh-tren__nut-menu"
         type="button"
         data-testid="nut-mo-menu"

@@ -13,6 +13,15 @@ import boDinhTuyen from '../router/index.js'
 
 let wrappers = []
 
+function datChieuRongKhungNhin(chieuRong) {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: chieuRong,
+  })
+  window.dispatchEvent(new Event('resize'))
+}
+
 function taoRouterShell() {
   return createRouter({
     history: createMemoryHistory(),
@@ -63,8 +72,56 @@ async function mountRoute(path) {
   return wrapper
 }
 
+async function mountAdminCoBusinessRoutes(path = '/khu-vuc') {
+  const pinia = createPinia()
+  setActivePinia(pinia)
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/khu-vuc', name: 'khuVuc', component: { template: '<h1>Khu vực</h1>' } },
+      {
+        path: '/admin/tai-khoan',
+        name: 'adminTaiKhoan',
+        component: { template: '<h1>Tài khoản</h1>' },
+        meta: {
+          duongDanPhanCap: [{ nhan: 'Tài khoản' }],
+        },
+      },
+      {
+        path: '/admin/tai-khoan/:id',
+        name: 'adminChiTietTaiKhoan',
+        component: { template: '<h1>Chi tiết tài khoản</h1>' },
+        meta: {
+          duongDanPhanCap: [
+            { nhan: 'Tài khoản', tenTuyenDuong: 'adminTaiKhoan' },
+            { nhan: 'Chi tiết tài khoản' },
+          ],
+        },
+      },
+      { path: '/chon-vai-tro', name: 'chonVaiTro', component: { template: '<div />' } },
+    ],
+  })
+  await router.push(path)
+  const store = useXacThucStore()
+  store.token = 'token-khong-duoc-hien-thi'
+  store.nguoiDung = { id: 1, name: 'Admin Test', email: 'admin@example.com' }
+  store.vaiTro = ['ADMIN']
+  store.vaiTroDangDung = 'ADMIN'
+  store.daKhoiPhucPhien = true
+
+  const wrapper = mount(BoCucAdmin, {
+    global: { plugins: [pinia, router] },
+    slots: { default: '<p>Nội dung Admin</p>' },
+  })
+  wrappers.push(wrapper)
+  await nextTick()
+
+  return { router, wrapper }
+}
+
 describe('layout integration FE0-T06', () => {
   beforeEach(() => {
+    datChieuRongKhungNhin(1024)
     sessionStorage.clear()
     localStorage.clear()
     vi.restoreAllMocks()
@@ -73,6 +130,7 @@ describe('layout integration FE0-T06', () => {
   afterEach(() => {
     wrappers.forEach((wrapper) => wrapper.unmount())
     wrappers = []
+    datChieuRongKhungNhin(1024)
   })
 
   it.each([
@@ -168,6 +226,43 @@ describe('layout integration FE0-T06', () => {
     expect(wrapper.find('.khung-ung-dung__lop-phu').exists()).toBe(false)
   })
 
+  it('mobile drawer inert khi dong, trap Tab va tra focus khi Escape', async () => {
+    datChieuRongKhungNhin(390)
+    const { wrapper } = await mountAdminCoBusinessRoutes()
+    document.body.appendChild(wrapper.element)
+    const nutMenu = wrapper.get('[data-testid="nut-mo-menu"]')
+    const thanhBen = wrapper.get('.thanh-ben-dieu-huong')
+
+    expect(thanhBen.attributes('inert')).toBe('')
+    expect(thanhBen.attributes('aria-hidden')).toBe('true')
+
+    await nutMenu.trigger('click')
+    await nextTick()
+    const nutDong = wrapper.get('.thanh-ben-dieu-huong__nut-dong')
+    const lienKetCuoi = wrapper.get('.thanh-ben-dieu-huong__lien-ket')
+    expect(thanhBen.attributes('inert')).toBeUndefined()
+    expect(document.activeElement).toBe(nutDong.element)
+    expect(wrapper.get('.khung-ung-dung__noi-dung').attributes('inert')).toBe('')
+
+    lienKetCuoi.element.focus()
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+    expect(document.activeElement).toBe(nutDong.element)
+
+    nutDong.element.focus()
+    window.dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: true,
+      bubbles: true,
+    }))
+    expect(document.activeElement).toBe(lienKetCuoi.element)
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(nutMenu.attributes('aria-expanded')).toBe('false')
+    expect(thanhBen.attributes('inert')).toBe('')
+    expect(document.activeElement).toBe(nutMenu.element)
+  })
+
   it('logout đi qua Auth Store, đóng drawer và chuyển về chooser neutral', async () => {
     const { router, store, wrapper } = await mountShell(BoCucAdmin, 'ADMIN')
     const dangXuat = vi.spyOn(store, 'dangXuat').mockImplementation(async () => {
@@ -194,6 +289,40 @@ describe('layout integration FE0-T06', () => {
     expect(wrapper.find('[data-testid="nhan-vai-tro"]').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('Nguyễn Minh Anh')
     expect(wrapper.text()).not.toContain('minh.anh@example.com')
+  })
+
+  it('Admin shell nhận menu đã lọc theo route registry và breadcrumb route meta', async () => {
+    const { wrapper } = await mountAdminCoBusinessRoutes('/admin/tai-khoan/123')
+
+    expect(wrapper.findAll('.thanh-ben-dieu-huong__lien-ket')).toHaveLength(1)
+    expect(wrapper.get('.thanh-ben-dieu-huong__lien-ket').text()).toBe('Tài khoản')
+    expect(wrapper.get('.duong-dan-phan-cap').text()).toContain('Tài khoản')
+    expect(wrapper.get('.duong-dan-phan-cap').text()).toContain('Chi tiết tài khoản')
+    expect(wrapper.get('.duong-dan-phan-cap [aria-current="page"]').text()).toBe('Chi tiết tài khoản')
+  })
+
+  it('menu Admin khong tao link cho business route chua register', async () => {
+    const { wrapper } = await mountAdminCoBusinessRoutes()
+
+    expect(wrapper.findAll('.thanh-ben-dieu-huong__lien-ket')).toHaveLength(1)
+    expect(wrapper.text()).not.toContain('Bảng điều khiển')
+    expect(wrapper.text()).not.toContain('Hội viên')
+    expect(wrapper.text()).not.toContain('Nhân viên lễ tân')
+  })
+
+  it('chon menu Admin dong drawer sau navigation', async () => {
+    const { router, wrapper } = await mountAdminCoBusinessRoutes()
+    const nutMenu = wrapper.get('[data-testid="nut-mo-menu"]')
+
+    await nutMenu.trigger('click')
+    expect(wrapper.get('.khung-ung-dung').classes()).toContain('khung-ung-dung--mo')
+
+    await wrapper.get('.thanh-ben-dieu-huong__lien-ket').trigger('click')
+    await router.isReady()
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('adminTaiKhoan')
+    expect(wrapper.get('.khung-ung-dung').classes()).not.toContain('khung-ung-dung--mo')
   })
 
   it('responsive static audit có breakpoint drawer và ràng buộc chống overflow', () => {

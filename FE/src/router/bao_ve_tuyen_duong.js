@@ -1,6 +1,8 @@
 export const CAC_VAI_TRO_WEB = Object.freeze(['ADMIN', 'PT', 'RECEPTIONIST'])
 
-const DIEM_DEN_ACTOR_DA_DANG_KY = Object.freeze({})
+const DIEM_DEN_ACTOR_DA_DANG_KY = Object.freeze({
+  ADMIN: 'adminBangDieuKhien',
+})
 
 function laVaiTroWeb(vaiTro) {
   return CAC_VAI_TRO_WEB.includes(vaiTro)

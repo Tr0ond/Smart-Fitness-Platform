@@ -13,6 +13,9 @@ const ROUTE_MONG_DOI = {
   adminDangNhap: '/admin/dang-nhap',
   ptDangNhap: '/pt/dang-nhap',
   leTanDangNhap: '/le-tan/dang-nhap',
+  adminBangDieuKhien: '/admin/bang-dieu-khien',
+  adminTaiKhoan: '/admin/tai-khoan',
+  adminHoiVien: '/admin/hoi-vien',
 }
 
 describe('router foundation FE0-T05', () => {
@@ -35,6 +38,21 @@ describe('router foundation FE0-T05', () => {
       congKhai: true,
       vaiTro: 'ADMIN',
     })
+    expect(routes.find((route) => route.name === 'adminBangDieuKhien').meta).toMatchObject({
+      yeuCauXacThuc: true,
+      vaiTro: ['ADMIN'],
+      boCuc: 'admin',
+      tieuDe: 'Bảng điều khiển',
+      duongDanPhanCap: [{ nhan: 'Bảng điều khiển' }],
+    })
+    expect(routes.find((route) => route.name === 'adminTaiKhoan').meta).toMatchObject({
+      yeuCauXacThuc: true,
+      vaiTro: ['ADMIN'],
+      boCuc: 'admin',
+      tieuDe: 'Danh sách tài khoản',
+      duongDanPhanCap: [{ nhan: 'Tài khoản' }],
+      hienTrongDieuHuong: true,
+    })
   })
 
   it('catch-all redirect den trang khong tim thay', async () => {
@@ -48,6 +66,53 @@ describe('router foundation FE0-T05', () => {
     await boDinhTuyen.push('/pt/dang-nhap')
 
     expect(boDinhTuyen.currentRoute.value.name).toBe('ptDangNhap')
+  })
+
+  it('account detail route co meta Admin, breadcrumb va khong them menu item', () => {
+    const route = boDinhTuyen.getRoutes().find((muc) => muc.name === 'adminChiTietTaiKhoan')
+
+    expect(route).toBeDefined()
+    expect(route.path).toBe('/admin/tai-khoan/:id')
+    expect(route.meta).toMatchObject({
+      yeuCauXacThuc: true,
+      vaiTro: ['ADMIN'],
+      boCuc: 'admin',
+      tieuDe: 'Chi tiết tài khoản',
+      hienTrongDieuHuong: false,
+      duongDanPhanCap: [
+        { nhan: 'Tài khoản', tenTuyenDuong: 'adminTaiKhoan' },
+        { nhan: 'Chi tiết tài khoản' },
+      ],
+    })
+  })
+
+  it('member list/detail route co meta Admin va breadcrumb named an toan', () => {
+    const danhSach = boDinhTuyen.getRoutes().find((muc) => muc.name === 'adminHoiVien')
+    const chiTiet = boDinhTuyen.getRoutes().find((muc) => muc.name === 'adminChiTietHoiVien')
+
+    expect(danhSach).toBeDefined()
+    expect(danhSach.path).toBe('/admin/hoi-vien')
+    expect(danhSach.meta).toMatchObject({
+      yeuCauXacThuc: true,
+      vaiTro: ['ADMIN'],
+      boCuc: 'admin',
+      tieuDe: 'Danh sách Hội viên',
+      hienTrongDieuHuong: true,
+      duongDanPhanCap: [{ nhan: 'Hội viên' }],
+    })
+    expect(chiTiet).toBeDefined()
+    expect(chiTiet.path).toBe('/admin/hoi-vien/:id')
+    expect(chiTiet.meta).toMatchObject({
+      yeuCauXacThuc: true,
+      vaiTro: ['ADMIN'],
+      boCuc: 'admin',
+      tieuDe: 'Chi tiết Hội viên',
+      hienTrongDieuHuong: false,
+      duongDanPhanCap: [
+        { nhan: 'Hội viên', tenTuyenDuong: 'adminHoiVien' },
+        { nhan: 'Chi tiết Hội viên' },
+      ],
+    })
   })
 
   it('email reset cu van mo dung man hinh dat lai mat khau', async () => {

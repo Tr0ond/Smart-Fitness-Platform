@@ -68,8 +68,8 @@ const coHang = computed(() => props.hang.length > 0)
           {{ props.tieuDe }}
         </caption>
         <thead>
-          <tr>
-            <slot name="tieuDeCot">
+          <slot name="tieuDeCot">
+            <tr>
               <th
                 v-for="cotTrongBang in props.cot"
                 :key="cotTrongBang.khoa"
@@ -77,8 +77,8 @@ const coHang = computed(() => props.hang.length > 0)
               >
                 {{ cotTrongBang.nhan }}
               </th>
-            </slot>
-          </tr>
+            </tr>
+          </slot>
         </thead>
         <tbody>
           <slot

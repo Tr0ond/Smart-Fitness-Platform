@@ -239,6 +239,29 @@ async function datLaiMatKhau() {
   padding: 2rem 1rem;
 }
 
+.man-hinh-xac-thuc__quay-lai {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.man-hinh-xac-thuc__quay-lai svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 1.25rem;
+}
+
+.man-hinh-xac-thuc__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.man-hinh-xac-thuc__icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 .man-hinh-xac-thuc form {
   display: grid;
   gap: 1rem;

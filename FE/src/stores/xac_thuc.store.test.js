@@ -6,6 +6,7 @@ import {
   KHOA_TOKEN_PHIEN,
   useXacThucStore,
 } from './xac_thuc.store.js'
+import { useTaiKhoanStore } from './tai_khoan.store.js'
 import {
   dangNhap as dangNhapApi,
   dangXuat as dangXuatApi,
@@ -220,6 +221,45 @@ describe('xac_thuc.store', () => {
     expect(sessionStorage.length).toBe(0)
   })
 
+  it('logout va doi actor don dep account list memory', () => {
+    const authStore = useXacThucStore()
+    const accountStore = useTaiKhoanStore()
+    accountStore.danhSachTaiKhoan = [{ id: 7, name: 'Tai khoan cu' }]
+    accountStore.boLoc = { search: 'cu', status: '', role: '', per_page: 20 }
+    accountStore.taiKhoanDaChon = { id: 7, name: 'Tai khoan cu', status: 'HOAT_DONG', roles: [] }
+    accountStore.dangTaiChiTiet = true
+    accountStore.loiTaiChiTiet = { message: 'Loi detail cu' }
+    accountStore.dangCapNhatTrangThai = true
+    accountStore.loiCapNhatTrangThai = { message: 'Loi mutation cu' }
+    accountStore.thongBaoCapNhatTrangThai = 'Thong bao cu'
+    accountStore.danhSachNhanVienLeTan = [{ id: 9, name: 'Le tan cu' }]
+    accountStore.nhanVienLeTanDaChon = { id: 9, name: 'Le tan cu' }
+    accountStore.dangThuHoiVaiTroNhanVienLeTan = true
+
+    authStore.xoaPhienDangNhap()
+
+    expect(accountStore.danhSachTaiKhoan).toEqual([])
+    expect(accountStore.boLoc).toEqual({ search: '', status: '', role: '', per_page: 20 })
+    expect(accountStore.taiKhoanDaChon).toBeNull()
+    expect(accountStore.dangTaiChiTiet).toBe(false)
+    expect(accountStore.loiTaiChiTiet).toBeNull()
+    expect(accountStore.dangCapNhatTrangThai).toBe(false)
+    expect(accountStore.loiCapNhatTrangThai).toBeNull()
+    expect(accountStore.thongBaoCapNhatTrangThai).toBeNull()
+    expect(accountStore.danhSachNhanVienLeTan).toEqual([])
+    expect(accountStore.nhanVienLeTanDaChon).toBeNull()
+    expect(accountStore.dangThuHoiVaiTroNhanVienLeTan).toBe(false)
+
+    authStore.vaiTro = ['ADMIN', 'PT']
+    authStore.chonVaiTroDangDung('ADMIN')
+    accountStore.danhSachTaiKhoan = [{ id: 8, name: 'Tai khoan admin' }]
+    accountStore.danhSachNhanVienLeTan = [{ id: 10, name: 'Le tan admin' }]
+    authStore.chonVaiTroDangDung('PT')
+
+    expect(accountStore.danhSachTaiKhoan).toEqual([])
+    expect(accountStore.danhSachNhanVienLeTan).toEqual([])
+  })
+
   it('logout network hoac 5xx fail van clear local session', async () => {
     const store = useXacThucStore()
     datTokenTrongPhien(store)
@@ -250,6 +290,9 @@ describe('xac_thuc.store', () => {
 
   it('401 authenticated response clear auth state, con 403 khong logout', async () => {
     const store = useXacThucStore()
+    const accountStore = useTaiKhoanStore()
+    accountStore.danhSachNhanVienLeTan = [{ id: 9, name: 'Le tan cu' }]
+    accountStore.nhanVienLeTanDaChon = { id: 9, name: 'Le tan cu' }
     datTokenTrongPhien(store)
     store.vaiTroDangDung = 'PT'
     const dieuPhoiSau401 = vi.fn()
@@ -264,6 +307,8 @@ describe('xac_thuc.store', () => {
     await expect(ketNoiApi.get('/protected', { adapter: adapter401 })).rejects.toMatchObject({ httpStatus: 401 })
     expect(store.token).toBeNull()
     expect(store.nguoiDung).toBeNull()
+    expect(accountStore.danhSachNhanVienLeTan).toEqual([])
+    expect(accountStore.nhanVienLeTanDaChon).toBeNull()
     expect(dieuPhoiSau401).toHaveBeenCalledWith('PT')
 
     datTokenTrongPhien(store)

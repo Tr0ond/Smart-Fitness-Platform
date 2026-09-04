@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  dieuPhoiTheoVaiTro,
   dieuPhoiTrangGoc,
   taoBaoVeTuyenDuong,
 } from './bao_ve_tuyen_duong.js'
@@ -135,6 +136,23 @@ describe('bao_ve_tuyen_duong', () => {
     expect(dieuPhoiTrangGoc(multiRoleStore)).toEqual({ name: 'chonVaiTro' })
     expect(multiRoleStore.vaiTroDangDung).toBeNull()
     expect(dieuPhoiTrangGoc(memberStore)).toEqual({ name: 'chonVaiTro' })
+  })
+
+  it('single ADMIN va actor ADMIN duoc dua toi Dashboard, khong auto-priority multi-role', () => {
+    const adminStore = taoStore({
+      token: 'token',
+      nguoiDung: { id: 1 },
+      vaiTro: ['ADMIN'],
+    })
+    const multiRoleStore = taoStore({
+      token: 'token',
+      nguoiDung: { id: 2 },
+      vaiTro: ['ADMIN', 'PT'],
+    })
+
+    expect(dieuPhoiTrangGoc(adminStore)).toEqual({ name: 'adminBangDieuKhien' })
+    expect(dieuPhoiTheoVaiTro(multiRoleStore, 'ADMIN')).toEqual({ name: 'adminBangDieuKhien' })
+    expect(dieuPhoiTheoVaiTro(multiRoleStore, 'PT')).toBeNull()
   })
 
   it('public route khong can restore va root unauthenticated di neutral chooser', async () => {
