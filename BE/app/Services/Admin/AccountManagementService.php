@@ -22,6 +22,7 @@ class AccountManagementService
     {
         $this->guard->damBaoQuanTriVienHienTai($actor);
         $truyVan = NguoiDung::query()
+            ->where('chi_nhanh_id', $actor->chi_nhanh_id)
             ->with([
                 'chiNhanh:id,ma_chi_nhanh,ten_chi_nhanh',
                 'hoSoHoiVien:id,nguoi_dung_id,ma_hoi_vien',
@@ -78,7 +79,9 @@ class AccountManagementService
     public function chiTiet(NguoiDung $actor, int $taiKhoanId): array
     {
         $this->guard->damBaoQuanTriVienHienTai($actor);
-        $nguoiDung = $this->truyVanChiTiet()->find($taiKhoanId);
+        $nguoiDung = $this->truyVanChiTiet()
+            ->where('chi_nhanh_id', $actor->chi_nhanh_id)
+            ->find($taiKhoanId);
         if ($nguoiDung === null) {
             throw new AuthWorkflowException('Không tìm thấy tài khoản.', 404, 'ACCOUNT_NOT_FOUND');
         }

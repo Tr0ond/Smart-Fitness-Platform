@@ -42,9 +42,11 @@ class CreateTrainerRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            '_idempotency_key' => $this->idempotencyKey(),
-            'status' => is_string($this->input('status')) ? strtoupper(trim($this->input('status'))) : $this->input('status'),
-        ]);
+        $duLieu = ['_idempotency_key' => $this->idempotencyKey()];
+        if (is_string($this->input('status'))) {
+            $duLieu['status'] = strtoupper(trim($this->input('status')));
+        }
+
+        $this->merge($duLieu);
     }
 }

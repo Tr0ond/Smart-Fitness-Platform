@@ -297,6 +297,36 @@ describe('shared components FE0-T07', () => {
     }
   })
 
+  it('hop_thoai_xac_nhan giu control trong slot trong focus trap hai chieu', async () => {
+    const trigger = document.createElement('button')
+    document.body.appendChild(trigger)
+    trigger.focus()
+    const wrapper = mount(HopThoaiXacNhan, {
+      attachTo: document.body,
+      props: { hienThi: false, tieuDe: 'Xác nhận' },
+      slots: { default: '<input id="control-trong-slot">' },
+    })
+
+    try {
+      await wrapper.setProps({ hienThi: true })
+      await nextTick()
+      const dialog = wrapper.get('[role="dialog"]')
+      const control = wrapper.get('#control-trong-slot')
+
+      expect(dialog.find('#control-trong-slot').exists()).toBe(true)
+      wrapper.get('.nut--chinh').element.focus()
+      await wrapper.get('.nut--chinh').trigger('keydown', { key: 'Tab' })
+      expect(document.activeElement).toBe(control.element)
+
+      control.element.focus()
+      await control.trigger('keydown', { key: 'Tab', shiftKey: true })
+      expect(document.activeElement).toBe(wrapper.get('.nut--chinh').element)
+    } finally {
+      wrapper.unmount()
+      trigger.remove()
+    }
+  })
+
   it('hop_thoai_xac_nhan ngan duplicate confirm khi pending', async () => {
     const wrapper = mount(HopThoaiXacNhan, {
       props: { hienThi: true, tieuDe: 'Xóa buổi tập', dangXuLy: true },

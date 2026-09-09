@@ -8,9 +8,11 @@ import {
   capNhatTrangThaiTaiKhoan,
   laIdTaiKhoanHopLe,
   taiChiTietTaiKhoan,
+  taiChiTietHuanLuyenVien,
   taiChiTietHoiVien,
   taiChiTietNhanVienLeTan,
   taiDanhSachTaiKhoan,
+  taiDanhSachHuanLuyenVien,
   taiDanhSachHoiVien,
   taiDanhSachNhanVienLeTan,
   thuHoiVaiTro,
@@ -235,6 +237,25 @@ describe('tai_khoan.api FE1-T03', () => {
     expect(get.mock.calls[0][1]).toBeUndefined()
   })
 
+  it('tai chi tiet Huan luyen vien dung mot Account detail GET va khong them query', async () => {
+    const phanHoi = {
+      data: {
+        id: 7,
+        name: 'Nguyễn Minh Anh',
+        status: 'HOAT_DONG',
+        roles: [{ code: 'PT', active: true }],
+        trainer_profile: null,
+      },
+    }
+    const get = vi.spyOn(ketNoiApi, 'get').mockResolvedValue({ data: phanHoi })
+
+    await expect(taiChiTietHuanLuyenVien(' 7 ')).resolves.toBe(phanHoi)
+
+    expect(get).toHaveBeenCalledTimes(1)
+    expect(get).toHaveBeenCalledWith('/admin/accounts/7')
+    expect(get.mock.calls[0][1]).toBeUndefined()
+  })
+
   it('tai danh sach Nhan vien le tan luon ep role RECEPTIONIST va loai authority field', async () => {
     const get = vi.spyOn(ketNoiApi, 'get').mockResolvedValue({ data: PHAN_HOI })
 
@@ -259,6 +280,31 @@ describe('tai_khoan.api FE1-T03', () => {
     expect(JSON.stringify(get.mock.calls[0])).not.toMatch(/branch_id|role_id|actor/i)
   })
 
+  it('tai danh sach Huan luyen vien luon ep role PT va chi gui filter duoc phep', async () => {
+    const get = vi.spyOn(ketNoiApi, 'get').mockResolvedValue({ data: PHAN_HOI })
+
+    await taiDanhSachHuanLuyenVien({
+      search: '  PT Anh  ',
+      status: 'HOAT_DONG',
+      role: 'ADMIN',
+      branch_id: 9,
+      authority: 'SUPER_ADMIN',
+      page: 2,
+      per_page: 20,
+    })
+
+    expect(get).toHaveBeenCalledWith('/admin/accounts', {
+      params: {
+        search: 'PT Anh',
+        status: 'HOAT_DONG',
+        role: 'PT',
+        page: 2,
+        per_page: 20,
+      },
+    })
+    expect(JSON.stringify(get.mock.calls[0])).not.toMatch(/branch_id|authority|role_id|actor/i)
+  })
+
   it('tai chi tiet Nhan vien le tan dung Account detail, khong them query', async () => {
     const phanHoi = { data: { id: 7, name: 'Lễ tân', status: 'HOAT_DONG', roles: [] } }
     const get = vi.spyOn(ketNoiApi, 'get').mockResolvedValue({ data: phanHoi })
@@ -273,6 +319,17 @@ describe('tai_khoan.api FE1-T03', () => {
     const get = vi.spyOn(ketNoiApi, 'get')
 
     await expect(taiChiTietTaiKhoan('-3')).rejects.toMatchObject({
+      httpStatus: 404,
+      message: 'Không thể truy cập dữ liệu tài khoản này.',
+    })
+
+    expect(get).not.toHaveBeenCalled()
+  })
+
+  it('wrapper detail PT tu choi id khong hop le truoc request', async () => {
+    const get = vi.spyOn(ketNoiApi, 'get')
+
+    await expect(taiChiTietHuanLuyenVien('7/../8')).rejects.toMatchObject({
       httpStatus: 404,
       message: 'Không thể truy cập dữ liệu tài khoản này.',
     })

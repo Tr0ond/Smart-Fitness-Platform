@@ -35,8 +35,16 @@
 | Muscle groups | `GET/POST /admin/muscle-groups`, `PATCH /admin/muscle-groups/{id}` | ADMIN |
 | Exercises | `GET/POST /admin/exercises`, `GET/PATCH /admin/exercises/{id}` | ADMIN |
 | Workout templates | `GET/POST /admin/workout-templates`, `GET/PATCH /admin/workout-templates/{id}` | ADMIN |
+| Trainer profile | `GET /admin/accounts/{id}/trainer-profile` | ADMIN; same-branch read-only full profile |
+| Trainer onboarding | `POST /admin/trainers`, `POST /admin/accounts/{id}/trainer-profile` | ADMIN; both require **Idempotency-Key** |
 
 Catalog records are deactivated through state; there is no hard-delete API. Existing Membership/Plan/Workout snapshots are not rewritten.
+
+Trainer onboarding requires a UUID `Idempotency-Key`. The new-account endpoint creates the account, PT profile, role, and audit rows transactionally, then reports and stores `invitation: "QUEUED"` only after the existing password-reset dispatcher accepts the job. A queue acceptance failure returns `503`; the domain rows remain committed with stored `invitation: "NOT_QUEUED"`, and the same actor/key/body can recover the invitation without recreating or re-auditing those rows. Initial success is `201` with `replayed: false`; an ordinary replay or recovered invitation is `200` with `replayed: true`. The existing-account endpoint is `200`, returns `invitation: "NOT_REQUESTED"`, never sends a reset invitation, and hashes the account path plus only supplied canonical profile fields, preserving absent versus explicit `null`. A reused key with a different body or account path returns `409`.
+
+Each successful account/profile/PT-role transition writes an append-only audit row with immutable safe snapshots. Account creation uses `before: null` and an after snapshot containing only `id`, `name`, `email`, `branch_id`, and `status`; it never records `mat_khau_bam`, tokens, or raw request data. Profile snapshots use exactly `id`, `account_id`, `trainer_code`, `introduction`, `specialties`, and `status`. Existing-profile updates compare normalized persisted values, keep omitted fields unchanged, represent explicit `null`, and write one profile audit only when a persisted value changes. PT-role snapshots use `assignment_id`, `account_id`, `role`, `granted_by_id`, `granted_at`, `revoked_at`, and `active`; regrant records revoked-before/active-after while preserving the assignment row ID and original `ngay_tao`. All audit rows from one logical onboarding transaction share one UUID `khoa_tuong_quan`. Mutation and audit writes share the domain transaction; audit failure rolls back the corresponding account/profile/role/idempotency changes. Active-role no-op and idempotent replay do not create duplicate successful audits. Invitation dispatch remains outside this domain transaction.
+
+The Admin trainer-profile read returns exactly `{ account_id, trainer_profile_id, trainer_code, status, introduction, specialties, updated_at }` for an account and PT profile in the actor's branch. Missing account, foreign-branch account, and absent profile share `404 TRAINER_PROFILE_NOT_FOUND` with the normalized error envelope. The GET revalidates the active Admin role, performs no transaction lock, idempotency, audit, profile mutation, or timestamp update—including the current access-token telemetry row—and does not expose account contact fields, password/token data, role history, assignment, or audit data. Other protected endpoints retain normal valid-request access-token telemetry updates.
 
 ## 4. Profile, package, Membership and payment
 
@@ -66,6 +74,8 @@ Payment success grants ownership/snapshot only. The first valid paid entitlement
 
 | Method | Path | Actor |
 | --- | --- | --- |
+| GET | `/pt/assignments` | ADMIN; same-branch Member + PT resources |
+| GET | `/pt/assignments/{id}` | ADMIN; same-branch Member + PT resources |
 | POST | `/pt/assignments` | ADMIN |
 | PATCH | `/pt/assignments/{id}/end` | ADMIN |
 | POST | `/pt/assignments/{id}/reassign` | ADMIN |
@@ -78,6 +88,8 @@ Payment success grants ownership/snapshot only. The first valid paid entitlement
 | GET | `/pt/proposals`, `/pt/proposals/{id}`, `/pt/notes` | MEMBER owner |
 | POST | `/pt/proposals/{id}/confirm` | MEMBER owner, **Idempotency-Key** |
 | POST | `/pt/proposals/{id}/reject` | MEMBER owner, **Idempotency-Key** |
+
+Admin assignment reads return `{data:{items,pagination}}` or one exact assignment DTO with only `id`, `member:{id,code,name}`, `trainer:{id,code,name,status}`, `start_at`, `end_at`, `reason`, server-UTC `is_current`, `created_at`, and `updated_at`. Both linked accounts must belong to the authenticated Admin's branch; foreign/missing rows are concealed as `404 ASSIGNMENT_NOT_FOUND`. List filters are the allow-listed `member_id`, `trainer_id`, `current`, `page`, and `per_page`, ordered by `start_at DESC, id DESC`. Assignment intervals use half-open `[start_at,end_at)` semantics, so adjacency is valid and overlap is rejected under actor/member/all-member-assignment/trainer locks. End is a server-time target-state no-op when already ended; reassign closes the old row at the new start and inserts a new row. Every successful create/end/reassign writes allow-listed before/after audit snapshots in the same transaction; no assignment mutation adds an `Idempotency-Key`, and timeout/5xx clients must reconcile through GET without blind retry.
 
 Only PT-confirmed direct-session completion consumes direct PT quota. PT Proposal confirmation creates a new immutable Workout Plan Version.
 

@@ -32,6 +32,7 @@ class AdminAccountRoleApiTest extends TestCase
     {
         $admin = $this->taoNguoiDungAuth(['ADMIN'], thuDienTu: 'admin.accounts@example.com');
         $target = $this->taoNguoiDungAuth(['MEMBER'], thuDienTu: 'member.search@example.com');
+        $target['user']->forceFill(['chi_nhanh_id' => $admin['branch_id']])->save();
         $token = (string) $this->dangNhapApi($admin['user']->thu_dien_tu, diaChiIp: '192.0.2.31')
             ->json('data.access_token');
 
@@ -52,6 +53,31 @@ class AdminAccountRoleApiTest extends TestCase
         $this->assertStringNotContainsString('ma_bam_xac_nhan', $body);
     }
 
+    public function test_admin_account_list_and_detail_are_scoped_to_actor_branch(): void
+    {
+        $admin = $this->taoNguoiDungAuth(['ADMIN'], thuDienTu: 'admin.branch-scope@example.com');
+        $sameBranch = $this->taoNguoiDungAuth(['MEMBER'], thuDienTu: 'member.same-branch@example.com');
+        $sameBranch['user']->forceFill(['chi_nhanh_id' => $admin['branch_id']])->save();
+        $foreign = $this->taoNguoiDungAuth(['MEMBER'], thuDienTu: 'member.foreign-branch@example.com');
+        $token = (string) $this->dangNhapApi($admin['user']->thu_dien_tu, diaChiIp: '192.0.2.32')
+            ->json('data.access_token');
+
+        $list = $this->getJson('/api/admin/accounts?per_page=100', $this->bearer($token));
+        $list->assertOk()
+            ->assertJsonPath('data.pagination.total', 2)
+            ->assertJsonFragment(['id' => $admin['user']->getKey()])
+            ->assertJsonFragment(['id' => $sameBranch['user']->getKey()]);
+        $listedIds = collect($list->json('data.items'))->pluck('id')->all();
+        $this->assertNotContains($foreign['user']->getKey(), $listedIds);
+
+        $this->getJson('/api/admin/accounts/'.$sameBranch['user']->getKey(), $this->bearer($token))
+            ->assertOk()
+            ->assertJsonPath('data.id', $sameBranch['user']->getKey());
+        $this->getJson('/api/admin/accounts/'.$foreign['user']->getKey(), $this->bearer($token))
+            ->assertNotFound()
+            ->assertJsonPath('code', 'ACCOUNT_NOT_FOUND');
+    }
+
     public function test_non_admin_roles_and_unauthenticated_clients_are_blocked_from_all_admin_account_routes(): void
     {
         $target = $this->taoNguoiDungAuth(['MEMBER']);
@@ -61,6 +87,7 @@ class AdminAccountRoleApiTest extends TestCase
             ['PATCH', '/api/admin/accounts/'.$target['user']->getKey().'/status'],
             ['PUT', '/api/admin/accounts/'.$target['user']->getKey().'/roles/PT'],
             ['DELETE', '/api/admin/accounts/'.$target['user']->getKey().'/roles/PT'],
+            ['GET', '/api/admin/accounts/'.$target['user']->getKey().'/trainer-profile'],
         ];
 
         foreach ($routes as [$method, $uri]) {

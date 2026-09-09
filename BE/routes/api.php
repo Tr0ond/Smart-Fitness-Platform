@@ -51,6 +51,9 @@ Route::middleware(['auth:api', 'role:ADMIN'])->prefix('admin/accounts')->group(f
     Route::delete('/{account}/roles/{role}', [AccountController::class, 'thuHoiVaiTro'])
         ->whereNumber('account')
         ->whereIn('role', ['MEMBER', 'PT', 'RECEPTIONIST', 'ADMIN']);
+    Route::get('/{account}/trainer-profile', [TrainerOnboardingController::class, 'hienThiHoSoHuanLuyenVien'])
+        ->whereNumber('account')
+        ->name('admin.accounts.trainer-profile.show');
     Route::post('/{account}/trainer-profile', [TrainerOnboardingController::class, 'onboardTaiKhoanDaCo'])
         ->whereNumber('account');
 });
@@ -160,6 +163,8 @@ Route::middleware(['auth:api', 'role:RECEPTIONIST,ADMIN'])
     ->post('/gym/check-in', [GymController::class, 'xacNhan']);
 
 Route::middleware(['auth:api', 'role:ADMIN'])->prefix('pt/assignments')->group(function (): void {
+    Route::get('/', [PtAssignmentController::class, 'danhSach']);
+    Route::get('/{assignment}', [PtAssignmentController::class, 'chiTiet'])->whereNumber('assignment');
     Route::post('/', [PtAssignmentController::class, 'tao']);
     Route::patch('/{assignment}/end', [PtAssignmentController::class, 'ketThuc'])->whereNumber('assignment');
     Route::post('/{assignment}/reassign', [PtAssignmentController::class, 'phanCongLai'])->whereNumber('assignment');

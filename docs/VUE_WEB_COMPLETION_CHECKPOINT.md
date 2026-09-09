@@ -1,15 +1,16 @@
 # Vue Web Completion Checkpoint
 
-CURRENT_PHASE: FE-1
-CURRENT_TASK: FE1-T08
+CURRENT_PHASE: FE-2
+CURRENT_TASK: FE2-T08
 STATUS: PASS
 FE0_PHASE_STATUS: PASS
 FE1_PHASE_STATUS: PASS
-FE2_PHASE_STATUS: NOT_STARTED
+FE2_PHASE_STATUS: PASS
 
 COMPLETED_PHASES:
 - FE-0 — Foundation; remediation đã PASS với 200 tests.
 - FE-1 — Admin Foundation; remediation 7 finding và full gate đã PASS với 470 tests.
+- FE-2 — Admin PT; FE2-ALL và menu remediation round 5 đã PASS với Backend 323 tests và Frontend 572 tests.
 
 COMPLETED_TASKS:
 - FE0-T01
@@ -29,6 +30,14 @@ COMPLETED_TASKS:
 - FE1-T06
 - FE1-T07
 - FE1-T08
+- FE2-T01
+- FE2-T02
+- FE2-T03
+- FE2-T04
+- FE2-T05
+- FE2-T06
+- FE2-T07
+- FE2-T08
 
 REMEDIATED_TASKS:
 - FE0-T03 — Axios 401 đã dùng Bearer snapshot; late response không xóa phiên mới.
@@ -38,12 +47,14 @@ REMEDIATED_TASKS:
 - FE0-T07 — Form map/focus 422, countdown 429, dialog focus trap/return và empty table đã sửa.
 - FE0-T09 — Full test/lint/build/static/browser gate đã chạy lại và PASS.
 - FE1-T08 — Cleanup/race/pagination/422/drawer/filter/status label đã sửa và full gate chạy lại PASS.
+- FE2-T08 — Trang phân công PT đã được mở trong menu Admin; route metadata, thứ tự/active state và full FE gate 572 tests đã PASS ở remediation round 5.
 
-EXACT_NEXT_ACTION: FE2-T01 — PT list từ Admin account filter
+EXACT_NEXT_ACTION: FE3-ALL — eligible after FE-2 PASS; not started because the owner requested stopping after FE2
 
 BLOCKED_FEATURES:
 - Không còn blocker thuộc FE-0 sau remediation.
 - Không còn blocker source/test thuộc FE-1 sau remediation; browser visual smoke chưa chạy lại do máy hiện không có `agent-browser`, nhưng đây không phải exit gate FE1-T08 trong V2.
+- Không còn current-state blocker thuộc FE-2. `FE2-MENU-F-001` đã CLOSED bằng menu remediation round 5; `BE-FOLLOWUP-02`, `BE-FOLLOWUP-03`, `BLOCKER-01` và `BLOCKER-02` vẫn đã đóng bằng evidence FE2-ALL.
 - Các blocker Backend/phase sau vẫn giữ nguyên ở `FUTURE_BACKEND_BLOCKERS`; FE-0 PASS không đồng nghĩa toàn bộ Web hoàn tất.
 
 HISTORICAL_EVIDENCE_NOTICE:
@@ -54,10 +65,12 @@ HISTORICAL_EVIDENCE_NOTICE:
 
 BACKEND_API_BLOCKERS:
 - Không có blocker từ Backend đối với FE0-T05; forgot/reset đã được đối chiếu với source/test/contract, không sửa Backend.
+- Không còn current Backend blocker đối với FE2-T02/T04/T06/T07: invitation recovery/audit, trainer-profile GET và assignment list/detail/history đã có source/test/contract evidence PASS.
 
 FUTURE_BACKEND_BLOCKERS:
-- Giữ nguyên 7 BACKEND_API_BLOCKER trong V2 cho các phase sau: Admin PT profile, Admin assignment history, PT Member detail, PT current Workout Plan, PT Workout History, Receptionist Member lookup và Receptionist Membership/Gym eligibility.
-- Giữ nguyên 4 BACKEND_FIX_IN_PROGRESS trong V2: Payment event visibility, reconciliation filter, invitation recovery, PT onboarding audit snapshot.
+- Các blocker Admin PT profile và Admin assignment history đã được đóng trong FE-2; historical entries trong V2/checkpoint vẫn được giữ để truy nguyên.
+- Các dependency phase sau vẫn giữ nguyên: PT Member detail, PT current Workout Plan, PT Workout History, Receptionist Member lookup và Receptionist Membership/Gym eligibility.
+- Payment event visibility và reconciliation filter vẫn là dependency phase sau; invitation recovery và PT onboarding audit snapshot đã được đóng trong FE-2.
 - Reverb external probe và các dependency triển khai HTTPS/CORS/WSS/queue/scheduler vẫn là release dependency; không thuộc FE-0 và không được tuyên bố đã hoàn tất.
 
 FILES_CREATED:
@@ -117,6 +130,16 @@ FILES_CREATED:
 - FE/src/utils/phien_dang_nhap.test.js
 - FE/src/utils/duong_dan_an_toan.js
 - FE/src/utils/duong_dan_an_toan.test.js
+- FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.index.vue
+- FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.index.test.js
+- FE/src/components/dung_chung/chan_tinh_nang_bi_chan.vue
+- FE/src/components/dung_chung/chan_tinh_nang_bi_chan.test.js
+- FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.chi_tiet.vue
+- FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.chi_tiet.test.js
+- FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.tao_moi.vue
+- FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.tao_moi.test.js
+- FE/src/pages/admin/phan_cong_pt/phan_cong_pt.index.vue
+- FE/src/pages/admin/phan_cong_pt/phan_cong_pt.index.test.js
 
 FILES_MODIFIED:
 - FE/README.md
@@ -152,6 +175,12 @@ FILES_MODIFIED:
 - FE/src/stores/xac_thuc.store.test.js
 - FE/src/utils/dieu_phoi_xac_thuc.js
 - docs/VUE_WEB_IMPLEMENTATION_PLAN_V2.md
+- FE/src/services/tai_khoan.api.js
+- FE/src/services/tai_khoan.api.test.js
+- FE/src/stores/tai_khoan.store.js
+- FE/src/stores/tai_khoan.store.test.js
+- FE/src/router/dieu_huong_admin.js
+- FE/src/router/dieu_huong_admin.test.js
 
 ROUTES_CREATED:
 - `/` -> `dieuPhoiTrangGoc` (root dispatcher, không có business page riêng).
@@ -165,7 +194,11 @@ ROUTES_CREATED:
 - `/le-tan/dang-nhap` -> `leTanDangNhap`.
 - `/:pathMatch(.*)*` redirect nội bộ tới `khongTimThay`.
 - Layout mapping trung tâm: `meta.boCuc` dùng `cong_khai`, `loi`, `admin`, `pt`, `le_tan`; T06 chỉ gắn mapping cho các route auth/error hiện có, không tạo domain route.
-- Không tạo domain route, business route hoặc route FE0-T07+.
+- FE0 foundation ban đầu không tạo domain route; các Admin domain route bổ sung được ghi ở evidence của task tương ứng.
+- `/admin/huan-luyen-vien` -> `adminHuanLuyenVien` (Admin PT list, FE2-T01).
+- `/admin/huan-luyen-vien/tao-moi` -> `adminTaoHuanLuyenVien` (Admin PT onboarding blocker, FE2-T02; static route trước `:id`).
+- `/admin/huan-luyen-vien/:id` -> `adminChiTietHuanLuyenVien` (Admin PT basic detail, FE2-T03).
+- `/admin/phan-cong-pt` -> `adminPhanCongPt` (Admin PT assignment blocker, FE2-T05/T06/T07; guarded direct route, không nằm trong menu).
 
 DEPENDENCIES_ADDED:
 - `@vue/test-utils`: 2.4.6
@@ -1104,3 +1137,140 @@ FE1_REMEDIATION_EVIDENCE_2026_09_04
 - PUSH_PERFORMED: NO.
 - CHECKPOINT_UPDATED: PASS — `STATUS=PASS`, `FE1_PHASE_STATUS=PASS`, `FE1-T08` và `FE-1` đã được khôi phục vào completed; `FE2_PHASE_STATUS=NOT_STARTED`.
 - FINAL_VERDICT: PASS — bảy finding hậu kiểm đã được sửa và full FE-1 gate đạt yêu cầu; được phép bắt đầu `FE2-T01 — PT list từ Admin account filter`.
+
+============================================================
+FE2_T01_EVIDENCE_2026_09_05
+============================================================
+
+- ENTRY_GATE: PASS — đã đọc toàn bộ `PROJECT_RULES.md`, root `AGENTS.md`, brief FE2-T01 và các baseline artifact; baseline product worktree sạch, workflow `.fitness-sdd` được giữ nguyên.
+- BASELINE_AUDIT: PASS — các file declared target hiện có khớp byte/hash với baseline trước task; hai page target mới ở trạng thái absent trước khi triển khai.
+- API_CONTRACT: PASS — thêm wrapper `taiDanhSachHuanLuyenVien` trên GET `/api/admin/accounts`, luôn ép `role=PT`; chỉ chuyển `search/status/page/per_page`, loại role/branch/authority do caller truyền.
+- STORE_SCOPE: PASS — thêm state/filter/pagination/loading/error/first-load/request-sequence riêng cho PT; mọi item phải là Account hợp lệ, có active role PT và `trainer_profile` an toàn hoặc null.
+- PAGINATION: PASS — dùng server pagination và corrective request một lần khi page vượt `last_page`, giữ nguyên applied filter và không tự suy diễn tổng.
+- FILTER_STATE: PASS — search/status là filter duy nhất; draft hydrate từ applied filter, reset về page 1 và retry dùng cùng applied filter/page.
+- REQUEST_RACE: PASS — sequence guard ngăn response cũ hoặc response sau cleanup ghi đè PT list/state.
+- CLEANUP: PASS — `xoaDuLieuHuanLuyenVien` và global `xoaDuLieu()` invalidate request, reset PT scope, không xóa nhầm Account/Member/Receptionist scope.
+- ROUTE: PASS — route `/admin/huan-luyen-vien`, named `adminHuanLuyenVien`, Admin metadata và breadcrumb `Huấn luyện viên`.
+- MENU: PASS — đúng một menu item `Huấn luyện viên`, nằm giữa Hội viên và Nhân viên lễ tân; không thêm menu Phân công PT.
+- PAGE_BOUNDARY: PASS — trang read-only dùng Account/PT DTO an toàn; không tạo profile/onboarding/assignment/membership/chat/quota/invitation API, form, store hoặc control.
+- SAFE_RENDERING: PASS — code PT, phone, branch và profile đều có fallback; profile status map exact `HOAT_DONG`, `NGUNG_NHAN_PHAN_CONG`, null và unknown, không render raw enum lạ.
+- ERROR_HANDLING: PASS — 422 focus lỗi đầu và không retry; 403 clear scoped state rồi chuyển named `khongCoQuyen`; 401 để shared Auth xử lý; network/5xx/controlled response shape có retry thủ công; refresh lỗi vẫn giữ rows tốt.
+- ACCESSIBILITY_RESPONSIVE: PASS — dùng shared title/filter/table/loading/error/pagination components, labels/live state/focus target; CSS có narrow-screen table overflow có chủ đích và breakpoint <=1023px/<=639px.
+- TARGETED_TESTS: PASS — tại `E:\Fitness\FE`, lệnh `npm run test -- src/services/tai_khoan.api.test.js src/stores/tai_khoan.store.test.js src/pages/admin/huan_luyen_vien/huan_luyen_vien.index.test.js src/router/index.test.js src/router/dieu_huong_admin.test.js`; 5 test files, 186/186 tests PASS.
+- FULL_TEST: PASS — tại `E:\Fitness\FE`, lệnh `npm run test`; 28 test files, 492/492 tests PASS.
+- LINT: PASS — tại `E:\Fitness\FE`, lệnh `npm run lint`; ESLint PASS, không warning/error.
+- BUILD: PASS — tại `E:\Fitness\FE`, lệnh `npm run build`; Vite 8.2.2, 138 modules transformed, build thành công.
+- DIFF_CHECK: PASS — tại `E:\Fitness`, lệnh `git diff --check` không có lỗi.
+- DEPENDENCY: PASS — không thêm dependency hoặc thay đổi package/lockfile.
+- NAMING_DOCBLOCK: PASS — function/handler nghiệp vụ mới theo Vietnamese no-accent convention và có docblock về purpose/input/flow/output/side effect/boundary.
+- SECURITY: PASS — không thêm raw secret/token/payload rendering, v-html, persistence hoặc client-side authorization bypass.
+- BROWSER_VISUAL_SMOKE: NOT_RUN — không thuộc focused exit gate của brief; không tuyên bố browser PASS.
+- SCOPE_AUDIT: PASS — chỉ sửa các FE/test/CSS/router/checkpoint path đã khai báo và report artifact; không có Backend/Mobile/Database change, commit, push hoặc dependency change.
+- FILES_CREATED: `FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.index.vue`; `FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.index.test.js`.
+- FILES_MODIFIED: `FE/src/services/tai_khoan.api.js`; `FE/src/services/tai_khoan.api.test.js`; `FE/src/stores/tai_khoan.store.js`; `FE/src/stores/tai_khoan.store.test.js`; `FE/src/router/index.js`; `FE/src/router/index.test.js`; `FE/src/router/dieu_huong_admin.js`; `FE/src/router/dieu_huong_admin.test.js`; `FE/src/assets/main.css`; `docs/VUE_WEB_COMPLETION_CHECKPOINT.md`.
+- REMAINING_WORK: `FE2-T03 — PT detail account/role summary` là next action; các phần PT profile đầy đủ/onboarding/assignment vẫn chờ task hoặc Backend blocker theo kế hoạch.
+- COMMIT_CREATED: NO.
+- PUSH_PERFORMED: NO.
+- CHECKPOINT_UPDATED: PASS — `CURRENT_PHASE=FE-2`, `CURRENT_TASK=FE2-T01`, `STATUS=PASS`, `FE2_PHASE_STATUS=IN_PROGRESS`, completed đã thêm `FE2-T01` và next action chuyển sang `FE2-T03`.
+- FINAL_VERDICT: PASS — FE2-T01 Admin PT list đạt focused/full test, lint, build và diff gates; FE2 vẫn đang triển khai, chưa tuyên bố hoàn tất phase.
+
+============================================================
+FE2_T03_T04_EVIDENCE_2026_09_05
+============================================================
+
+- ENTRY_GATE: PASS — đã đọc toàn bộ `E:\Fitness\PROJECT_RULES.md`, root `AGENTS.md`, `task-2-brief.md`, `plan.md`, `task-1-review.md`; đã kiểm tra `baseline-status.txt`, `baseline-tree` và `task-2-round-0-before`. Không inspect Backend nên không đọc/chạm `BE\AGENTS.md` hoặc Backend source.
+- BASELINE_AUDIT: PASS — product baseline ban đầu clean; các file có trong snapshot ngay trước Task 2 khớp trước khi sửa, các file Task 2 mới ở trạng thái absent; hunk/hành vi Task 1 được giữ nguyên.
+- API_CONTRACT: PASS — thêm `taiChiTietHuanLuyenVien(taiKhoanId)` delegate duy nhất tới Account detail wrapper, safe-ID validation và đúng một GET `/admin/accounts/{id}`, không query ngoài contract.
+- STORE_SCOPE: PASS — thêm state/action PT detail tách biệt; chỉ commit Account DTO hợp lệ có active role `PT` và `trainer_profile` null/object an toàn; cleanup global, route-change, 403/404/orientation mismatch và request supersession đều clear/invalidate đúng scope.
+- DETAIL_ROUTE: PASS — đăng ký `/admin/huan-luyen-vien/:id`, named `adminChiTietHuanLuyenVien`, Admin meta, breadcrumb quay về `adminHuanLuyenVien`; menu PT hiện hữu nhận related detail route để active parent.
+- SAFE_RENDERING: PASS — detail chỉ hiển thị allow-list Account, trạng thái Account riêng, active PT role/timestamp và tối thiểu `trainer_profile.id/code/status`; null profile, status lạ, optional contact/branch/timestamps có fallback an toàn; không render secret/assignment payload.
+- BLOCKER_01: PASS — `ChanTinhNangBiChan` là component reusable, controlled title/description/code/next-action text hoặc slot, interpolation an toàn, `role=status`/live labeling; full profile introduction/specialties prefill/edit được nêu rõ là chưa sẵn sàng vì Admin trainer-profile GET còn thiếu.
+- NO_MUTATION_BOUNDARY: PASS — không tạo/call Admin trainer-profile GET, PT-self profile GET, trainer-profile POST, assignment service/store/form, onboarding, resend invitation hoặc Backend change; detail không có edit/save/assignment controls.
+- ERROR_HANDLING: PASS — invalid ID và 404/orientation hiển thị unavailable generic không lộ route ID/backend message; 403 clear PT scope rồi redirect named `khongCoQuyen`; 401 không page-logout; network/5xx cho retry thủ công cùng ID và giữ detail cùng ID khi phù hợp.
+- REQUEST_RACE: PASS — A→B detail chỉ commit B; unmount/cleanup tăng sequence để pending response không ghi state.
+- TARGETED_TESTS: PASS — tại `E:\Fitness\FE`, lệnh `npm run test -- src/components/dung_chung/chan_tinh_nang_bi_chan.test.js src/services/tai_khoan.api.test.js src/stores/tai_khoan.store.test.js src/pages/admin/huan_luyen_vien/huan_luyen_vien.chi_tiet.test.js src/router/index.test.js src/router/dieu_huong_admin.test.js`; 6 test files, 195/195 tests PASS.
+- FULL_TEST: PASS — tại `E:\Fitness\FE`, lệnh `npm run test`; 30 test files, 512/512 tests PASS.
+- LINT: PASS — tại `E:\Fitness\FE`, lệnh `npm run lint`; ESLint PASS, 0 errors và 0 warnings sau khi format component.
+- BUILD: PASS — tại `E:\Fitness\FE`, lệnh `npm run build`; Vite 8.2.2, 140 modules transformed, build thành công.
+- DEPENDENCY: PASS — tại `E:\Fitness\FE`, lệnh `npm ls --depth=0`; dependency tree hợp lệ, không thêm/chỉnh package hoặc lockfile.
+- STATIC_ENDPOINT_SCAN: PASS — tại `E:\Fitness`, lệnh `rg -n "(/admin/trainers|trainer-profile|/pt/assignments)" FE/src --glob "!*.test.js"` không trả về match production (exit code 1 là kết quả no-match dự kiến).
+- STATIC_SAFETY_SCAN: REVIEWED — scan `localStorage|v-html|console.(log|debug|info)` chỉ bắt chữ `localStorage` trong docblock cũ `FE/src/stores/tai_khoan.store.js:476`; không có executable use và không có match trong production files mới của Task 2.
+- DIFF_CHECK: PASS — tại `E:\Fitness`, lệnh `git diff --check` không có whitespace error.
+- SCOPE_AUDIT: PASS — Task 2 chỉ tạo 4 product/test files, sửa các service/store/router/test/CSS/checkpoint paths đã khai báo và report artifact; không Backend/Mobile/Database change, commit, push, merge, reset, restore, checkout, stash, clean hoặc publish.
+- FILES_CREATED: `FE/src/components/dung_chung/chan_tinh_nang_bi_chan.vue`; `FE/src/components/dung_chung/chan_tinh_nang_bi_chan.test.js`; `FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.chi_tiet.vue`; `FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.chi_tiet.test.js`.
+- FILES_MODIFIED: `FE/src/services/tai_khoan.api.js`; `FE/src/services/tai_khoan.api.test.js`; `FE/src/stores/tai_khoan.store.js`; `FE/src/stores/tai_khoan.store.test.js`; `FE/src/router/index.js`; `FE/src/router/index.test.js`; `FE/src/router/dieu_huong_admin.test.js`; `FE/src/assets/main.css`; `docs/VUE_WEB_COMPLETION_CHECKPOINT.md`.
+- REMAINING_WORK: `FE2-T04` vẫn BLOCKED với `BLOCKER-01` cho full trainer-profile prefill/edit; FE2-T02/T06/T07 vẫn chờ Backend/task phụ thuộc. Không thêm các task này vào completed.
+- COMMIT_CREATED: NO.
+- PUSH_PERFORMED: NO.
+- CHECKPOINT_UPDATED: PASS — `CURRENT_TASK=FE2-T03`, `STATUS=PASS`, `FE2_PHASE_STATUS=IN_PROGRESS`, completed chỉ thêm `FE2-T03`, next action chuyển sang Task 3 blocker screens và `FE2-T04` vẫn bị giữ rõ trong blocked features.
+- FINAL_VERDICT: PASS_WITH_EXPLICIT_BLOCKER — FE2-T03 basic PT detail hoàn tất; FE2-T04 được thể hiện đúng bằng blocker `BLOCKER-01`, không bị tuyên bố hoàn tất hay gọi API thiếu contract.
+
+============================================================
+FE2_T05_T02_T06_T07_EVIDENCE_2026_09_05
+============================================================
+
+- ENTRY_GATE: PASS — đã đọc toàn bộ `E:\Fitness\PROJECT_RULES.md`, root `E:\Fitness\AGENTS.md`, `task-3-brief.md`, `plan.md`, `task-1-review.md`, `task-2-review.md`; đã kiểm tra baseline artifacts/tree và `task-3-round-0-before`. Không inspect Backend nên `BE\AGENTS.md` không thuộc scope áp dụng.
+- BASELINE_AUDIT: PASS — mọi file pre-existing trong snapshot Task 3 byte-identical trước khi sửa; bốn target page/test mới có absent marker; hunk và hành vi Task 1/2 được giữ nguyên.
+- ONBOARDING_BLOCKERS: PASS — tạo màn hình chỉ trình bày `BE-FOLLOWUP-02` về recovery/truthful invitation status và `BE-FOLLOWUP-03` về role/profile audit before/after snapshots cùng rollback/retry evidence; không có dữ liệu giả, field hay control onboarding.
+- ASSIGNMENT_BLOCKER: PASS — tạo màn hình trạng thái unavailable `BLOCKER-02`; giải thích create/end/reassign chỉ mở sau Admin GET list/detail/history có initial load và unknown-outcome refetch; không render row/history/selector/control hay gọi mutation.
+- ROUTES: PASS — thêm `/admin/huan-luyen-vien/tao-moi` với name `adminTaoHuanLuyenVien` trước `/:id`, và `/admin/phan-cong-pt` với name `adminPhanCongPt`; cả hai dùng Admin meta/breadcrumb, assignment không hiển thị trong menu.
+- MENU: PASS — giữ đúng năm mục Dashboard, Account, Member, Trainer, Receptionist; route `adminTaoHuanLuyenVien` liên quan parent PT để active context, `adminPhanCongPt` không thuộc cấu hình menu.
+- ZERO_CALL_BOUNDARY: PASS — hai page chỉ import `TieuDeTrang`/`ChanTinhNangBiChan`; raw-source assertions loại `/api/`, `ketNoiApi`, `fetch(`, service/store import, form, submit và event/mutation handler; mounted tests mock Axios methods và ghi nhận zero call.
+- TARGETED_TESTS: PASS — tại `E:\Fitness\FE`, `npm run test -- src/pages/admin/huan_luyen_vien/huan_luyen_vien.tao_moi.test.js src/pages/admin/phan_cong_pt/phan_cong_pt.index.test.js src/router/index.test.js src/router/dieu_huong_admin.test.js`; 4 test files, 25/25 tests.
+- FULL_TEST: PASS — tại `E:\Fitness\FE`, `npm run test`; 32 test files, 518/518 tests.
+- LINT: PASS — tại `E:\Fitness\FE`, `npm run lint`; không lỗi hoặc warning.
+- BUILD: PASS — tại `E:\Fitness\FE`, `npm run build`; Vite 8.2.2, 142 modules transformed.
+- STATIC_ENDPOINT_SCAN: PASS — tại `E:\Fitness`, `rg -n "(/admin/trainers|trainer-profile|/pt/assignments)" FE/src --glob "!*.test.js"` không có match production; exit code 1 là no-match dự kiến.
+- DIFF_CHECK: PASS — tại `E:\Fitness`, `git diff --check` không có lỗi.
+- SCOPE_AUDIT: PASS — chỉ sửa bốn page/test mới, router/index.js, router/index.test.js, router/dieu_huong_admin.test.js, CSS và checkpoint; không sửa Backend/Mobile/Database, không thêm dependency, không commit/push/merge/reset/restore/checkout/stash/clean/publish.
+- FILES_CREATED: `FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.tao_moi.vue`; `FE/src/pages/admin/huan_luyen_vien/huan_luyen_vien.tao_moi.test.js`; `FE/src/pages/admin/phan_cong_pt/phan_cong_pt.index.vue`; `FE/src/pages/admin/phan_cong_pt/phan_cong_pt.index.test.js`.
+- FILES_MODIFIED: `FE/src/router/index.js`; `FE/src/router/index.test.js`; `FE/src/router/dieu_huong_admin.test.js`; `FE/src/assets/main.css`; `docs/VUE_WEB_COMPLETION_CHECKPOINT.md`.
+- REMAINING_WORK: FE2-T02 vẫn BLOCKED bởi `BE-FOLLOWUP-02/03`; FE2-T04 vẫn BLOCKED bởi `BLOCKER-01`; FE2-T06/T07 vẫn BLOCKED bởi `BLOCKER-02`; FE2-T08 partial verification theo Task 4 là task tiếp theo và chưa hoàn tất. Chỉ FE2-T05 được thêm vào completed tasks.
+- CHECKPOINT_UPDATED: PASS — `CURRENT_TASK=FE2-T05`, `STATUS=PASS`, `FE2_PHASE_STATUS=IN_PROGRESS`, completed thêm `FE2-T05`; `EXACT_NEXT_ACTION` chuyển sang FE2-T08 / Task 4 partial full gate, không gỡ các blocker T02/T04/T06/T07 và chưa đánh dấu T08 hoàn tất.
+- FINAL_VERDICT: PASS_WITH_EXPLICIT_BLOCKERS — FE2-T05 blocker shell và route representation hoàn tất; T02/T04/T06/T07 vẫn được giữ blocked; FE2-T08 chỉ được bắt đầu qua partial gate của Task 4, chưa PASS hoặc hoàn tất, và FE2 phase chưa được tuyên bố hoàn tất.
+
+============================================================
+FE2_T08_PARTIAL_GATE_EVIDENCE_2026_09_05
+============================================================
+
+- ENTRY_GATE: PASS — đã đọc đầy đủ PROJECT_RULES.md, AGENTS.md áp dụng, plan.md, task-4-brief.md, các report/review T01-T03, progress.md, baseline artifacts/tree và task-4-round-0-before; đã đọc BE/AGENTS.md trước khi chạy evidence Backend.
+- SOURCE_AUDIT: PASS — kiểm tra trực tiếp router, service, store, bốn route/page FE2, test tương ứng, shared blocker/accessibility components và CSS; reports chỉ được dùng làm evidence lịch sử.
+- ROUTES: PASS — đủ bốn route `/admin/huan-luyen-vien`, `/admin/huan-luyen-vien/tao-moi`, `/admin/huan-luyen-vien/:id`, `/admin/phan-cong-pt`; route static `tao-moi` đứng trước `:id`, có test resolve không rơi vào detail.
+- MENU: PASS — chỉ thêm đúng một mục `Huấn luyện viên`; `Tạo mới` và `Phân công PT` không hiện trong Admin menu.
+- ACCOUNT_READ_BOUNDARY: PASS — PT list dùng fixed-role GET `/admin/accounts`; PT detail dùng đúng GET `/admin/accounts/{id}` và Store xác nhận active PT role/DTO an toàn; không có call `/admin/trainers`, `trainer-profile` hoặc `/pt/assignments` trong production source.
+- BLOCKED_BOUNDARY: PASS — onboarding và assignment chỉ render blocker `BE-FOLLOWUP-02/03` và `BLOCKER-02`; không có form, API call, mutation control, row/history/selector giả hoặc invitation success claim.
+- STORE_CLEANUP_ISOLATION: PASS — Account, Member, Receptionist và Trainer có state/sequence/cleanup scoped; global `xoaDuLieu()` gọi cleanup của cả bốn scope; logout/actor-loss cleanup và request-race regression nằm trong test suite.
+- UI_A11Y_RESPONSIVE_SECURITY: PASS — naming/docblocks quan trọng, nhãn tiếng Việt, labels/ARIA/live states/focus, semantic table, fallback status, table overflow và breakpoint <=1023px/<=639px được audit; không có executable `v-html`, localStorage hoặc sensitive console logging trong phạm vi FE2.
+- FOCUSED_TEST: PASS — tại `E:\Fitness\FE`, lệnh focused gồm 9 files (Account API/store, router/menu, blocker component, bốn FE2 pages) đạt 9/9 files và 212/212 tests.
+- FULL_TEST: PASS — tại `E:\Fitness\FE`, `npm run test` đạt 32/32 files và 518/518 tests; Vitest 4.1.11.
+- LINT: PASS — tại `E:\Fitness\FE`, `npm run lint` exit 0, không lỗi/warning.
+- BUILD: PASS — tại `E:\Fitness\FE`, `npm run build` exit 0; Vite 8.2.2, 142 modules transformed.
+- DEPENDENCY: PASS — `npm ls --depth=0` exit 0; dependency tree hiện hữu khớp package.json, không thêm dependency.
+- TEST_MARKER_SCAN: REVIEWED — literal brief command exit 0 nhưng match 9 từ tự nhiên trong tên test (`only`, `todo`, `test-only`); guarded scan cho `describe/it/test.skip|only` và `TODO|FIXME` exit 1/no match, nên không có test bị disable hoặc marker TODO/FIXME.
+- DIFF_STATUS: PASS — `git diff --check` exit 0; `git status --short` chỉ phản ánh product changes đã có từ T01-T03, checkpoint và workflow artifact; Task 4 chỉ ghi checkpoint/report, không sửa product source.
+- BLOCKED_ENDPOINT_SCAN: PASS — exact FE production scan exit 1/no match cho `/admin/trainers`, `trainer-profile`, `/pt/assignments`.
+- SECURITY_SCAN: REVIEWED — exact scan chỉ match `FE/src/stores/tai_khoan.store.js:476` trong docblock mô tả không dùng localStorage; không có executable use, `v-html` hoặc console log nhạy cảm.
+- BACKEND_ROUTE_EVIDENCE: PASS — từ `E:\Fitness\BE`, repository runtime `E:\Fitness\.tools\php\php.exe` báo PHP 8.4.25; `& 'E:\Fitness\.tools\php\php.exe' artisan route:list --path=api/admin --json` và `& 'E:\Fitness\.tools\php\php.exe' artisan route:list --path=api/pt/assignments --json` đều exit 0. Relevant Admin routes có GET accounts, GET account detail, POST account trainer-profile và POST trainers nhưng không có trainer-profile GET, xác nhận `BLOCKER-01`. Assignment routes chỉ có POST create, PATCH end và POST reassign; không có GET list/detail/history, xác nhận `BLOCKER-02`.
+- SCOPE: PASS — không sửa FE product source/tests/CSS/router, Backend, Mobile, Database, package/dependency; không commit/push/merge/reset/restore/checkout/stash/clean/publish.
+- CHECKPOINT_UPDATED: PARTIALLY_READY — CURRENT_PHASE=FE-2, CURRENT_TASK=FE2-T08, STATUS=PARTIALLY_READY, FE2_PHASE_STATUS=PARTIALLY_READY; COMPLETED_TASKS vẫn chỉ gồm FE2-T01, FE2-T03, FE2-T05; FE2-T02/T04/T06/T07 blockers được giữ nguyên; không thêm T08 hoặc FE-2 vào completed.
+- FINAL_VERDICT: PARTIALLY_READY — implemented T01/T03/T05 behavior has no open Important/Critical finding in the supplied reviews and final FE checks pass; route evidence is verified, but full FE2 cannot close because BE-FOLLOWUP-02/03 remain prerequisites, `BLOCKER-01` is confirmed by the missing trainer-profile GET, and `BLOCKER-02` is confirmed by the missing assignment GET list/detail/history. FE3 is forbidden in this FE-2-only workflow.
+
+============================================================
+FE2_COMPLETION_EVIDENCE_2026_09_09
+============================================================
+
+- CONSOLIDATED_SCOPE: PASS — Tasks 1-3 historical PASS evidence preserved; Task 4 `FE2-ALL` executed as one consolidated task covering former Tasks 4-8, with consolidated repair waves only.
+- TASK_REVIEWS: PASS — Task 1 round 2, Task 2 round 3, Task 3 round 1 and Task 4 round 3 official reviews PASS; all earlier findings are closed.
+- FINAL_REPAIR: PASS — one consolidated round-4 Sol plan and fresh Luna Max wave closed `FE2-FINAL-F-001` route/unmount ownership and `FE2-FINAL-F-002` assignment authorization/audit acceptance evidence.
+- FINAL_REVIEW: PASS — `final-review-round-4.md` records `VERDICT: PASS`, `SPEC: PASS`, `QUALITY: PASS`, `FE2_CHECKPOINT_TRANSITION_PERMITTED: YES`, `OPEN_CRITICAL: 0`, `OPEN_IMPORTANT: 0`.
+- BACKEND_FINAL_GATE: PASS — repository PHP only; guarded MariaDB `smart_fitness_fe2_test`; assignment API 14/14 tests with 218 assertions; assignment/concurrency/final integration 19/19 with 351 assertions; full Backend 323/323 with 3,794 assertions.
+- DATABASE_PRESERVATION: PASS — MariaDB 10.4.32/InnoDB and post-suite cardinality exactly `chi_nhanh=1`, `nguoi_dung=8`, `phan_quyen_nguoi_dung=8`, `ho_so_hoi_vien=4`, `ho_so_huan_luyen_vien=2`; no production database, SQLite, migration, reset, seed, drop or truncate.
+- FRONTEND_FINAL_GATE: PASS — focused trainer-profile 17/17; full Frontend 36/36 files and 571/571 tests; ESLint zero warnings/errors; production build 146 modules; dependency inventory PASS.
+- QUALITY_AND_CONTRACT: PASS — Pint, Composer strict validation/audit/platform requirements, seven Admin Account routes, exactly five PT assignment routes, Backend contract and static scans PASS.
+- SNAPSHOT_SCOPE: PASS — final Task 4 cumulative snapshot contains exactly 32 paths and matches live; round-4 delta is exactly six authorized paths, report prefix preserved, no non-allow-list mismatch, `git diff --check` PASS.
+- BLOCKER_CLOSURE: PASS — current `BE-FOLLOWUP-02`, `BE-FOLLOWUP-03`, `BLOCKER-01`, `BLOCKER-02` claims are closed by new Backend/FE/test evidence; dated historical blocker evidence above remains unchanged and is not current truth.
+- TASK_COMPLETION: PASS — `COMPLETED_TASKS` now includes FE2-T01 through FE2-T08; `COMPLETED_PHASES` now includes FE-2.
+- PHASE_TRANSITION: PASS — top-level `STATUS=PASS` and `FE2_PHASE_STATUS=PASS`; `EXACT_NEXT_ACTION=FE3-ALL`.
+- FINAL_REPORT: PASS — `.fitness-sdd/fe2-backend-completion/final-report.md` contains the exact 15 PHẦN XXI sections and final code-state evidence.
+- STOP_BOUNDARY: PASS — FE3 was not started, scaffolded, edited or tested; workflow stops after FE2 as explicitly requested.
+- GIT_BOUNDARY: PASS — no commit, push, merge, branch/worktree, reset, restore, checkout, stash or clean operation was performed.

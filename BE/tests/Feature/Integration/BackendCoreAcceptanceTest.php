@@ -246,7 +246,7 @@ class BackendCoreAcceptanceTest extends TestCase
         $this->getJson('/api/admin/accounts?search='.$target['user']->thu_dien_tu, $headers)
             ->assertOk()->assertJsonPath('data.items.0.id', $target['user']->getKey());
         $roleUri = '/api/admin/accounts/'.$target['user']->getKey().'/roles/PT';
-        $this->postJson('/api/admin/accounts/'.$target['user']->getKey().'/trainer-profile', [], $headers)
+        $this->postJson('/api/admin/accounts/'.$target['user']->getKey().'/trainer-profile', [], $this->headers($token))
             ->assertOk()->assertJsonPath('data.role.transition', 'GRANTED');
 
         $code = 'ACCEPT_'.strtoupper(bin2hex(random_bytes(4)));

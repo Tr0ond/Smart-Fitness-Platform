@@ -11,8 +11,12 @@ import QuenMatKhau from '../components/Chung/QuenMatKhau/index.vue'
 import BangDieuKhien from '../pages/admin/bang_dieu_khien/bang_dieu_khien.index.vue'
 import HoiVienChiTiet from '../pages/admin/hoi_vien/hoi_vien.chi_tiet.vue'
 import HoiVien from '../pages/admin/hoi_vien/hoi_vien.index.vue'
+import HuanLuyenVien from '../pages/admin/huan_luyen_vien/huan_luyen_vien.index.vue'
+import HuanLuyenVienChiTiet from '../pages/admin/huan_luyen_vien/huan_luyen_vien.chi_tiet.vue'
+import HuanLuyenVienTaoMoi from '../pages/admin/huan_luyen_vien/huan_luyen_vien.tao_moi.vue'
 import NhanVienLeTanChiTiet from '../pages/admin/nhan_vien_le_tan/nhan_vien_le_tan.chi_tiet.vue'
 import NhanVienLeTan from '../pages/admin/nhan_vien_le_tan/nhan_vien_le_tan.index.vue'
+import PhanCongPt from '../pages/admin/phan_cong_pt/phan_cong_pt.index.vue'
 import TaiKhoanChiTiet from '../pages/admin/tai_khoan/tai_khoan.chi_tiet.vue'
 import TaiKhoan from '../pages/admin/tai_khoan/tai_khoan.index.vue'
 import { useXacThucStore } from '../stores/xac_thuc.store.js'
@@ -164,6 +168,56 @@ const boDinhTuyen = createRouter({
           { nhan: 'Chi tiết Hội viên' },
         ],
         hienTrongDieuHuong: false,
+      }),
+    },
+    {
+      path: '/admin/huan-luyen-vien',
+      name: 'adminHuanLuyenVien',
+      component: HuanLuyenVien,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminHuanLuyenVien',
+        tieuDe: 'Danh sách Huấn luyện viên',
+        duongDanPhanCap: [{ nhan: 'Huấn luyện viên' }],
+        hienTrongDieuHuong: true,
+      }),
+    },
+    {
+      path: '/admin/huan-luyen-vien/tao-moi',
+      name: 'adminTaoHuanLuyenVien',
+      component: HuanLuyenVienTaoMoi,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminTaoHuanLuyenVien',
+        tieuDe: 'Tạo mới Huấn luyện viên',
+        duongDanPhanCap: [
+          { nhan: 'Huấn luyện viên', tenTuyenDuong: 'adminHuanLuyenVien' },
+          { nhan: 'Tạo mới Huấn luyện viên' },
+        ],
+        hienTrongDieuHuong: false,
+      }),
+    },
+    {
+      path: '/admin/huan-luyen-vien/:id',
+      name: 'adminChiTietHuanLuyenVien',
+      component: HuanLuyenVienChiTiet,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminChiTietHuanLuyenVien',
+        tieuDe: 'Chi tiết Huấn luyện viên',
+        duongDanPhanCap: [
+          { nhan: 'Huấn luyện viên', tenTuyenDuong: 'adminHuanLuyenVien' },
+          { nhan: 'Chi tiết Huấn luyện viên' },
+        ],
+        hienTrongDieuHuong: false,
+      }),
+    },
+    {
+      path: '/admin/phan-cong-pt',
+      name: 'adminPhanCongPt',
+      component: PhanCongPt,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminPhanCongPt',
+        tieuDe: 'Phân công PT',
+        duongDanPhanCap: [{ nhan: 'Phân công PT' }],
+        hienTrongDieuHuong: true,
       }),
     },
     {

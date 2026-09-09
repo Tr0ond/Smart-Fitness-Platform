@@ -21,6 +21,7 @@ class OnboardTrainerProfileRequest extends FormRequest
             'introduction' => ['nullable', 'string', 'max:16383'],
             'specialties' => ['nullable', 'string', 'max:255'],
             'status' => ['sometimes', 'string', Rule::in(['HOAT_DONG', 'NGUNG_NHAN_PHAN_CONG'])],
+            '_idempotency_key' => ['required', 'uuid'],
             'name' => ['prohibited'],
             'email' => ['prohibited'],
             'phone' => ['prohibited'],
@@ -36,8 +37,16 @@ class OnboardTrainerProfileRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $duLieu = ['_idempotency_key' => $this->idempotencyKey()];
         if (is_string($this->input('status'))) {
-            $this->merge(['status' => strtoupper(trim($this->input('status')))]);
+            $duLieu['status'] = strtoupper(trim($this->input('status')));
         }
+
+        $this->merge($duLieu);
+    }
+
+    public function idempotencyKey(): string
+    {
+        return trim((string) $this->header('Idempotency-Key'));
     }
 }

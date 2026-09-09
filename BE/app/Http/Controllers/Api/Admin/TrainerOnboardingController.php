@@ -10,7 +10,6 @@ use App\Http\Requests\Admin\CreateTrainerRequest;
 use App\Http\Requests\Admin\OnboardTrainerProfileRequest;
 use App\Models\NguoiDung;
 use App\Services\Admin\TrainerOnboardingService;
-use App\Services\Auth\PasswordResetService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -19,15 +18,32 @@ class TrainerOnboardingController extends Controller
     public function tao(
         CreateTrainerRequest $request,
         TrainerOnboardingService $onboarding,
-        PasswordResetService $passwordReset,
     ): JsonResponse {
         try {
             $ketQua = $onboarding->tao($this->actor($request), $request->validated());
-            if (! $ketQua['replayed']) {
-                $passwordReset->yeuCau((string) $ketQua['account']['email']);
-            }
 
             return response()->json(['data' => $ketQua], $ketQua['replayed'] ? 200 : 201);
+        } catch (AuthWorkflowException $exception) {
+            return $this->loi($exception);
+        }
+    }
+
+    /**
+     * Đọc hồ sơ PT đầy đủ của account cùng chi nhánh mà không tạo side effect.
+     *
+     * Input là Admin đã xác thực và account ID số trên URL. Service revalidate
+     * quyền Admin, giới hạn account theo chi nhánh và chỉ dựng DTO hồ sơ được
+     * phép; lỗi account thiếu, khác chi nhánh hoặc thiếu hồ sơ đều được che giấu.
+     */
+    public function hienThiHoSoHuanLuyenVien(
+        Request $request,
+        TrainerOnboardingService $onboarding,
+        int $account,
+    ): JsonResponse {
+        try {
+            return response()->json([
+                'data' => $onboarding->hoSoHuanLuyenVien($this->actor($request), $account),
+            ]);
         } catch (AuthWorkflowException $exception) {
             return $this->loi($exception);
         }

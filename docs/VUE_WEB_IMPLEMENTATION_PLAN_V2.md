@@ -6,7 +6,7 @@
 >
 > Trạng thái tài liệu: kế hoạch triển khai, chưa triển khai mã nguồn Frontend
 >
-> Bản cập nhật V2: chuẩn hóa naming composable sang tiếng Việt, khóa dependency tối thiểu cho Terra, bổ sung Visual UI System và Task Breakdown chi tiết theo từng phase.
+> Bản cập nhật V2: chuẩn hóa naming composable sang tiếng Việt, khóa dependency tối thiểu cho Terra, bổ sung Visual UI System và Task Breakdown theo phase. Quyết định điều phối mới gộp mỗi phase FE-3 → FE-9 thành một task triển khai duy nhất để giảm số lượt agent; các hạng mục cũ chỉ còn là acceptance checklist nội bộ, không phải task riêng.
 
 ## 1. Executive Summary
 
@@ -1729,7 +1729,9 @@ Không quy đổi person-day vì chưa có team size, UX design hoàn chỉnh v�
 
 ## 38A. Task Breakdown for Terra
 
-Các phase FE-0 → FE-9 đã là chia theo milestone lớn. Mục này chia tiếp thành **task code nhỏ** để có thể giao cho Terra theo từng batch, checkpoint/resume dễ dàng và không phải chạy một prompt khổng lồ từ đầu đến cuối.
+FE-0 → FE-2 giữ nguyên task code nhỏ vì đã được triển khai/checkpoint theo cấu trúc đó. Từ FE-3 → FE-9, mỗi phase là **một task tổng hợp duy nhất** (`FE3-ALL` … `FE9-ALL`). Các nhóm chức năng bên trong chỉ là acceptance checklist để bảo toàn phạm vi và test coverage; không được tạo brief, writer, reviewer hoặc checkpoint transition riêng cho từng mục checklist.
+
+Khi dùng workflow Fitness SDD cho một task `FE*-ALL`, routing tối thiểu là: một Sol High initial plan/brief tổng hợp → một Luna Max implementation/test cho toàn phase → một fresh Sol High task review → một fresh Sol High final review. Nếu có blocking finding, dùng một consolidated fix plan và một lượt Luna fix cho toàn bộ finding đang mở rồi review lại; không tách repair theo từng màn hình. Minor finding không tự mở repair loop nếu workflow hiện hành không yêu cầu.
 
 ### Quy tắc thực thi task
 
@@ -1740,8 +1742,9 @@ Mỗi task phải:
 3. Chỉ sửa file thuộc scope task hoặc dependency nền đã nêu.
 4. Chạy targeted test/build phù hợp trước khi đánh `PASS`.
 5. Ghi file tạo/sửa + test command + kết quả vào checkpoint.
-6. Nếu gặp `BACKEND_API_BLOCKER`, ghi blocker và chuyển sang task READY khác được Phase Gates cho phép.
+6. Với FE-0 → FE-2, nếu gặp `BACKEND_API_BLOCKER`, ghi blocker và chuyển sang task READY khác được Phase Gates cho phép. Với FE-3 → FE-9, chỉ dispatch task `FE*-ALL` khi toàn bộ entry gate của phase đã mở; nếu dependency chưa sẵn sàng thì giữ nguyên `WAITING_BACKEND_FIX`, `WAITING_DEPLOYMENT` hoặc `BLOCKED`, không tách phần READY thành task khác và không tiêu tốn writer/reviewer cho một phase chưa thể hoàn tất.
 7. Không commit/push.
+8. Với FE-3 → FE-9, checkpoint dùng đúng một transition `IN_PROGRESS` và một kết luận `PASS`/`BLOCKED` cho task `FE*-ALL`; không đánh PASS từng mục checklist.
 
 ### FE-0 — Foundation
 
@@ -1787,123 +1790,147 @@ Mỗi task phải:
 
 | Task | Nội dung | Phụ thuộc | Done khi |
 | --- | --- | --- | --- |
-| `FE3-T01` | Package list/create/detail metadata | FE-1 | Package CRUD-state PASS |
-| `FE3-T02` | Package benefits editor + snapshot warning | T01 | Benefits replace + warning tests PASS |
-| `FE3-T03` | Equipment list/create/edit/deactivate | FE-1 | No hard-delete/maintenance scope PASS |
-| `FE3-T04` | Muscle Group list/create/edit/deactivate | FE-1 | Catalog conflict UX PASS |
-| `FE3-T05` | Exercise list/detail | T03-T04 | Read/search/error states PASS |
-| `FE3-T06` | Exercise create/edit relations, Equipment semantics AND | T05 | Payload relation tests PASS |
-| `FE3-T07` | Workout Template list/detail/metadata | T05 | Metadata-only PATCH PASS |
-| `FE3-T08` | Template create + tree editor | T07 | Structure validation PASS |
-| `FE3-T09` | Template revision copy-on-write + stale 409 recovery | T08 | Draft preserved, no history-delete UX PASS |
-| `FE3-T10` | Full FE-3 gate | T01-T09 | test/lint/build/naming/docblock PASS |
+| `FE3-ALL` | Toàn bộ Admin Catalog: Package, benefits, Equipment, Muscle Group, Exercise, Workout Template và full gate | FE-1 PASS; actual catalog contracts READY | Toàn bộ checklist FE-3, focused tests và full test/lint/build/naming/docblock gate PASS; task/final review PASS |
+
+**Acceptance checklist của `FE3-ALL` — không phải subtask:**
+
+- Package list/create/detail/metadata; Package benefits replace và cảnh báo snapshot kỳ Membership cũ không đổi.
+- Equipment list/create/edit/deactivate; không hard-delete, không mở rộng Equipment Maintenance/Asset Management.
+- Muscle Group list/create/edit/deactivate và catalog conflict UX.
+- Exercise list/search/detail/create/edit/deactivate; relation payload đúng contract và Equipment semantics AND theo Q11.
+- Workout Template list/detail/metadata-only PATCH, create + tree editor, structure validation, revision copy-on-write và `WORKOUT_TEMPLATE_STALE` recovery giữ draft, không xóa history.
+- Full FE-3 gate: targeted/full tests, lint, production build, naming/docblock/secret/contract scan và evidence report.
 
 ### FE-4 — Admin Payment
 
 | Task | Nội dung | Phụ thuộc | Done khi |
 | --- | --- | --- | --- |
-| `FE4-T01` | Payment list + filters + pagination | FE-1 | Read-only list PASS |
-| `FE4-T02` | Payment detail safe DTO | T01 | Không secret/raw payload PASS |
-| `FE4-T03` | Reconciliation list + unlinked Payment events | BE-FOLLOWUP-01A/01B | Null-payment event + abnormal-success scenario PASS |
-| `FE4-T04` | Payment/reconciliation read-only security scan | T01-T03 | Không success/refund/edit/Membership controls |
-| `FE4-T05` | Full FE-4 gate | T01-T04 | test/lint/build PASS |
+| `FE4-ALL` | Toàn bộ Admin Payment và reconciliation read-only, gồm full gate | FE-1 PASS; BE-FOLLOWUP-01A/01B tests PASS | Toàn bộ checklist FE-4, visibility/security tests và full test/lint/build gate PASS; task/final review PASS |
+
+**Acceptance checklist của `FE4-ALL` — không phải subtask:**
+
+- Payment list, filters, pagination và detail bằng safe DTO.
+- Reconciliation list hiển thị unlinked Payment events và Payment success có abnormal event theo contract đã sửa.
+- Không lộ secret/raw payload/signature; không có controls success/refund/edit/Membership.
+- Full FE-4 gate: targeted/full tests, lint, production build, naming/docblock/secret/contract scan và evidence report.
 
 ### FE-5 — PT Member Workspace
 
 | Task | Nội dung | Phụ thuộc | Done khi |
 | --- | --- | --- | --- |
-| `FE5-T01` | PT layout + self profile | FE-0 | Self-only profile read/update PASS |
-| `FE5-T02` | Assigned Member list + selected-member context | T01 | Exact assignment list/cleanup PASS |
-| `FE5-T03` | Member detail | BLOCKER-03 | Exact-scope safe detail PASS |
-| `FE5-T04` | Progress overview/body/exercise | T02 | Read-only progress + empty states PASS |
-| `FE5-T05` | Current/future Workout Plan read | BLOCKER-04 | Official Plan read-only PASS |
-| `FE5-T06` | Workout History list/detail | BLOCKER-05 | Completed session immutable UI PASS |
-| `FE5-T07` | PT Notes | T02 | Append/view, no Plan side effect PASS |
-| `FE5-T08` | Scope-loss cleanup regression | T02-T07 | 403/404/assignment loss clears sensitive state |
-| `FE5-T09` | Full FE-5 gate | T01-T08 | READY/resolved flows PASS |
+| `FE5-ALL` | Toàn bộ PT Member Workspace: shell/profile, assigned context, Member detail, Progress, Plan, History, Notes, cleanup và full gate | FE-0 PASS; BLOCKER-03/04/05 đã có contract + Backend tests PASS | Toàn bộ checklist FE-5 và exact-scope regression/full gate PASS; task/final review PASS |
+
+**Acceptance checklist của `FE5-ALL` — không phải subtask:**
+
+- PT layout/navigation/guard và self-only profile read/update.
+- Assigned Member list, selected-member context và exact assignment cleanup.
+- Safe Member detail qua PT-scoped API; không gọi Admin/Member-self workaround.
+- Progress overview/body/exercise read-only với loading/empty/error states.
+- Official current/future Workout Plan read-only; không dùng Proposal thay official Plan.
+- Workout History list/detail read-only; completed Session không có edit control.
+- PT Notes append/view; không side effect lên Plan hoặc completed Session.
+- 403/404/assignment-loss regression xóa selected Member và dữ liệu nhạy cảm.
+- Full FE-5 gate: targeted/full tests, lint, production build, naming/docblock/secret/contract scan và evidence report.
 
 ### FE-6 — PT Direct + Proposal
 
 | Task | Nội dung | Phụ thuộc | Done khi |
 | --- | --- | --- | --- |
-| `FE6-T01` | PT Direct history | FE5-T02 | Read/history limit UX PASS |
-| `FE6-T02` | Complete PT Direct + stable key + timeout/refetch | T01 | Retry không tạo duplicate ledger UX |
-| `FE6-T03` | Proposal list + preview | FE5-T02 | Q13 prerequisite copy đúng |
-| `FE6-T04` | Create Proposal + stable key | T03 | Same-key retry PASS |
-| `FE6-T05` | Stale/assignment/context conflict UX | T04 | 409 không overwrite, draft handling PASS |
-| `FE6-T06` | Full FE-6 gate | T01-T05 | Q13 + Direct tests/build PASS |
+| `FE6-ALL` | Toàn bộ PT Direct + Proposal, idempotency/Q13/conflict và full gate | FE5-ALL PASS; actual Direct/Proposal contracts READY | Toàn bộ checklist FE-6, Q13/idempotency tests và full test/lint/build gate PASS; task/final review PASS |
+
+**Acceptance checklist của `FE6-ALL` — không phải subtask:**
+
+- PT Direct history với giới hạn dữ liệu được mô tả trung thực.
+- Complete PT Direct dùng stable `Idempotency-Key`, pending guard, timeout/unknown-outcome refetch và không tạo duplicate ledger UX.
+- Proposal list + preview và create với stable key.
+- Q13 copy đúng: valid assignment là prerequisite; không yêu cầu Membership/Chat/direct quota và không tạo side effect tương ứng.
+- 409 stale/assignment/template/context conflict giữ draft, refetch và không overwrite tự động.
+- Full FE-6 gate: targeted/full tests, lint, production build, naming/docblock/secret/contract scan và evidence report.
 
 ### FE-7 — PT Realtime Chat
 
 | Task | Nội dung | Phụ thuộc | Done khi |
 | --- | --- | --- | --- |
-| `FE7-T01` | Cài Echo/Pusher dependency mục 6A + realtime config adapter | FE-0 | Build PASS, không secret bundle |
-| `FE7-T02` | Chat REST conversation/history loading | FE5-T02 | REST-only mode PASS |
-| `FE7-T03` | Send message + pending row + stable `client_message_id` | T02 | Retry/dedupe basic PASS |
-| `FE7-T04` | Private channel auth/subscribe/unsubscribe | T01-T03 | Mock/integration adapter PASS |
-| `FE7-T05` | Merge by `message_id` + `sequence`, duplicate/out-of-order handling | T04 | Sequence tests PASS |
-| `FE7-T06` | Reconnect + REST catch-up bằng contract thật | T05 | Gap/reconnect tests PASS |
-| `FE7-T07` | Q05 scope-loss cleanup, stop retry/reconnect | T04-T06 | Old PT read/send/subscribe/reconnect UX blocked |
-| `FE7-T08` | Authorized staging WSS/private-channel smoke | Reverb deployment | Real smoke PASS hoặc phase giữ WAITING_DEPLOYMENT |
-| `FE7-T09` | Full FE-7 gate | T01-T08 | REST + realtime + Q05 evidence PASS |
+| `FE7-ALL` | Toàn bộ PT Realtime Chat REST-first + Echo/Reverb, Q05, staging smoke và full gate | FE5-ALL PASS; dependency compatibility PASS; BE-FOLLOWUP-04/Reverb deployment ready | Toàn bộ checklist FE-7, authorized staging WSS/private-channel smoke và full test/lint/build gate PASS; task/final review PASS |
+
+**Acceptance checklist của `FE7-ALL` — không phải subtask:**
+
+- Cài đúng Echo/Pusher dependency mục 6A sau compatibility check; realtime config adapter không đưa secret vào bundle.
+- Conversation/history REST loading và REST-only fallback hoạt động khi Reverb down.
+- Send message có pending row và stable `client_message_id`; retry/dedupe đúng.
+- Private channel auth/subscribe/unsubscribe theo contract thật.
+- Merge theo `message_id` + `sequence`; xử lý duplicate/out-of-order/gap.
+- Reconnect + REST catch-up bằng endpoint thật; không invent `after_sequence`.
+- Q05 scope-loss cleanup dừng retry/reconnect, leave channel và xóa dữ liệu old PT.
+- Authorized staging WSS/private-channel smoke PASS; nếu môi trường chưa sẵn sàng thì toàn task giữ `WAITING_DEPLOYMENT`, không đánh PASS bằng mock/unit.
+- Full FE-7 gate: targeted/full tests, lint, production build, naming/docblock/secret/contract scan và evidence report.
 
 ### FE-8 — Receptionist
 
 | Task | Nội dung | Phụ thuộc | Done khi |
 | --- | --- | --- | --- |
-| `FE8-T01` | Receptionist shell/navigation/guard | FE-0 | Role isolation PASS |
-| `FE8-T02` | Member lookup | BLOCKER-06 | Branch-safe lookup PASS |
-| `FE8-T03` | Membership/Gym eligibility | BLOCKER-07 | Backend-calculated state PASS |
-| `FE8-T04` | QR Check-in manual input/result | T01 | Safe outcome + replay/pending PASS |
-| `FE8-T05` | Camera adapter nếu browser capability phù hợp, manual fallback luôn còn | T04 | Permission failure fallback PASS |
-| `FE8-T06` | Full FE-8 gate | T01-T05 | No Admin/Member-self workaround; tests/build PASS |
+| `FE8-ALL` | Toàn bộ Receptionist portal: shell, lookup, Membership/Gym eligibility, QR, camera fallback và full gate | FE-0 PASS; BLOCKER-06/07 đã có contract + Backend tests PASS | Toàn bộ checklist FE-8, role/API isolation tests và full test/lint/build gate PASS; task/final review PASS |
+
+**Acceptance checklist của `FE8-ALL` — không phải subtask:**
+
+- Receptionist shell/navigation/guard và role isolation.
+- Branch-safe Member lookup qua Receptionist API.
+- Membership/Gym eligibility do Backend tính; FE không suy từ Payment/ngày.
+- QR Check-in manual input/result với safe outcome, pending/double-click/replay handling.
+- Camera adapter chỉ khi browser capability phù hợp; manual fallback luôn còn và permission failure không khóa nghiệp vụ.
+- Không gọi Admin hoặc Member-self API làm workaround.
+- Full FE-8 gate: targeted/full tests, lint, production build, naming/docblock/secret/contract scan và evidence report.
 
 ### FE-9 — Final Acceptance
 
 | Task | Nội dung | Phụ thuộc | Done khi |
 | --- | --- | --- | --- |
-| `FE9-T01` | Cross-role route/navigation/session cleanup audit | Các phase liên quan | Không leakage actor/state |
-| `FE9-T02` | Full unit/component/router/service/realtime test | T01 | Full FE test PASS |
-| `FE9-T03` | Responsive + keyboard/focus/form/a11y review | T01 | Baseline acceptance PASS |
-| `FE9-T04` | Naming + docblock + secret + route/API contract scan | T01 | Không unexplained violation |
-| `FE9-T05` | Production build + bundle secret/config check | T02-T04 | `npm run build` PASS |
-| `FE9-T06` | Update checkpoint + create completion report | T01-T05 | Evidence complete, status truthful |
-| `FE9-T07` | Final readiness gate | T01-T06 | `COMPLETE` chỉ khi blockers/deployment resolved |
+| `FE9-ALL` | Toàn bộ Final Acceptance: cross-role audit, full tests, a11y/responsive/security/contract scans, build, checkpoint/report và final readiness gate | FE-0 → FE-8 PASS; mọi Backend blocker/fix/deployment gate bắt buộc đã resolved | Tất cả checklist mục 40 có evidence PASS; checkpoint/report trung thực; task/final review PASS; Web mới được đánh `COMPLETE` |
+
+**Acceptance checklist của `FE9-ALL` — không phải subtask:**
+
+- Cross-role route/navigation/session/domain-state cleanup audit; không leakage actor hoặc sensitive state.
+- Full unit/component/router/service/realtime tests và staging API smoke phù hợp.
+- Responsive + keyboard/focus/form/a11y review theo Visual UI System.
+- Naming + docblock + secret + route/API contract scan và manual exception review.
+- Production build + bundle secret/config check.
+- Cập nhật checkpoint và tạo completion report đầy đủ evidence.
+- Final readiness gate chỉ PASS/`COMPLETE` khi toàn bộ blockers, Backend fixes và deployment dependencies bắt buộc đã resolved.
 
 ### Backend tasks chạy song song — KHÔNG giao cho Terra FE nếu chưa có ủy quyền Backend
 
 | Task | Nội dung | Ảnh hưởng FE |
 | --- | --- | --- |
-| `BE-WEB-T01` | Fix Payment unlinked events + reconciliation abnormal-event filter | Mở FE4-T03 |
+| `BE-WEB-T01` | Fix Payment unlinked events + reconciliation abnormal-event filter | Mở entry gate `FE4-ALL` |
 | `BE-WEB-T02` | Fix invitation recovery cho Bootstrap/PT onboarding | Mở FE2-T02 đầy đủ |
 | `BE-WEB-T03` | Fix PT onboarding audit before/after | Mở FE2-T02 đầy đủ |
-| `BE-WEB-T04` | Fix Reverb external probe + staging config | Mở FE7-T08 |
+| `BE-WEB-T04` | Fix Reverb external probe + staging config | Mở entry gate `FE7-ALL` |
 | `BE-WEB-T05` | Admin GET trainer profile | Mở FE2-T04 |
 | `BE-WEB-T06` | Admin GET PT assignment list/detail/history | Mở FE2-T06/T07 |
-| `BE-WEB-T07` | PT GET assigned Member detail | Mở FE5-T03 |
-| `BE-WEB-T08` | PT GET current Workout Plan | Mở FE5-T05 |
-| `BE-WEB-T09` | PT GET Workout History/session detail | Mở FE5-T06 |
-| `BE-WEB-T10` | Receptionist Member lookup | Mở FE8-T02 |
-| `BE-WEB-T11` | Receptionist Membership/Gym eligibility | Mở FE8-T03 |
+| `BE-WEB-T07` | PT GET assigned Member detail | Mở entry gate `FE5-ALL` |
+| `BE-WEB-T08` | PT GET current Workout Plan | Mở entry gate `FE5-ALL` |
+| `BE-WEB-T09` | PT GET Workout History/session detail | Mở entry gate `FE5-ALL` |
+| `BE-WEB-T10` | Receptionist Member lookup | Mở entry gate `FE8-ALL` |
+| `BE-WEB-T11` | Receptionist Membership/Gym eligibility | Mở entry gate `FE8-ALL` |
 
-### Recommended Terra batching
+### Recommended Terra / Fitness SDD batching
 
-Không giao cả 70+ task nhỏ trong một lần nếu agent context/credit có giới hạn. Khuyến nghị batch:
+FE-0 → FE-2 giữ batch lịch sử theo task nhỏ. FE-3 → FE-9 mỗi batch là một phase-task tổng hợp; không tạo thêm batch con:
 
 ```text
 Batch 1  -> FE0-T01 .. FE0-T09
 Batch 2  -> FE1-T01 .. FE1-T08
-Batch 3  -> FE3-T01 .. FE3-T10          (co the lam khi Backend dang xu ly blocker)
-Batch 4  -> FE2 READY subset + resolved blockers
-Batch 5  -> FE4-T01 .. FE4-T05          (sau BE-WEB-T01)
-Batch 6  -> FE5 READY subset
-Batch 7  -> FE6-T01 .. FE6-T06
-Batch 8  -> FE7-T01 .. FE7-T09
-Batch 9  -> FE8 READY/resolved subset
-Batch 10 -> FE9-T01 .. FE9-T07
+Batch 3  -> FE2 READY subset + resolved blockers
+Batch 4  -> FE3-ALL                      (chỉ sau FE-2 PASS)
+Batch 5  -> FE4-ALL                      (chỉ sau BE-WEB-T01 PASS)
+Batch 6  -> FE5-ALL                      (chỉ sau BE-WEB-T07/08/09 PASS)
+Batch 7  -> FE6-ALL                      (sau FE5-ALL PASS)
+Batch 8  -> FE7-ALL                      (sau FE5-ALL + Reverb/deployment gate)
+Batch 9  -> FE8-ALL                      (chỉ sau BE-WEB-T10/11 PASS)
+Batch 10 -> FE9-ALL                      (sau FE-0 → FE-8 PASS)
 ```
 
-Mỗi batch kết thúc bằng checkpoint. Batch kế tiếp phải đọc checkpoint trước khi code.
+Số batch giữ nhãn lịch sử để dễ đối chiếu roadmap; execution thực tế phải theo Phase Gates và checkpoint hiện hành. Mỗi batch kết thúc bằng checkpoint. Batch kế tiếp phải đọc checkpoint trước khi code. Với `FE3-ALL` → `FE9-ALL`, một batch chỉ có một brief/report/review package cho toàn phase.
 
 ## 39. Terra Execution Instructions
 
@@ -1935,7 +1962,7 @@ Mỗi batch kết thúc bằng checkpoint. Batch kế tiếp phải đọc check
 24. Composable/helper do nhóm tạo không dùng prefix tiếng Anh `use_`; dùng tên như `su_dung_xac_thuc.js` và hàm `suDungXacThuc()` nếu cần export composable.
 25. Tuân thủ Visual UI System mục 7A; không tự chọn một design language khác cho từng phase.
 26. Được phép cài đúng dependency trong mục 6A sau compatibility check; package ngoài danh sách phải dừng và ghi blocker.
-27. Thực thi theo task code ở mục 38A; sau mỗi task/batch phải cập nhật checkpoint.
+27. Thực thi theo task code ở mục 38A: FE-0 → FE-2 giữ task code lịch sử; FE-3 → FE-9 dùng đúng một task `FE*-ALL` cho mỗi phase. Chỉ cập nhật checkpoint theo task/batch được định nghĩa, không tự tách checklist thành task mới.
 
 Ngoài 27 chỉ thị trên: không báo phase PASS nếu chỉ render UI; không chạy destructive DB command; không đưa secret vào Web; khi source khác kế hoạch phải dừng phần ảnh hưởng, ghi evidence và cập nhật plan/checkpoint được owner duyệt.
 
@@ -2012,7 +2039,7 @@ Web chỉ được đánh dấu `COMPLETE` khi tất cả điều kiện dưới
 - [ ] `npm run test`, `npm run lint`, `npm run build` PASS trên Node engine lockfile hỗ trợ.
 - [ ] Naming scan, docblock scan, secret scan và manual exception review PASS.
 - [ ] Visual UI System mục 7A được áp dụng nhất quán: token, spacing, layout, responsive, form/table state và không dùng màu làm tín hiệu duy nhất.
-- [ ] Task Breakdown mục 38A có trạng thái/evidence tương ứng trong checkpoint; không bỏ qua task bằng cách chỉ đánh phase PASS.
+- [ ] Task Breakdown mục 38A có trạng thái/evidence tương ứng trong checkpoint; với FE-3 → FE-9, từng `FE*-ALL` có một evidence package đầy đủ và các checklist nội bộ không bị bỏ qua bằng cách chỉ đánh phase PASS.
 - [ ] Completion checkpoint/report phản ánh đúng file, route, test fail, blockers và deployment state.
 - [ ] Không sửa BE/Mobile ngoài ủy quyền, không invent API/business rule, không commit, không push trong chuỗi Terra được giao.
 

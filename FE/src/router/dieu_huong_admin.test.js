@@ -27,23 +27,35 @@ describe('dieu_huong_admin FE1-T01', () => {
     await boDinhTuyen.push({ name: 'chonVaiTro' })
   })
 
-  it('co dung bon nhom menu FE1 voi nhan tieng Viet', () => {
-    expect(CAC_NHOM_DIEU_HUONG_ADMIN).toHaveLength(4)
+  it('co menu Admin san sang voi nhan tieng Viet va PT dung thu tu', () => {
+    expect(CAC_NHOM_DIEU_HUONG_ADMIN).toHaveLength(6)
     expect(CAC_NHOM_DIEU_HUONG_ADMIN.map((muc) => muc.nhan)).toEqual([
       'Bảng điều khiển',
       'Tài khoản',
       'Hội viên',
+      'Huấn luyện viên',
+      'Phân công PT',
       'Nhân viên lễ tân',
     ])
   })
 
-  it('chi chuan bi route FE1, khong co muc FE2 FE3 FE4', () => {
+  it('chi co mot muc Phan cong PT dung hop dong va khong co catalog', () => {
     const chuoiConfig = JSON.stringify(CAC_NHOM_DIEU_HUONG_ADMIN)
+    const cacMucPhanCong = CAC_NHOM_DIEU_HUONG_ADMIN.filter(
+      (muc) => muc.nhan === 'Phân công PT',
+    )
 
-    expect(chuoiConfig).not.toContain('Huấn luyện viên')
-    expect(chuoiConfig).not.toContain('Phân công PT')
+    expect(cacMucPhanCong).toHaveLength(1)
+    expect(cacMucPhanCong[0]).toMatchObject({
+      nhan: 'Phân công PT',
+      tenTuyenDuong: 'adminPhanCongPt',
+      cacTuyenDuongLienQuan: ['adminPhanCongPt'],
+      thuTu: 36,
+    })
     expect(chuoiConfig).not.toContain('Gói tập')
     expect(chuoiConfig).not.toContain('Thanh toán')
+    expect(CAC_NHOM_DIEU_HUONG_ADMIN.filter((muc) => muc.nhan === 'Huấn luyện viên'))
+      .toHaveLength(1)
   })
 
   it('moi muc chi tro toi named route noi bo', () => {
@@ -53,8 +65,18 @@ describe('dieu_huong_admin FE1-T01', () => {
     }
   })
 
-  it('menu production hien Dashboard, Tai khoan, Hoi vien va Nhan vien le tan sau T07', () => {
-    expect(taoDanhSachDieuHuongAdmin(boDinhTuyen)).toMatchObject([
+  it('menu production hien dung sau khi route Phan cong PT san sang', () => {
+    const danhSach = taoDanhSachDieuHuongAdmin(boDinhTuyen)
+
+    expect(danhSach.map((muc) => muc.tenTuyenDuong)).toEqual([
+      'adminBangDieuKhien',
+      'adminTaiKhoan',
+      'adminHoiVien',
+      'adminHuanLuyenVien',
+      'adminPhanCongPt',
+      'adminNhanVienLeTan',
+    ])
+    expect(danhSach).toMatchObject([
       {
         nhan: 'Bảng điều khiển',
         tenTuyenDuong: 'adminBangDieuKhien',
@@ -71,11 +93,26 @@ describe('dieu_huong_admin FE1-T01', () => {
         to: { name: 'adminHoiVien' },
       },
       {
+        nhan: 'Huấn luyện viên',
+        tenTuyenDuong: 'adminHuanLuyenVien',
+        to: { name: 'adminHuanLuyenVien' },
+      },
+      {
+        nhan: 'Phân công PT',
+        tenTuyenDuong: 'adminPhanCongPt',
+        to: { name: 'adminPhanCongPt' },
+      },
+      {
         nhan: 'Nhân viên lễ tân',
         tenTuyenDuong: 'adminNhanVienLeTan',
         to: { name: 'adminNhanVienLeTan' },
       },
     ])
+    expect(danhSach.find((muc) => muc.tenTuyenDuong === 'adminHuanLuyenVien').cacTuyenDuongLienQuan)
+      .toContain('adminChiTietHuanLuyenVien')
+    expect(danhSach.find((muc) => muc.tenTuyenDuong === 'adminHuanLuyenVien').cacTuyenDuongLienQuan)
+      .toContain('adminTaoHuanLuyenVien')
+    expect(danhSach.filter((muc) => muc.tenTuyenDuong === 'adminPhanCongPt')).toHaveLength(1)
   })
 
   it('route test-only da dang ky thi muc tuong ung xuat hien', () => {
@@ -100,6 +137,36 @@ describe('dieu_huong_admin FE1-T01', () => {
       name: 'adminChiTietTaiKhoan',
       matched: [{ name: 'adminChiTietTaiKhoan' }],
     })).toBe(true)
+  })
+
+  it('route PT detail va tao moi lam active parent qua related route names', () => {
+    const mucHuanLuyenVien = CAC_NHOM_DIEU_HUONG_ADMIN.find(
+      (muc) => muc.tenTuyenDuong === 'adminHuanLuyenVien',
+    )
+
+    expect(laMucDieuHuongDangHoatDong(mucHuanLuyenVien, {
+      name: 'adminChiTietHuanLuyenVien',
+      matched: [{ name: 'adminChiTietHuanLuyenVien' }],
+    })).toBe(true)
+    expect(laMucDieuHuongDangHoatDong(mucHuanLuyenVien, {
+      name: 'adminTaoHuanLuyenVien',
+      matched: [{ name: 'adminTaoHuanLuyenVien' }],
+    })).toBe(true)
+  })
+
+  it('route Phan cong PT active rieng va khong active route khac', () => {
+    const mucPhanCong = CAC_NHOM_DIEU_HUONG_ADMIN.find(
+      (muc) => muc.tenTuyenDuong === 'adminPhanCongPt',
+    )
+
+    expect(laMucDieuHuongDangHoatDong(mucPhanCong, {
+      name: 'adminPhanCongPt',
+      matched: [{ name: 'adminPhanCongPt' }],
+    })).toBe(true)
+    expect(laMucDieuHuongDangHoatDong(mucPhanCong, {
+      name: 'adminHuanLuyenVien',
+      matched: [{ name: 'adminHuanLuyenVien' }],
+    })).toBe(false)
   })
 
   it('route matched cung duoc dung de xac dinh active context', () => {

@@ -8,9 +8,11 @@ import {
   laIdTaiKhoanHopLe,
   thuHoiVaiTro as thuHoiVaiTroApi,
   taiChiTietTaiKhoan as taiChiTietTaiKhoanApi,
+  taiChiTietHuanLuyenVien as taiChiTietHuanLuyenVienApi,
   taiChiTietHoiVien as taiChiTietHoiVienApi,
   taiChiTietNhanVienLeTan as taiChiTietNhanVienLeTanApi,
   taiDanhSachTaiKhoan as taiDanhSachTaiKhoanApi,
+  taiDanhSachHuanLuyenVien as taiDanhSachHuanLuyenVienApi,
   taiDanhSachHoiVien as taiDanhSachHoiVienApi,
   taiDanhSachNhanVienLeTan as taiDanhSachNhanVienLeTanApi,
 } from '../services/tai_khoan.api.js'
@@ -42,6 +44,19 @@ const PHAN_TRANG_HOI_VIEN_MAC_DINH = Object.freeze({
   last_page: 1,
 })
 
+const BO_LOC_HUAN_LUYEN_VIEN_MAC_DINH = Object.freeze({
+  search: '',
+  status: '',
+  per_page: 20,
+})
+
+const PHAN_TRANG_HUAN_LUYEN_VIEN_MAC_DINH = Object.freeze({
+  current_page: 1,
+  per_page: 20,
+  total: 0,
+  last_page: 1,
+})
+
 const BO_LOC_NHAN_VIEN_LE_TAN_MAC_DINH = Object.freeze({
   search: '',
   status: '',
@@ -65,6 +80,14 @@ function taoBoLoc(boLoc = BO_LOC_MAC_DINH) {
 }
 
 function taoBoLocHoiVien(boLoc = BO_LOC_HOI_VIEN_MAC_DINH) {
+  return {
+    search: typeof boLoc?.search === 'string' ? boLoc.search.trim() : '',
+    status: typeof boLoc?.status === 'string' ? boLoc.status.trim() : '',
+    per_page: Number.isInteger(boLoc?.per_page) ? boLoc.per_page : 20,
+  }
+}
+
+function taoBoLocHuanLuyenVien(boLoc = BO_LOC_HUAN_LUYEN_VIEN_MAC_DINH) {
   return {
     search: typeof boLoc?.search === 'string' ? boLoc.search.trim() : '',
     status: typeof boLoc?.status === 'string' ? boLoc.status.trim() : '',
@@ -152,6 +175,14 @@ function taoLoiPhanHoiHoiVienKhongHopLe() {
   }
 }
 
+function taoLoiPhanHoiHuanLuyenVienKhongHopLe() {
+  return {
+    code: 'TRAINER_LIST_RESPONSE_INVALID',
+    message: 'Dữ liệu danh sách Huấn luyện viên không hợp lệ.',
+    fieldErrors: {},
+  }
+}
+
 function taoLoiChiTietHoiVienKhongHopLe() {
   return {
     httpStatus: 404,
@@ -174,6 +205,24 @@ function taoLoiChiTietNhanVienLeTanKhongHopLe() {
   return {
     httpStatus: 404,
     code: 'RECEPTIONIST_ORIENTATION_INVALID',
+    message: 'Không thể truy cập dữ liệu này.',
+    fieldErrors: {},
+    isNetworkError: false,
+  }
+}
+
+function taoLoiPhanHoiChiTietHuanLuyenVienKhongHopLe() {
+  return {
+    code: 'TRAINER_DETAIL_RESPONSE_INVALID',
+    message: 'Dữ liệu chi tiết Huấn luyện viên không hợp lệ.',
+    fieldErrors: {},
+  }
+}
+
+function taoLoiChiTietHuanLuyenVienKhongHopLe() {
+  return {
+    httpStatus: 404,
+    code: 'TRAINER_ORIENTATION_INVALID',
     message: 'Không thể truy cập dữ liệu này.',
     fieldErrors: {},
     isNetworkError: false,
@@ -287,6 +336,28 @@ function laTaiKhoanHoiVienHopLe(taiKhoan) {
     && laTaiKhoanCoVaiTroMemberDangHoatDong(taiKhoan)
 }
 
+function laTaiKhoanCoVaiTroHuanLuyenVienDangHoatDong(taiKhoan) {
+  return Array.isArray(taiKhoan?.roles)
+    && taiKhoan.roles.some((vaiTro) => vaiTro?.code === 'PT' && vaiTro?.active === true)
+}
+
+function laHoSoHuanLuyenVienAnToan(taiKhoan) {
+  return taiKhoan?.trainer_profile === null
+    || (typeof taiKhoan?.trainer_profile === 'object'
+      && !Array.isArray(taiKhoan.trainer_profile))
+}
+
+function laTaiKhoanHuanLuyenVienHopLe(taiKhoan) {
+  return taiKhoan !== null
+    && typeof taiKhoan === 'object'
+    && laIdTaiKhoanHopLe(taiKhoan.id)
+    && typeof taiKhoan.name === 'string'
+    && typeof taiKhoan.email === 'string'
+    && CAC_TRANG_THAI_TAI_KHOAN.includes(taiKhoan.status)
+    && laTaiKhoanCoVaiTroHuanLuyenVienDangHoatDong(taiKhoan)
+    && laHoSoHuanLuyenVienAnToan(taiKhoan)
+}
+
 function laTaiKhoanCoVaiTroNhanVienLeTanDangHoatDong(taiKhoan) {
   return Array.isArray(taiKhoan?.roles)
     && taiKhoan.roles.some((vaiTro) => vaiTro?.code === 'RECEPTIONIST' && vaiTro?.active === true)
@@ -320,6 +391,17 @@ function laDanhSachHoiVienHopLe(phanHoi, choPhepTrangVuotBien = false) {
   return Array.isArray(duLieu?.items)
     && phanTrangHopLe
     && duLieu.items.every(laTaiKhoanHoiVienHopLe)
+}
+
+function laDanhSachHuanLuyenVienHopLe(phanHoi, choPhepTrangVuotBien = false) {
+  const duLieu = phanHoi?.data
+  const phanTrangHopLe = choPhepTrangVuotBien
+    ? laCauTrucPhanTrangHopLe(duLieu?.pagination)
+    : laPhanTrangHopLe(duLieu?.pagination)
+
+  return Array.isArray(duLieu?.items)
+    && phanTrangHopLe
+    && duLieu.items.every(laTaiKhoanHuanLuyenVienHopLe)
 }
 
 function laDanhSachNhanVienLeTanHopLe(phanHoi, choPhepTrangVuotBien = false) {
@@ -439,6 +521,18 @@ export const useTaiKhoanStore = defineStore('tai_khoan', {
     loiTaiChiTietHoiVien: null,
     daTaiChiTietHoiVienLanDau: false,
     soThuTuYeuCauChiTietHoiVien: 0,
+    danhSachHuanLuyenVien: [],
+    boLocHuanLuyenVien: taoBoLocHuanLuyenVien(),
+    phanTrangHuanLuyenVien: { ...PHAN_TRANG_HUAN_LUYEN_VIEN_MAC_DINH },
+    dangTaiHuanLuyenVien: false,
+    loiTaiHuanLuyenVien: null,
+    daTaiHuanLuyenVienLanDau: false,
+    soThuTuYeuCauHuanLuyenVien: 0,
+    huanLuyenVienDaChon: null,
+    dangTaiChiTietHuanLuyenVien: false,
+    loiTaiChiTietHuanLuyenVien: null,
+    daTaiChiTietHuanLuyenVienLanDau: false,
+    soThuTuYeuCauChiTietHuanLuyenVien: 0,
     danhSachNhanVienLeTan: [],
     boLocNhanVienLeTan: taoBoLocNhanVienLeTan(),
     phanTrangNhanVienLeTan: { ...PHAN_TRANG_NHAN_VIEN_LE_TAN_MAC_DINH },
@@ -568,6 +662,274 @@ export const useTaiKhoanStore = defineStore('tai_khoan', {
           this.daTaiHoiVienLanDau = true
         }
       }
+    },
+
+    /**
+     * Tai list Account co role PT cho view Admin Huan luyen vien.
+     *
+     * Dau vao: boLoc chi co search/status/per_page va trang server muon tai.
+     * Cach hoat dong: goi service fixed-role PT, validate moi item la Account hop le
+     * co role PT dang hoat dong, sau do chi commit response cua sequence moi nhat.
+     * Neu trang yeu cau vuot bien, helper dung mot lan last_page authoritative.
+     * Ket qua: danh sach PT, pagination, loading/error va first-load state rieng.
+     * Side effect: GET read-only; khong tao profile, phan cong, Membership hay loi moi.
+     * Security Rule: Backend la authority branch/role; Frontend chi fail-closed DTO.
+     * Concurrency Rule: response stale hoac response den sau cleanup khong ghi state.
+     */
+    async taiDanhSachHuanLuyenVien({
+      boLoc = this.boLocHuanLuyenVien,
+      trang = this.phanTrangHuanLuyenVien.current_page,
+    } = {}) {
+      const boLocDaChuanHoa = taoBoLocHuanLuyenVien(boLoc)
+      const trangYeuCau = Number.isInteger(trang) && trang >= 1 ? trang : 1
+      const soThuTuHienTai = ++this.soThuTuYeuCauHuanLuyenVien
+      this.dangTaiHuanLuyenVien = true
+      this.loiTaiHuanLuyenVien = null
+
+      try {
+        const duLieu = await taiTrangDanhSachCoHieuChinh({
+          goiApi: taiDanhSachHuanLuyenVienApi,
+          boLoc: boLocDaChuanHoa,
+          trangYeuCau,
+          laPhanHoiHopLe: laDanhSachHuanLuyenVienHopLe,
+          taoLoiKhongHopLe: taoLoiPhanHoiHuanLuyenVienKhongHopLe,
+          conLaYeuCauHienTai: () => soThuTuHienTai === this.soThuTuYeuCauHuanLuyenVien,
+        })
+
+        if (duLieu === null || soThuTuHienTai !== this.soThuTuYeuCauHuanLuyenVien) {
+          return null
+        }
+
+        this.danhSachHuanLuyenVien = duLieu.items
+        this.boLocHuanLuyenVien = boLocDaChuanHoa
+        this.phanTrangHuanLuyenVien = { ...duLieu.pagination }
+        return duLieu
+      } catch (error) {
+        if (soThuTuHienTai !== this.soThuTuYeuCauHuanLuyenVien) {
+          return null
+        }
+
+        this.loiTaiHuanLuyenVien = taoLoiAnToan(
+          error,
+          'Không thể tải danh sách Huấn luyện viên. Vui lòng thử lại sau.',
+        )
+        return null
+      } finally {
+        if (soThuTuHienTai === this.soThuTuYeuCauHuanLuyenVien) {
+          this.dangTaiHuanLuyenVien = false
+          this.daTaiHuanLuyenVienLanDau = true
+        }
+      }
+    },
+
+    /**
+     * Ap dung search/status PT va reset server page ve 1.
+     *
+     * Dau vao: bo loc hien thi; role, branch va authority neu co bi loai bo.
+     * Cach hoat dong: tao snapshot filter scoped, luu applied state truoc request va
+     * goi lai Account list voi role PT do service gan co dinh.
+     * Ket qua: list PT theo query moi hoac loi normalized, giu row tot truoc neu fail.
+     * Side effect: GET read-only; khong thay doi Account, profile hay phan cong.
+     */
+    async apDungBoLocHuanLuyenVien(boLoc) {
+      this.boLocHuanLuyenVien = taoBoLocHuanLuyenVien(boLoc)
+      return this.taiDanhSachHuanLuyenVien({
+        boLoc: this.boLocHuanLuyenVien,
+        trang: 1,
+      })
+    },
+
+    /**
+     * Dat lai bo loc PT ve default va tai lai trang dau.
+     *
+     * Dau vao: khong co.
+     * Cach hoat dong: reset search/status/per_page trong trainer scope va GET fixed-role
+     * page 1, khong cham vao filter cua Account/Member/Receptionist.
+     * Ket qua: query PT mac dinh va pagination authoritative moi.
+     * Side effect: GET read-only; khong logout va khong mutation Backend.
+     */
+    async datLaiBoLocHuanLuyenVien() {
+      this.boLocHuanLuyenVien = taoBoLocHuanLuyenVien()
+      return this.taiDanhSachHuanLuyenVien({
+        boLoc: this.boLocHuanLuyenVien,
+        trang: 1,
+      })
+    },
+
+    /**
+     * Chuyen trang PT trong bien server pagination.
+     *
+     * Dau vao: trang moi do component phan trang emit.
+     * Cach hoat dong: chan trang ngoai [1, last_page] va tai lai bang applied filter
+     * trainer hien tai; khong tu tinh total/last_page tren client.
+     * Ket qua: list/pagination PT moi, filter van duoc giu nguyen.
+     * Side effect: GET read-only; khong thay doi Account scope khac.
+     */
+    async chuyenTrangHuanLuyenVien(trangMoi) {
+      if (!Number.isInteger(trangMoi)
+        || trangMoi < 1
+        || trangMoi > this.phanTrangHuanLuyenVien.last_page
+        || trangMoi === this.phanTrangHuanLuyenVien.current_page) {
+        return null
+      }
+
+      return this.taiDanhSachHuanLuyenVien({
+        boLoc: this.boLocHuanLuyenVien,
+        trang: trangMoi,
+      })
+    },
+
+    /**
+     * Thu lai danh sach PT voi applied filter va trang dang xem.
+     *
+     * Dau vao: khong co.
+     * Cach hoat dong: lap lai mot GET theo dung query state hien tai; khong auto retry
+     * loi 422/403 va khong reset context de nguoi dung co the thu lai thu cong.
+     * Ket qua: list PT moi hoac loi normalized an toan.
+     * Side effect: GET read-only; khong tao mutation, profile hay phan cong.
+     */
+    async thuLaiDanhSachHuanLuyenVien() {
+      return this.taiDanhSachHuanLuyenVien({
+        boLoc: this.boLocHuanLuyenVien,
+        trang: this.phanTrangHuanLuyenVien.current_page,
+      })
+    },
+
+    /**
+     * Xoa toan bo trainer scope va vo hieu request PT dang bay.
+     *
+     * Dau vao: khong co.
+     * Cach hoat dong: tang sequence list/detail truoc khi reset rows/filter/pagination/
+     * loading/error/first-load va detail selection, nen response cu khong the ghi state sau
+     * cleanup.
+     * Ket qua: PT list/detail tro ve state mac dinh, doc lap voi Account/Member/Receptionist.
+     * Side effect: chi reset Pinia memory; khong goi API, logout hay xoa history Backend.
+     * Security Rule: khong giu DTO PT sau khi Auth/actor scope mat.
+     */
+    xoaDuLieuHuanLuyenVien() {
+      this.soThuTuYeuCauHuanLuyenVien += 1
+      this.danhSachHuanLuyenVien = []
+      this.boLocHuanLuyenVien = taoBoLocHuanLuyenVien()
+      this.phanTrangHuanLuyenVien = { ...PHAN_TRANG_HUAN_LUYEN_VIEN_MAC_DINH }
+      this.dangTaiHuanLuyenVien = false
+      this.loiTaiHuanLuyenVien = null
+      this.daTaiHuanLuyenVienLanDau = false
+      this.xoaChiTietHuanLuyenVien()
+    },
+
+    /**
+     * Tai chi tiet Account theo huong Huấn luyện viên va fail-closed theo active role.
+     *
+     * Dau vao: taiKhoanId positive integer tu route Admin.
+     * Cach hoat dong: goi Account detail GET, validate DTO Account, active PT role va
+     * trainer_profile null/object; chi response cua sequence moi nhat moi duoc commit.
+     * Khi doi id thi xoa detail cu, con refresh cung id thi giu detail an toan de retry.
+     * Ket qua: huanLuyenVienDaChon hoac loi generic/normalized trong scope PT detail.
+     * Side effect: phat sinh GET read-only; khong goi API ho so PT, phan cong, onboarding
+     * hay mutation; khong logout va khong tu tao profile khi trainer_profile la null.
+     * Security Rule: Backend la authority; active PT role chi la fail-closed presentation.
+     * Concurrency Rule: sequence chan A->B, response stale va response sau cleanup ghi state.
+     */
+    async taiChiTietHuanLuyenVien(taiKhoanId) {
+      const idHopLe = laIdTaiKhoanHopLe(taiKhoanId)
+      const id = idHopLe ? Number(taiKhoanId) : null
+      const idHienTai = Number(this.huanLuyenVienDaChon?.id)
+      const soThuTuHienTai = ++this.soThuTuYeuCauChiTietHuanLuyenVien
+      this.dangTaiChiTietHuanLuyenVien = true
+      this.loiTaiChiTietHuanLuyenVien = null
+
+      if (!idHopLe || idHienTai !== id) {
+        this.huanLuyenVienDaChon = null
+      }
+
+      if (!idHopLe) {
+        if (soThuTuHienTai === this.soThuTuYeuCauChiTietHuanLuyenVien) {
+          this.loiTaiChiTietHuanLuyenVien = taoLoiAnToan({
+            httpStatus: 404,
+            code: 'TRAINER_ID_INVALID',
+            message: 'Không thể truy cập dữ liệu này.',
+            fieldErrors: {},
+            isNetworkError: false,
+          }, 'Không thể truy cập dữ liệu này.')
+          this.dangTaiChiTietHuanLuyenVien = false
+          this.daTaiChiTietHuanLuyenVienLanDau = true
+        }
+
+        return null
+      }
+
+      try {
+        const phanHoi = await taiChiTietHuanLuyenVienApi(id)
+
+        if (!laTaiKhoanChiTietHopLe(phanHoi)) {
+          throw taoLoiPhanHoiChiTietHuanLuyenVienKhongHopLe()
+        }
+
+        if (!laTaiKhoanCoVaiTroHuanLuyenVienDangHoatDong(phanHoi.data)) {
+          throw taoLoiChiTietHuanLuyenVienKhongHopLe()
+        }
+
+        if (!laHoSoHuanLuyenVienAnToan(phanHoi.data)) {
+          throw taoLoiPhanHoiChiTietHuanLuyenVienKhongHopLe()
+        }
+
+        if (soThuTuHienTai !== this.soThuTuYeuCauChiTietHuanLuyenVien) {
+          return null
+        }
+
+        this.huanLuyenVienDaChon = phanHoi.data
+        return phanHoi.data
+      } catch (error) {
+        if (soThuTuHienTai !== this.soThuTuYeuCauChiTietHuanLuyenVien) {
+          return null
+        }
+
+        if (error?.httpStatus === 403 || error?.httpStatus === 404
+          || error?.code === 'TRAINER_ORIENTATION_INVALID') {
+          this.huanLuyenVienDaChon = null
+        }
+
+        this.loiTaiChiTietHuanLuyenVien = taoLoiAnToan(
+          error,
+          'Không thể tải chi tiết Huấn luyện viên. Vui lòng thử lại sau.',
+        )
+        return null
+      } finally {
+        if (soThuTuHienTai === this.soThuTuYeuCauChiTietHuanLuyenVien) {
+          this.dangTaiChiTietHuanLuyenVien = false
+          this.daTaiChiTietHuanLuyenVienLanDau = true
+        }
+      }
+    },
+
+    /**
+     * Thu lai GET detail PT bang cung id sau loi network/5xx hoac response malformed.
+     *
+     * Dau vao: id tuy chon, mac dinh dung id cua detail PT dang duoc giu trong Store.
+     * Cach hoat dong: lap lai Account detail GET va active-role orientation, khong retry
+     * 403/404 tu dong va khong goi endpoint profile/assignment bi chan.
+     * Ket qua: detail authoritative moi hoac loi normalized an toan.
+     * Side effect: GET read-only; refresh cung id co the giu DTO truoc do neu GET that bai.
+     */
+    async thuLaiChiTietHuanLuyenVien(taiKhoanId = this.huanLuyenVienDaChon?.id) {
+      return this.taiChiTietHuanLuyenVien(taiKhoanId)
+    },
+
+    /**
+     * Xoa rieng PT detail khi doi route, unmount, mat orientation hoac scope exit.
+     *
+     * Dau vao: khong co.
+     * Cach hoat dong: tang sequence detail de vo hieu response dang bay va reset selected,
+     * loading, error va first-load; khong cham vao PT list/filter/pagination.
+     * Ket qua: PT detail state ve rong va khong hien DTO cua route truoc.
+     * Side effect: chi thay doi Pinia memory; khong goi API, logout hay xoa history Backend.
+     */
+    xoaChiTietHuanLuyenVien() {
+      this.soThuTuYeuCauChiTietHuanLuyenVien += 1
+      this.huanLuyenVienDaChon = null
+      this.dangTaiChiTietHuanLuyenVien = false
+      this.loiTaiChiTietHuanLuyenVien = null
+      this.daTaiChiTietHuanLuyenVienLanDau = false
     },
 
     /**
@@ -1860,6 +2222,7 @@ export const useTaiKhoanStore = defineStore('tai_khoan', {
       this.thongBaoThayDoiVaiTro = null
       this.ketQuaThayDoiVaiTro = null
       this.xoaDuLieuHoiVien()
+      this.xoaDuLieuHuanLuyenVien()
       this.xoaDuLieuNhanVienLeTan()
     },
   },

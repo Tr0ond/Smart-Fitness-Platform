@@ -3,10 +3,12 @@ import { createPinia, setActivePinia } from 'pinia'
 import {
   capVaiTro as capVaiTroApi,
   capNhatTrangThaiTaiKhoan as capNhatTrangThaiTaiKhoanApi,
+  taiChiTietHuanLuyenVien as taiChiTietHuanLuyenVienApi,
   taiChiTietHoiVien as taiChiTietHoiVienApi,
   taiChiTietNhanVienLeTan as taiChiTietNhanVienLeTanApi,
   taiChiTietTaiKhoan as taiChiTietTaiKhoanApi,
   taiDanhSachHoiVien as taiDanhSachHoiVienApi,
+  taiDanhSachHuanLuyenVien as taiDanhSachHuanLuyenVienApi,
   taiDanhSachNhanVienLeTan as taiDanhSachNhanVienLeTanApi,
   taiDanhSachTaiKhoan as taiDanhSachTaiKhoanApi,
   thuHoiVaiTro as thuHoiVaiTroApi,
@@ -26,10 +28,12 @@ vi.mock('../services/tai_khoan.api.js', () => ({
     ? Number.isSafeInteger(id) && id > 0
     : typeof id === 'string' && /^[1-9]\d*$/.test(id.trim())),
   taiChiTietTaiKhoan: vi.fn(),
+  taiChiTietHuanLuyenVien: vi.fn(),
   taiChiTietHoiVien: vi.fn(),
   taiChiTietNhanVienLeTan: vi.fn(),
   taiDanhSachTaiKhoan: vi.fn(),
   taiDanhSachHoiVien: vi.fn(),
+  taiDanhSachHuanLuyenVien: vi.fn(),
   taiDanhSachNhanVienLeTan: vi.fn(),
   thuHoiVaiTro: vi.fn(),
 }))
@@ -47,6 +51,12 @@ const TAI_KHOAN = {
 const NHAN_VIEN_LE_TAN = {
   ...TAI_KHOAN,
   roles: [{ assignment_id: 2, code: 'RECEPTIONIST', name: 'Nhân viên lễ tân', active: true }],
+}
+
+const HUAN_LUYEN_VIEN = {
+  ...TAI_KHOAN,
+  roles: [{ assignment_id: 3, code: 'PT', name: 'Huấn luyện viên', active: true }],
+  trainer_profile: { id: 11, code: 'PT-011', status: 'HOAT_DONG' },
 }
 
 function phanHoi(items = [TAI_KHOAN], pagination = {}) {
@@ -106,6 +116,14 @@ describe('tai_khoan.store FE1-T03', () => {
     expect(store.ketQuaThayDoiVaiTro).toBeNull()
     expect(store).toHaveProperty('capVaiTro')
     expect(store).toHaveProperty('thuHoiVaiTro')
+    expect(store.huanLuyenVienDaChon).toBeNull()
+    expect(store.dangTaiChiTietHuanLuyenVien).toBe(false)
+    expect(store.loiTaiChiTietHuanLuyenVien).toBeNull()
+    expect(store.daTaiChiTietHuanLuyenVienLanDau).toBe(false)
+    expect(store.soThuTuYeuCauChiTietHuanLuyenVien).toBe(0)
+    expect(store).toHaveProperty('taiChiTietHuanLuyenVien')
+    expect(store).toHaveProperty('thuLaiChiTietHuanLuyenVien')
+    expect(store).toHaveProperty('xoaChiTietHuanLuyenVien')
   })
 
   it('tai lan dau gui page/per_page va commit items pagination exact', async () => {
@@ -1231,5 +1249,316 @@ describe('tai_khoan.store FE1-T03', () => {
     expect(store.loiTaiNhanVienLeTan).toBeNull()
     expect(store.danhSachTaiKhoan).toEqual([TAI_KHOAN])
     expect(store.danhSachHoiVien).toEqual([{ id: 8, name: 'Hội viên' }])
+  })
+
+  it('co scoped state PT va action fixed-role rieng', () => {
+    const store = useTaiKhoanStore()
+
+    expect(store.danhSachHuanLuyenVien).toEqual([])
+    expect(store.boLocHuanLuyenVien).toEqual({ search: '', status: '', per_page: 20 })
+    expect(store.phanTrangHuanLuyenVien).toEqual({
+      current_page: 1,
+      per_page: 20,
+      total: 0,
+      last_page: 1,
+    })
+    expect(store.dangTaiHuanLuyenVien).toBe(false)
+    expect(store.loiTaiHuanLuyenVien).toBeNull()
+    expect(store.daTaiHuanLuyenVienLanDau).toBe(false)
+    expect(store.soThuTuYeuCauHuanLuyenVien).toBe(0)
+    expect(store).toHaveProperty('taiDanhSachHuanLuyenVien')
+    expect(store).toHaveProperty('apDungBoLocHuanLuyenVien')
+    expect(store).toHaveProperty('xoaDuLieuHuanLuyenVien')
+  })
+
+  it('PT list chi commit Account co active PT va cho phep trainer_profile null', async () => {
+    const ptKhongHoSo = { ...HUAN_LUYEN_VIEN, id: 8, trainer_profile: null }
+    taiDanhSachHuanLuyenVienApi.mockResolvedValueOnce(phanHoi([HUAN_LUYEN_VIEN, ptKhongHoSo]))
+    const store = useTaiKhoanStore()
+
+    await store.apDungBoLocHuanLuyenVien({
+      search: ' PT ',
+      status: 'HOAT_DONG',
+      role: 'ADMIN',
+      branch_id: 9,
+    })
+
+    expect(store.danhSachHuanLuyenVien).toEqual([HUAN_LUYEN_VIEN, ptKhongHoSo])
+    expect(store.boLocHuanLuyenVien).toEqual({
+      search: 'PT', status: 'HOAT_DONG', per_page: 20,
+    })
+    expect(taiDanhSachHuanLuyenVienApi).toHaveBeenCalledWith({
+      search: 'PT', status: 'HOAT_DONG', per_page: 20, page: 1,
+    })
+    expect(store.danhSachTaiKhoan).toEqual([])
+    expect(store.danhSachHoiVien).toEqual([])
+    expect(store.danhSachNhanVienLeTan).toEqual([])
+  })
+
+  it('PT list fail-closed khi item thieu active PT role', async () => {
+    taiDanhSachHuanLuyenVienApi.mockResolvedValueOnce(phanHoi([
+      { ...HUAN_LUYEN_VIEN, roles: [{ code: 'MEMBER', active: true }] },
+    ]))
+    const store = useTaiKhoanStore()
+
+    await store.taiDanhSachHuanLuyenVien()
+
+    expect(store.loiTaiHuanLuyenVien).toMatchObject({
+      code: 'TRAINER_LIST_RESPONSE_INVALID',
+    })
+    expect(store.danhSachHuanLuyenVien).toEqual([])
+    expect(store.daTaiHuanLuyenVienLanDau).toBe(true)
+  })
+
+  it('PT filter/page giu state va dung server pagination', async () => {
+    taiDanhSachHuanLuyenVienApi
+      .mockResolvedValueOnce(phanHoi([HUAN_LUYEN_VIEN], { total: 40, last_page: 2 }))
+      .mockResolvedValueOnce(phanHoi([HUAN_LUYEN_VIEN], {
+        current_page: 2,
+        total: 40,
+        last_page: 2,
+      }))
+    const store = useTaiKhoanStore()
+
+    await store.apDungBoLocHuanLuyenVien({ search: ' Anh ', status: 'BI_KHOA' })
+    await store.chuyenTrangHuanLuyenVien(2)
+
+    expect(taiDanhSachHuanLuyenVienApi).toHaveBeenLastCalledWith({
+      search: 'Anh', status: 'BI_KHOA', per_page: 20, page: 2,
+    })
+    expect(store.boLocHuanLuyenVien).toEqual({
+      search: 'Anh', status: 'BI_KHOA', per_page: 20,
+    })
+    expect(store.phanTrangHuanLuyenVien.current_page).toBe(2)
+  })
+
+  it('PT list sua mot lan ve last_page authoritative khi overflow', async () => {
+    taiDanhSachHuanLuyenVienApi
+      .mockResolvedValueOnce(phanHoi([], { current_page: 3, total: 1, last_page: 1 }))
+      .mockResolvedValueOnce(phanHoi([HUAN_LUYEN_VIEN], {
+        current_page: 1,
+        total: 1,
+        last_page: 1,
+      }))
+    const store = useTaiKhoanStore()
+    store.boLocHuanLuyenVien = { search: 'Anh', status: '', per_page: 20 }
+
+    await store.taiDanhSachHuanLuyenVien({ boLoc: store.boLocHuanLuyenVien, trang: 3 })
+
+    expect(taiDanhSachHuanLuyenVienApi).toHaveBeenNthCalledWith(1, {
+      search: 'Anh', status: '', per_page: 20, page: 3,
+    })
+    expect(taiDanhSachHuanLuyenVienApi).toHaveBeenNthCalledWith(2, {
+      search: 'Anh', status: '', per_page: 20, page: 1,
+    })
+    expect(store.danhSachHuanLuyenVien).toEqual([HUAN_LUYEN_VIEN])
+    expect(store.phanTrangHuanLuyenVien.current_page).toBe(1)
+  })
+
+  it('PT list race chi commit response moi nhat', async () => {
+    let resolveCu
+    let resolveMoi
+    taiDanhSachHuanLuyenVienApi
+      .mockImplementationOnce(() => new Promise((resolve) => { resolveCu = resolve }))
+      .mockImplementationOnce(() => new Promise((resolve) => { resolveMoi = resolve }))
+    const store = useTaiKhoanStore()
+    const taiCu = store.taiDanhSachHuanLuyenVien({ boLoc: { search: 'cu' }, trang: 1 })
+    const taiMoi = store.taiDanhSachHuanLuyenVien({ boLoc: { search: 'moi' }, trang: 1 })
+
+    resolveMoi(phanHoi([{ ...HUAN_LUYEN_VIEN, id: 8, name: 'PT mới' }]))
+    await taiMoi
+    resolveCu(phanHoi([{ ...HUAN_LUYEN_VIEN, id: 7, name: 'PT cũ' }]))
+    await taiCu
+
+    expect(store.danhSachHuanLuyenVien).toEqual([
+      { ...HUAN_LUYEN_VIEN, id: 8, name: 'PT mới' },
+    ])
+    expect(store.boLocHuanLuyenVien.search).toBe('moi')
+  })
+
+  it('PT cleanup vo hieu response pending va reset state scoped', async () => {
+    let resolveRequest
+    taiDanhSachHuanLuyenVienApi.mockImplementationOnce(() => new Promise((resolve) => {
+      resolveRequest = resolve
+    }))
+    const store = useTaiKhoanStore()
+    const request = store.taiDanhSachHuanLuyenVien({
+      boLoc: { search: 'cu' },
+      trang: 1,
+    })
+
+    store.xoaDuLieuHuanLuyenVien()
+    resolveRequest(phanHoi([HUAN_LUYEN_VIEN]))
+    await request
+
+    expect(store.danhSachHuanLuyenVien).toEqual([])
+    expect(store.boLocHuanLuyenVien).toEqual({ search: '', status: '', per_page: 20 })
+    expect(store.phanTrangHuanLuyenVien).toEqual({
+      current_page: 1,
+      per_page: 20,
+      total: 0,
+      last_page: 1,
+    })
+    expect(store.daTaiHuanLuyenVienLanDau).toBe(false)
+    expect(store.loiTaiHuanLuyenVien).toBeNull()
+  })
+
+  it('global cleanup xoa PT scope va giu cac scope khac doc lap', () => {
+    const store = useTaiKhoanStore()
+    store.danhSachHuanLuyenVien = [HUAN_LUYEN_VIEN]
+    store.boLocHuanLuyenVien = { search: 'PT', status: 'HOAT_DONG', per_page: 20 }
+    store.loiTaiHuanLuyenVien = { httpStatus: 503 }
+    store.dangTaiHuanLuyenVien = true
+    store.danhSachTaiKhoan = [TAI_KHOAN]
+    store.danhSachHoiVien = [{ id: 8, name: 'Hội viên' }]
+
+    store.xoaDuLieu()
+
+    expect(store.danhSachHuanLuyenVien).toEqual([])
+    expect(store.boLocHuanLuyenVien).toEqual({ search: '', status: '', per_page: 20 })
+    expect(store.loiTaiHuanLuyenVien).toBeNull()
+    expect(store.dangTaiHuanLuyenVien).toBe(false)
+    expect(store.danhSachTaiKhoan).toEqual([])
+    expect(store.danhSachHoiVien).toEqual([])
+  })
+
+  it('PT detail chi commit Account co active PT va chap nhan profile null/toi thieu', async () => {
+    const ptCoHoSo = {
+      ...HUAN_LUYEN_VIEN,
+      roles: [{
+        assignment_id: 3,
+        code: 'PT',
+        active: true,
+        granted_at: '2026-09-02T10:00:00Z',
+      }],
+      trainer_profile: { id: 11, code: 'PT-011', status: 'HOAT_DONG' },
+    }
+    const ptKhongHoSo = {
+      ...ptCoHoSo,
+      id: 8,
+      trainer_profile: null,
+    }
+    taiChiTietHuanLuyenVienApi
+      .mockResolvedValueOnce(phanHoiChiTiet(ptCoHoSo))
+      .mockResolvedValueOnce(phanHoiChiTiet(ptKhongHoSo))
+    const store = useTaiKhoanStore()
+
+    await store.taiChiTietHuanLuyenVien('7')
+    expect(taiChiTietHuanLuyenVienApi).toHaveBeenNthCalledWith(1, 7)
+    expect(store.huanLuyenVienDaChon).toEqual(ptCoHoSo)
+
+    await store.taiChiTietHuanLuyenVien(8)
+    expect(taiChiTietHuanLuyenVienApi).toHaveBeenNthCalledWith(2, 8)
+    expect(store.huanLuyenVienDaChon).toEqual(ptKhongHoSo)
+    expect(store.loiTaiChiTietHuanLuyenVien).toBeNull()
+  })
+
+  it('PT detail fail-closed khi response malformed hoac khong co active PT role', async () => {
+    taiChiTietHuanLuyenVienApi
+      .mockResolvedValueOnce({ data: { id: 7, roles: [] } })
+      .mockResolvedValueOnce(phanHoiChiTiet({
+        ...HUAN_LUYEN_VIEN,
+        roles: [{ assignment_id: 1, code: 'MEMBER', active: true }],
+      }))
+    const store = useTaiKhoanStore()
+
+    await store.taiChiTietHuanLuyenVien(7)
+    expect(store.huanLuyenVienDaChon).toBeNull()
+    expect(store.loiTaiChiTietHuanLuyenVien).toMatchObject({
+      code: 'TRAINER_DETAIL_RESPONSE_INVALID',
+    })
+
+    await store.taiChiTietHuanLuyenVien(7)
+    expect(store.huanLuyenVienDaChon).toBeNull()
+    expect(store.loiTaiChiTietHuanLuyenVien).toMatchObject({
+      httpStatus: 404,
+      code: 'TRAINER_ORIENTATION_INVALID',
+      message: 'Không thể truy cập dữ liệu này.',
+    })
+  })
+
+  it('PT detail cho phep profile status moi nhung khong tu suy dien thanh loi', async () => {
+    taiChiTietHuanLuyenVienApi.mockResolvedValueOnce(phanHoiChiTiet({
+      ...HUAN_LUYEN_VIEN,
+      trainer_profile: { id: 11, code: 'PT-011', status: 'TRANG_THAI_MOI' },
+    }))
+    const store = useTaiKhoanStore()
+
+    await store.taiChiTietHuanLuyenVien(7)
+
+    expect(store.huanLuyenVienDaChon.trainer_profile.status).toBe('TRANG_THAI_MOI')
+    expect(store.loiTaiChiTietHuanLuyenVien).toBeNull()
+  })
+
+  it('PT detail 403/404 clear selected state va khong logout', async () => {
+    taiChiTietHuanLuyenVienApi.mockResolvedValueOnce(phanHoiChiTiet(HUAN_LUYEN_VIEN))
+      .mockRejectedValueOnce({
+        httpStatus: 403,
+        message: 'Bạn không có quyền thực hiện thao tác này.',
+      })
+    const store = useTaiKhoanStore()
+    await store.taiChiTietHuanLuyenVien(7)
+    await store.taiChiTietHuanLuyenVien(7)
+
+    expect(store.huanLuyenVienDaChon).toBeNull()
+    expect(store.loiTaiChiTietHuanLuyenVien).toMatchObject({ httpStatus: 403 })
+  })
+
+  it('PT detail refresh cung id giu DTO an toan khi GET 5xx va retry thu cong', async () => {
+    taiChiTietHuanLuyenVienApi.mockResolvedValueOnce(phanHoiChiTiet(HUAN_LUYEN_VIEN))
+      .mockRejectedValueOnce({ httpStatus: 503, message: 'Máy chủ đang gặp sự cố.' })
+      .mockResolvedValueOnce(phanHoiChiTiet(HUAN_LUYEN_VIEN))
+    const store = useTaiKhoanStore()
+
+    await store.taiChiTietHuanLuyenVien(7)
+    await store.taiChiTietHuanLuyenVien(7)
+    expect(store.huanLuyenVienDaChon).toEqual(HUAN_LUYEN_VIEN)
+    expect(store.loiTaiChiTietHuanLuyenVien).toMatchObject({ httpStatus: 503 })
+
+    await store.thuLaiChiTietHuanLuyenVien(7)
+    expect(taiChiTietHuanLuyenVienApi).toHaveBeenLastCalledWith(7)
+    expect(store.huanLuyenVienDaChon).toEqual(HUAN_LUYEN_VIEN)
+    expect(store.loiTaiChiTietHuanLuyenVien).toBeNull()
+  })
+
+  it('PT detail race A-B chi commit response B va bo qua response A', async () => {
+    let resolveA
+    let resolveB
+    taiChiTietHuanLuyenVienApi
+      .mockImplementationOnce(() => new Promise((resolve) => { resolveA = resolve }))
+      .mockImplementationOnce(() => new Promise((resolve) => { resolveB = resolve }))
+    const store = useTaiKhoanStore()
+    const taiA = store.taiChiTietHuanLuyenVien(7)
+    const taiB = store.taiChiTietHuanLuyenVien(8)
+
+    resolveB(phanHoiChiTiet({ ...HUAN_LUYEN_VIEN, id: 8, name: 'PT B' }))
+    await taiB
+    resolveA(phanHoiChiTiet({ ...HUAN_LUYEN_VIEN, id: 7, name: 'PT A' }))
+    await taiA
+
+    expect(store.huanLuyenVienDaChon).toMatchObject({ id: 8, name: 'PT B' })
+  })
+
+  it('PT detail cleanup vo hieu response pending va global cleanup xoa scoped state', async () => {
+    let resolveRequest
+    taiChiTietHuanLuyenVienApi.mockImplementationOnce(() => new Promise((resolve) => {
+      resolveRequest = resolve
+    }))
+    const store = useTaiKhoanStore()
+    const request = store.taiChiTietHuanLuyenVien(7)
+    store.xoaChiTietHuanLuyenVien()
+    resolveRequest(phanHoiChiTiet(HUAN_LUYEN_VIEN))
+    await request
+
+    expect(store.huanLuyenVienDaChon).toBeNull()
+    expect(store.loiTaiChiTietHuanLuyenVien).toBeNull()
+    expect(store.daTaiChiTietHuanLuyenVienLanDau).toBe(false)
+
+    store.huanLuyenVienDaChon = HUAN_LUYEN_VIEN
+    store.danhSachHuanLuyenVien = [HUAN_LUYEN_VIEN]
+    store.xoaDuLieu()
+
+    expect(store.huanLuyenVienDaChon).toBeNull()
+    expect(store.danhSachHuanLuyenVien).toEqual([])
   })
 })

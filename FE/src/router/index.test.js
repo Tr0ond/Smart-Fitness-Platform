@@ -16,6 +16,10 @@ const ROUTE_MONG_DOI = {
   adminBangDieuKhien: '/admin/bang-dieu-khien',
   adminTaiKhoan: '/admin/tai-khoan',
   adminHoiVien: '/admin/hoi-vien',
+  adminHuanLuyenVien: '/admin/huan-luyen-vien',
+  adminTaoHuanLuyenVien: '/admin/huan-luyen-vien/tao-moi',
+  adminChiTietHuanLuyenVien: '/admin/huan-luyen-vien/:id',
+  adminPhanCongPt: '/admin/phan-cong-pt',
 }
 
 describe('router foundation FE0-T05', () => {
@@ -112,6 +116,75 @@ describe('router foundation FE0-T05', () => {
         { nhan: 'Hội viên', tenTuyenDuong: 'adminHoiVien' },
         { nhan: 'Chi tiết Hội viên' },
       ],
+    })
+  })
+
+  it('trainer list route co meta Admin va breadcrumb Huấn luyện viên', () => {
+    const route = boDinhTuyen.getRoutes().find((muc) => muc.name === 'adminHuanLuyenVien')
+
+    expect(route).toBeDefined()
+    expect(route.path).toBe('/admin/huan-luyen-vien')
+    expect(route.meta).toMatchObject({
+      yeuCauXacThuc: true,
+      vaiTro: ['ADMIN'],
+      boCuc: 'admin',
+      tieuDe: 'Danh sách Huấn luyện viên',
+      hienTrongDieuHuong: true,
+      duongDanPhanCap: [{ nhan: 'Huấn luyện viên' }],
+    })
+  })
+
+  it('trainer detail route co meta Admin va breadcrumb quay ve danh sach', () => {
+    const route = boDinhTuyen.getRoutes().find((muc) => muc.name === 'adminChiTietHuanLuyenVien')
+
+    expect(route).toBeDefined()
+    expect(route.path).toBe('/admin/huan-luyen-vien/:id')
+    expect(route.meta).toMatchObject({
+      yeuCauXacThuc: true,
+      vaiTro: ['ADMIN'],
+      boCuc: 'admin',
+      tieuDe: 'Chi tiết Huấn luyện viên',
+      hienTrongDieuHuong: false,
+      duongDanPhanCap: [
+        { nhan: 'Huấn luyện viên', tenTuyenDuong: 'adminHuanLuyenVien' },
+        { nhan: 'Chi tiết Huấn luyện viên' },
+      ],
+    })
+  })
+
+  it('trainer tao moi la route static truoc param, co breadcrumb va active parent metadata', () => {
+    const route = boDinhTuyen.getRoutes().find((muc) => muc.name === 'adminTaoHuanLuyenVien')
+    const ketQua = boDinhTuyen.resolve('/admin/huan-luyen-vien/tao-moi')
+
+    expect(route).toBeDefined()
+    expect(route.path).toBe('/admin/huan-luyen-vien/tao-moi')
+    expect(route.meta).toMatchObject({
+      yeuCauXacThuc: true,
+      vaiTro: ['ADMIN'],
+      boCuc: 'admin',
+      tieuDe: 'Tạo mới Huấn luyện viên',
+      hienTrongDieuHuong: false,
+      duongDanPhanCap: [
+        { nhan: 'Huấn luyện viên', tenTuyenDuong: 'adminHuanLuyenVien' },
+        { nhan: 'Tạo mới Huấn luyện viên' },
+      ],
+    })
+    expect(ketQua.name).toBe('adminTaoHuanLuyenVien')
+    expect(ketQua.matched.map((muc) => muc.name)).not.toContain('adminChiTietHuanLuyenVien')
+  })
+
+  it('assignment route co Admin meta breadcrumb va hien trong menu', () => {
+    const route = boDinhTuyen.getRoutes().find((muc) => muc.name === 'adminPhanCongPt')
+
+    expect(route).toBeDefined()
+    expect(route.path).toBe('/admin/phan-cong-pt')
+    expect(route.meta).toMatchObject({
+      yeuCauXacThuc: true,
+      vaiTro: ['ADMIN'],
+      boCuc: 'admin',
+      tieuDe: 'Phân công PT',
+      hienTrongDieuHuong: true,
+      duongDanPhanCap: [{ nhan: 'Phân công PT' }],
     })
   })
 

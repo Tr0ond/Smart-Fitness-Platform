@@ -918,6 +918,105 @@ a:hover {
   }
 }
 
+/* FE2-T02/T06/T07 Admin workflows: keep authoritative forms and assignment history readable. */
+.trang-tao-moi-huan-luyen-vien,
+.trang-phan-cong-pt {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+}
+
+.bo-chuyen-che-do,
+.phan-cong-pt__bo-loc,
+.phan-cong-pt__tao-moi,
+.phan-cong-pt__chi-tiet,
+.phan-cong-pt__mutation-fields,
+.the-ket-qua-onboarding {
+  padding: 1.15rem;
+  border: 1px solid var(--mau-vien);
+  border-radius: var(--bo-tron-lon);
+  background: var(--mau-nen-trang);
+  box-shadow: var(--mau-bong-the);
+}
+
+.bo-chuyen-che-do {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.bieu-mau-admin,
+.phan-cong-pt__mutation-fields {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.luoi-bieu-mau {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.truong-bieu-mau {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.truong-bieu-mau label,
+.phan-cong-pt__mutation-fields label {
+  color: var(--mau-chu-chinh);
+  font-size: 0.84rem;
+  font-weight: 750;
+}
+
+.truong-bieu-mau input,
+.truong-bieu-mau select,
+.truong-bieu-mau textarea,
+.phan-cong-pt__mutation-fields select,
+.phan-cong-pt__mutation-fields textarea {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--mau-vien);
+  border-radius: var(--bo-tron-nho);
+  background: var(--mau-nen-trang);
+  color: var(--mau-chu-chinh);
+  font: inherit;
+}
+
+.bang-du-lieu {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--mau-nen-trang);
+}
+
+.bang-du-lieu th,
+.bang-du-lieu td {
+  padding: 0.7rem;
+  border-bottom: 1px solid var(--mau-vien);
+  text-align: left;
+  vertical-align: top;
+}
+
+.phan-cong-pt__unknown {
+  padding: 0.8rem 1rem;
+  border-left: 3px solid var(--mau-canh-bao);
+  background: var(--mau-nen-canh-bao);
+  color: var(--mau-chu-chinh);
+}
+
+@media (max-width: 639px) {
+  .luoi-bieu-mau {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.trang-phan-cong-pt__trang-thai {
+  margin: -0.25rem 0 0;
+  color: var(--mau-chu-phu);
+  font-size: var(--co-chu-nho);
+}
+
 /* FE1-T07 Receptionist account-oriented views: fixed-role list/detail. */
 .trang-nhan-vien-le-tan {
   min-width: 0;
@@ -2561,6 +2660,297 @@ a:hover {
   .trang-hoi-vien__bo-loc .bo-loc-danh-sach__truong,
   .luoi-thuoc-tinh-hoi-vien,
   .luoi-thuoc-tinh-hoi-vien--ho-so {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* FE2-T01 Admin PT list: fixed-role scanning with narrow-screen table overflow. */
+.trang-huan-luyen-vien {
+  min-width: 0;
+}
+
+.trang-huan-luyen-vien__bo-loc {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--mau-vien);
+  border-top: 3px solid var(--mau-accent-dam);
+  border-radius: var(--bo-tron-lon);
+  background: var(--mau-nen-trang);
+  box-shadow: var(--mau-bong-the);
+}
+
+.trang-huan-luyen-vien__bo-loc-dau {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.trang-huan-luyen-vien__nhan-khu-vuc {
+  margin: 0;
+  color: var(--mau-chinh-hover);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.trang-huan-luyen-vien__bo-loc h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.35rem;
+}
+
+.trang-huan-luyen-vien__goi-y {
+  max-width: 26rem;
+  margin: 0.2rem 0 0;
+  color: var(--mau-chu-phu);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.trang-huan-luyen-vien__bo-loc .bo-loc-danh-sach {
+  margin-bottom: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.trang-huan-luyen-vien__bo-loc .bo-loc-danh-sach__truong {
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+}
+
+.trang-huan-luyen-vien__dang-tai-lai,
+.trang-huan-luyen-vien__loi-phan-trang {
+  margin: 0 0 0.75rem;
+  color: var(--mau-chu-phu);
+  font-size: 0.84rem;
+}
+
+.trang-huan-luyen-vien__loi-phan-trang {
+  color: var(--mau-nguy-hiem);
+}
+
+.trang-huan-luyen-vien .bang-du-lieu table {
+  min-width: 1180px;
+}
+
+@media (max-width: 1023px) {
+  .trang-huan-luyen-vien__bo-loc .bo-loc-danh-sach__truong {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .trang-huan-luyen-vien__bo-loc {
+    padding: 1rem;
+  }
+
+  .trang-huan-luyen-vien__bo-loc-dau {
+    display: block;
+  }
+
+  .trang-huan-luyen-vien__goi-y {
+    max-width: none;
+    margin-top: 0.65rem;
+    text-align: left;
+  }
+
+  .trang-huan-luyen-vien__bo-loc .bo-loc-danh-sach__truong {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* FE2-T03/T04 Admin PT detail: safe Account summary and explicit profile blocker. */
+.trang-chi-tiet-huan-luyen-vien {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+}
+
+.the-chi-tiet-huan-luyen-vien {
+  min-width: 0;
+  padding: 1.35rem;
+  border: 1px solid var(--mau-vien);
+  border-top: 3px solid var(--mau-accent-dam);
+  border-radius: var(--bo-tron-lon);
+  background: var(--mau-nen-trang);
+  box-shadow: var(--mau-bong-the);
+}
+
+.the-chi-tiet-huan-luyen-vien--nhan-dien {
+  border-top-color: var(--mau-chinh);
+}
+
+.the-chi-tiet-huan-luyen-vien__dau {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+  margin-bottom: 1rem;
+}
+
+.the-chi-tiet-huan-luyen-vien__dau h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.35rem;
+}
+
+.the-chi-tiet-huan-luyen-vien__nhan-khu-vuc {
+  margin: 0;
+  color: var(--mau-chinh-hover);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.the-chi-tiet-huan-luyen-vien__phu-de,
+.the-chi-tiet-huan-luyen-vien__ghi-chu {
+  max-width: 42rem;
+  margin: 0.45rem 0 0;
+  color: var(--mau-chu-phu);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.the-chi-tiet-huan-luyen-vien__phu-de {
+  overflow-wrap: anywhere;
+}
+
+.the-chi-tiet-huan-luyen-vien__ghi-chu {
+  max-width: 26rem;
+  text-align: right;
+}
+
+.luoi-thuoc-tinh-huan-luyen-vien {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0;
+}
+
+.luoi-thuoc-tinh-huan-luyen-vien > div {
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--mau-vien);
+  border-radius: var(--bo-tron-nho);
+  background: var(--mau-nen-phu);
+}
+
+.luoi-thuoc-tinh-huan-luyen-vien dt {
+  color: var(--mau-chu-phu);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.luoi-thuoc-tinh-huan-luyen-vien dd {
+  min-width: 0;
+  margin: 0.35rem 0 0;
+  color: var(--mau-chu-chinh);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.luoi-thuoc-tinh-huan-luyen-vien__gia-tri-dai {
+  word-break: break-word;
+}
+
+.luoi-thuoc-tinh-huan-luyen-vien--vai-tro,
+.luoi-thuoc-tinh-huan-luyen-vien--ho-so {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.chan-tinh-nang-bi-chan {
+  min-width: 0;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--mau-vien);
+  border-left: 4px solid var(--mau-canh-bao);
+  border-radius: var(--bo-tron-lon);
+  background: var(--mau-nen-phu);
+}
+
+.chan-tinh-nang-bi-chan__dau {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.chan-tinh-nang-bi-chan__nhan-khu-vuc {
+  margin: 0;
+  color: var(--mau-chu-phu);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.chan-tinh-nang-bi-chan h3 {
+  margin: 0.25rem 0 0;
+  font-size: 1.1rem;
+}
+
+.chan-tinh-nang-bi-chan__ma {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--mau-vien);
+  border-radius: var(--bo-tron-nho);
+  background: var(--mau-nen-trang);
+  color: var(--mau-chu-chinh);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.chan-tinh-nang-bi-chan__mo-ta,
+.chan-tinh-nang-bi-chan__hanh-dong p {
+  margin: 0.85rem 0 0;
+  color: var(--mau-chu-phu);
+  line-height: 1.55;
+}
+
+.chan-tinh-nang-bi-chan__hanh-dong {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--mau-vien);
+}
+
+.chan-tinh-nang-bi-chan__hanh-dong p {
+  margin-top: 0;
+}
+
+@media (max-width: 1023px) {
+  .luoi-thuoc-tinh-huan-luyen-vien,
+  .luoi-thuoc-tinh-huan-luyen-vien--vai-tro,
+  .luoi-thuoc-tinh-huan-luyen-vien--ho-so {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .the-chi-tiet-huan-luyen-vien,
+  .chan-tinh-nang-bi-chan {
+    padding: 1rem;
+  }
+
+  .the-chi-tiet-huan-luyen-vien__dau,
+  .chan-tinh-nang-bi-chan__dau {
+    display: block;
+  }
+
+  .the-chi-tiet-huan-luyen-vien__ghi-chu {
+    max-width: none;
+    margin-top: 0.65rem;
+    text-align: left;
+  }
+
+  .the-chi-tiet-huan-luyen-vien__dau > [data-testid="trang-thai-tai-khoan"],
+  .chan-tinh-nang-bi-chan__ma {
+    display: inline-block;
+    margin-top: 0.75rem;
+  }
+
+  .luoi-thuoc-tinh-huan-luyen-vien,
+  .luoi-thuoc-tinh-huan-luyen-vien--vai-tro,
+  .luoi-thuoc-tinh-huan-luyen-vien--ho-so {
     grid-template-columns: minmax(0, 1fr);
   }
 }

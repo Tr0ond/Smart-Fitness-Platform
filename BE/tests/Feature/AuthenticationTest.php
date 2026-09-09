@@ -105,9 +105,19 @@ class AuthenticationTest extends TestCase
 
     public function test_valid_bearer_token_returns_safe_current_user_and_updates_last_used(): void
     {
+        $hienTai = CarbonImmutable::parse('2026-08-29 06:00:00.123456', 'UTC');
+        CarbonImmutable::setTestNow($hienTai);
         $fixture = $this->taoNguoiDungAuth(['MEMBER', 'PT']);
         $rawToken = (string) $this->dangNhapApi($fixture['user']->thu_dien_tu)->json('data.access_token');
+        $maBamThe = hash('sha256', $rawToken);
+        $this->assertNull(DB::table('the_truy_cap')->where('ma_bam_the', $maBamThe)->value('su_dung_gan_nhat_luc'));
+        $this->assertSame(
+            $hienTai->format('Y-m-d H:i:s.u'),
+            DB::table('the_truy_cap')->where('ma_bam_the', $maBamThe)->value('ngay_cap_nhat'),
+        );
 
+        $thoiDiemSuDung = $hienTai->addMinutes(9);
+        CarbonImmutable::setTestNow($thoiDiemSuDung);
         $this->getJson('/api/auth/me', $this->bearer($rawToken))
             ->assertOk()
             ->assertJsonPath('data.id', $fixture['user']->getKey())
@@ -115,7 +125,14 @@ class AuthenticationTest extends TestCase
             ->assertJsonPath('data.roles', ['MEMBER', 'PT'])
             ->assertJsonMissingPath('data.mat_khau_bam')
             ->assertJsonMissingPath('data.ma_bam_the');
-        $this->assertNotNull(DB::table('the_truy_cap')->where('ma_bam_the', hash('sha256', $rawToken))->value('su_dung_gan_nhat_luc'));
+        $this->assertSame(
+            $thoiDiemSuDung->format('Y-m-d H:i:s.u'),
+            DB::table('the_truy_cap')->where('ma_bam_the', $maBamThe)->value('su_dung_gan_nhat_luc'),
+        );
+        $this->assertSame(
+            $thoiDiemSuDung->format('Y-m-d H:i:s.u'),
+            DB::table('the_truy_cap')->where('ma_bam_the', $maBamThe)->value('ngay_cap_nhat'),
+        );
     }
 
     public function test_missing_malformed_and_unknown_bearer_tokens_are_rejected(): void

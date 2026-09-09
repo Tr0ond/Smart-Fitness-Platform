@@ -6,6 +6,8 @@ import {
   taiThongTinNguoiDung as taiThongTinNguoiDungApi,
 } from '../services/xac_thuc.api.js'
 import { xoaDuLieuTaiKhoanNeuDaKhoiTao } from './tai_khoan.store.js'
+import { xoaDuLieuHuanLuyenVienNeuDaKhoiTao } from './huan_luyen_vien.store.js'
+import { xoaDuLieuPhanCongPtNeuDaKhoiTao } from './phan_cong_pt.store.js'
 import {
   docTokenPhienDangNhap,
   docVaiTroDangDung,
@@ -152,6 +154,8 @@ export const useXacThucStore = defineStore('xac_thuc', {
       this.loiKhoiPhucPhien = null
       xoaDuLieuPhienDangNhap()
       xoaDuLieuTaiKhoanNeuDaKhoiTao()
+      xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
+      xoaDuLieuPhanCongPtNeuDaKhoiTao()
     },
 
     /**
@@ -170,6 +174,8 @@ export const useXacThucStore = defineStore('xac_thuc', {
       this.vaiTroDangDung = null
       this.loiKhoiPhucPhien = taoLoiKhoiPhucAnToan(error)
       xoaDuLieuTaiKhoanNeuDaKhoiTao()
+      xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
+      xoaDuLieuPhanCongPtNeuDaKhoiTao()
     },
 
     /**
@@ -200,6 +206,8 @@ export const useXacThucStore = defineStore('xac_thuc', {
 
       if (actorTruocDo !== this.vaiTroDangDung) {
         xoaDuLieuTaiKhoanNeuDaKhoiTao()
+        xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
+        xoaDuLieuPhanCongPtNeuDaKhoiTao()
       }
 
       return nguoiDung
@@ -351,6 +359,8 @@ export const useXacThucStore = defineStore('xac_thuc', {
 
       if (actorTruocDo !== vaiTro) {
         xoaDuLieuTaiKhoanNeuDaKhoiTao()
+        xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
+        xoaDuLieuPhanCongPtNeuDaKhoiTao()
       }
 
       return vaiTro

@@ -135,6 +135,7 @@ class FinalBackendIntegrationTest extends TestCase
     public function test_payment_chat_direct_service_and_reassignment_preserve_rights_and_history(): void
     {
         $fixture = $this->taoBoPtChatFixtures(kemTheoToken: true);
+        $this->dongBoChiNhanhCacActorTrongScenario($fixture);
         $package = $this->taoGoiTapMembership($fixture['admin'], [], [
             'cho_phep_vao_phong_tap' => true,
             'cho_phep_tro_ly_tap_luyen' => true,
@@ -386,6 +387,27 @@ class FinalBackendIntegrationTest extends TestCase
         $this->assertSame(0, DB::table('dang_ky_goi_tap')->where('hoi_vien_id', $owner['member_id'])->count());
         $this->assertSame(0, DB::table('ky_han_hoi_vien')->where('hoi_vien_id', $owner['member_id'])->count());
         $this->assertDatabaseHas('phien_tap', ['id' => $sessionId, 'trang_thai' => 'HOAN_THANH']);
+    }
+
+    /**
+     * Dong bo chi nhanh cua cac actor trong scenario de kiem chung reassign cung pham vi.
+     *
+     * Dau vao: fixture PT Chat co Admin, Member A/B va PT A/B cung branch_id.
+     * Cach hoat dong: gan chi_nhanh_id cua bon tai khoan ve chi nhanh Admin fixture.
+     * Ket qua: Member A co the duoc phan cong lai cho PT B trong cung chi nhanh.
+     * Side effect: chi cap nhat cac dong nguoi_dung cua fixture nay trong giao dich test.
+     * Business Rule: assignment chi cho phep hai actor thuoc cung chi nhanh cua Admin.
+     */
+    private function dongBoChiNhanhCacActorTrongScenario(array $fixture): void
+    {
+        DB::table('nguoi_dung')
+            ->whereIn('id', [
+                $fixture['member_a']['user']->getKey(),
+                $fixture['member_b']['user']->getKey(),
+                $fixture['pt_a']['user']->getKey(),
+                $fixture['pt_b']['user']->getKey(),
+            ])
+            ->update(['chi_nhanh_id' => $fixture['admin']['branch_id']]);
     }
 
     /** @return array<string, string> */

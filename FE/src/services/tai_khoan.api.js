@@ -169,6 +169,26 @@ export async function taiDanhSachHoiVien(boLoc = {}) {
 }
 
 /**
+ * Tai danh sach Account dang co role PT cho man hinh Admin Huan luyen vien.
+ *
+ * Dau vao: boLoc chi gom search, status, page va per_page tu bo loc PT.
+ * Cach hoat dong: dung chung contract Account list, bo qua role/branch va moi truong
+ * authority do caller truyen vao, sau do gan co dinh `role=PT` o boundary service.
+ * Ket qua: tra envelope Account list `{ data: { items, pagination } }` tu Backend.
+ * Side effect: phat sinh GET read-only; khong tao profile PT, phan cong hay loi moi.
+ * Security Rule: Backend van xac minh ADMIN/branch; role PT chi la invariant cua view.
+ */
+export async function taiDanhSachHuanLuyenVien(boLoc = {}) {
+  return taiDanhSachTaiKhoan({
+    search: boLoc?.search,
+    status: boLoc?.status,
+    page: boLoc?.page,
+    per_page: boLoc?.per_page,
+    role: 'PT',
+  })
+}
+
+/**
  * Tai danh sach Account dang co role RECEPTIONIST cho man hinh Admin Nhan vien le tan.
  *
  * Dau vao: boLoc chi gom search, status, page va per_page tu bo loc Receptionist.
@@ -218,6 +238,20 @@ export async function taiChiTietTaiKhoan(taiKhoanId) {
  * Security Rule: Backend la authority cho account scope; FE khong tin route id hay cache.
  */
 export async function taiChiTietHoiVien(taiKhoanId) {
+  return taiChiTietTaiKhoan(taiKhoanId)
+}
+
+/**
+ * Tai chi tiet Account cho man hinh Huấn luyện viên-oriented cua Admin.
+ *
+ * Dau vao: taiKhoanId positive integer tu named route.
+ * Cach hoat dong: uy quyen cho Account detail wrapper dung chung, nen chi phat sinh
+ * GET `/admin/accounts/{id}` sau safe-ID validation va khong goi API ho so PT rieng.
+ * Ket qua: tra envelope `{ data: account }` de Store xac minh active PT role va DTO.
+ * Side effect: phat sinh GET read-only; khong tao/chinh sua ho so, phan cong hay loi moi.
+ * Security Rule: Backend la authority cho ADMIN/branch; FE khong tu cap quyen tu route id.
+ */
+export async function taiChiTietHuanLuyenVien(taiKhoanId) {
   return taiChiTietTaiKhoan(taiKhoanId)
 }
 

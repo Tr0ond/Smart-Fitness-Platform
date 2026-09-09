@@ -213,6 +213,7 @@ onBeforeUnmount(() => {
       >
         {{ props.moTa }}
       </p>
+      <slot />
       <div class="hop-thoai-xac-nhan__hanh-dong">
         <button
           ref="nutHuy"

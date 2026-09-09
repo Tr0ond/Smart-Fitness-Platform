@@ -17,6 +17,8 @@ class AuthenticationService
 
     private const CAC_VAI_TRO_CHINH_THUC = ['MEMBER', 'PT', 'RECEPTIONIST', 'ADMIN'];
 
+    private const ROUTE_DOC_HO_SO_PT_KHONG_GHI_NHAN_SU_DUNG = 'admin.accounts.trainer-profile.show';
+
     /**
      * Xác minh thông tin đăng nhập và phát hành một Bearer token mới.
      *
@@ -68,7 +70,9 @@ class AuthenticationService
      *
      * Input: Authorization header. Hàm kiểm tra định dạng, SHA-256 hash, hạn,
      * thu hồi và trạng thái tài khoản. Output: NguoiDung cho Laravel guard hoặc
-     * NULL. Side effect: cập nhật mốc sử dụng gần nhất của token hợp lệ.
+     * NULL. Side effect: cập nhật mốc sử dụng gần nhất của token hợp lệ trên
+     * các route thông thường; route đọc hồ sơ PT được đặt tên rõ ràng là
+     * ngoại lệ đọc toàn request và giữ nguyên hàng telemetry.
      */
     public function xacThucYeuCau(Request $request): ?NguoiDung
     {
@@ -91,14 +95,31 @@ class AuthenticationService
             return null;
         }
 
-        TheTruyCap::query()->whereKey($theTruyCap->getKey())->update([
-            'su_dung_gan_nhat_luc' => $hienTai,
-            'ngay_cap_nhat' => $hienTai,
-        ]);
-        $theTruyCap->su_dung_gan_nhat_luc = $hienTai;
+        if (! $this->laYeuCauDocKhongGhiNhanSuDung($request)) {
+            $thoiDiemTelemetry = $hienTai->format('Y-m-d H:i:s.u');
+            TheTruyCap::query()->whereKey($theTruyCap->getKey())->update([
+                'su_dung_gan_nhat_luc' => $thoiDiemTelemetry,
+                'ngay_cap_nhat' => $thoiDiemTelemetry,
+            ]);
+            $theTruyCap->su_dung_gan_nhat_luc = $hienTai;
+        }
         $request->attributes->set(self::CURRENT_TOKEN_ATTRIBUTE, $theTruyCap);
 
         return $theTruyCap->nguoiDung;
+    }
+
+    /**
+     * Xác định request đọc hồ sơ PT cần giữ nguyên telemetry của thẻ truy cập.
+     *
+     * Input: Request đã được Laravel định tuyến.
+     * Cách hoạt động: chỉ so khớp tên route nội bộ do Server đăng ký, không đọc
+     * URL, header hay dữ liệu do Client gửi để quyết định chính sách.
+     * Kết quả: true cho đúng GET hồ sơ PT read-only; false cho mọi route khác.
+     * Side effect: không có; mọi route không khớp vẫn ghi nhận telemetry bình thường.
+     */
+    private function laYeuCauDocKhongGhiNhanSuDung(Request $request): bool
+    {
+        return $request->routeIs(self::ROUTE_DOC_HO_SO_PT_KHONG_GHI_NHAN_SU_DUNG);
     }
 
     /** Thu hồi đúng token đã xác thực của request; không xóa hàng lịch sử. */

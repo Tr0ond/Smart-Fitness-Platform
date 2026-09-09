@@ -11,6 +11,9 @@ use Tests\Support\TestDatabaseGuard;
 require dirname(__DIR__, 2).'/vendor/autoload.php';
 
 [$script, $database, $adminId, $memberId, $trainerId, $startAt, $barrier, $output] = $argv;
+$mode = $argv[8] ?? 'create';
+$assignmentId = isset($argv[9]) ? (int) $argv[9] : null;
+$reason = $argv[10] ?? null;
 TestDatabaseGuard::khoiTaoTienTrinhCon($database);
 
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
@@ -26,11 +29,20 @@ while (! is_file($barrier)) {
 
 try {
     $user = NguoiDung::query()->findOrFail((int) $adminId);
-    $result = $app->make(PtAssignmentService::class)->tao($user, [
-        'member_id' => (int) $memberId,
-        'trainer_id' => (int) $trainerId,
-        'start_at' => $startAt,
-    ]);
+    $service = $app->make(PtAssignmentService::class);
+    $result = match ($mode) {
+        'end' => $service->ketThuc($user, (int) $assignmentId, $reason),
+        'reassign' => $service->phanCongLai($user, (int) $assignmentId, [
+            'trainer_id' => (int) $trainerId,
+            'start_at' => $startAt,
+            'reason' => $reason,
+        ]),
+        default => $service->tao($user, [
+            'member_id' => (int) $memberId,
+            'trainer_id' => (int) $trainerId,
+            'start_at' => $startAt,
+        ]),
+    };
     $line = ['status' => 'success', 'assignment_id' => $result['id']];
 } catch (PtWorkflowException $exception) {
     $line = ['status' => 'error', 'code' => $exception->safeCode, 'http_status' => $exception->responseStatus];
