@@ -1,0 +1,231 @@
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE3_CONTEXT.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE3_CONTEXT.md
+index 4154493..160ad98 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE3_CONTEXT.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE3_CONTEXT.md
+@@ -95,7 +95,7 @@
+ ## 5. Trạng thái Backend & STOP Conditions
+ 
+ - **Backend APIs:** Tất cả API Admin packages, benefits, equipment, muscle-groups, exercises, workout-templates, revisions đều ở trạng thái `READY`. Danh sách không phân trang là scalability risk, không phải blocker MVP.
+-- **STOP Conditions:** Nếu tree request/response lệch actual controller DTO, dừng template form và cập nhật fixture từ source Backend `BE/`; không invent endpoint, stale flag, or field.
++- **STOP Conditions / entry gate:** Chỉ dispatch một writer `FE3-ALL` sau khi `FE-1 PASS` và actual catalog contracts đã `READY`. Nếu tree request/response lệch actual controller DTO, dừng template form và cập nhật fixture từ source Backend `BE/`; không invent endpoint, stale flag, or field.
+ 
+ ---
+ 
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE4_CONTEXT.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE4_CONTEXT.md
+index 85f3aae..aa53953 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE4_CONTEXT.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE4_CONTEXT.md
+@@ -75,13 +75,13 @@
+ ## 5. Trạng thái Backend & STOP Conditions
+ 
+ - **Backend APIs:** Read basics ở trạng thái `READY`. Reconciliation ở trạng thái `BACKEND_FIX_IN_PROGRESS` (BE-FOLLOWUP-01A/01B).
+-- **STOP Conditions:** Chỉ dispatch `FE4-ALL` sau khi BE-FOLLOWUP-01A/01B có contract và test evidence `READY`. Nếu chưa đủ, không tạo writer cho reconciliation, không đánh phase complete và không dùng client join để bù event bị Backend loại.
++- **STOP Conditions / entry gate:** Chỉ dispatch `FE4-ALL` sau khi `FE-1 PASS` và BE-FOLLOWUP-01A/01B có contract cùng test evidence `READY`. Nếu chưa đủ, không tạo writer cho reconciliation, không đánh phase complete và không dùng client join để bù event bị Backend loại.
+ 
+ ---
+ 
+ ## 6. Tiêu chí Nghiệm thu của Task `FE4-ALL`
+ 
+-- [ ] Entry gate xác nhận BE-FOLLOWUP-01A/01B đã READY bằng contract và test evidence trước khi bắt đầu `FE4-ALL`.
++- [ ] Entry gate xác nhận `FE-1 PASS` và BE-FOLLOWUP-01A/01B đã READY bằng contract và test evidence trước khi bắt đầu `FE4-ALL`.
+ - [ ] Hiển thị đầy đủ danh sách thanh toán, bộ lọc, phân trang hoạt động chính xác qua Safe DTO.
+ - [ ] Reconciliation list hiển thị đúng unlinked payment events và abnormal events.
+ - [ ] Tuyệt đối không có bất kỳ nút mutation (sửa/xóa/hoàn tiền/kích hoạt) nào trên giao diện.
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE5_CONTEXT.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE5_CONTEXT.md
+index c872ba2..7c06125 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE5_CONTEXT.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE5_CONTEXT.md
+@@ -69,7 +69,7 @@
+ 2. **RULE GYM 13 & 15 (Bất biến Lịch sử):** RULE GYM 15 quy định nghiêm ngặt: **PT không được sửa Workout Session đã hoàn thành**. Tuyệt đối không hiển thị bất kỳ nút chỉnh sửa (edit button) nào trên màn hình lịch sử buổi tập đã hoàn thành.
+ 3. **Notes No-Side-Effect (Plan V2 Section 17 & Section 31: FE-5):** Thêm ghi chú huấn luyện là hành động bổ sung nhận xét chuyên môn (append-only), không làm biến đổi kế hoạch tập hoặc kết quả phiên tập cũ.
+ 4. **Xử lý Blocker Backend trung thực (BLOCKER-03, 04, 05):** Trước entry gate, dừng dispatch vì thiếu contract/test evidence; sau gate chỉ dùng endpoint PT-scoped chính thức, cấm gọi chéo route `/api/profile/member` hay `/api/workout/*` của Member token.
+-5. **STOP Conditions (Section 31: FE-5):** Chỉ dispatch `FE5-ALL` khi cả ba contract và Backend tests đã READY. Khi đã dispatch, một writer triển khai đủ cả bảy màn hình; không chấp nhận `TinhNangChuaSanSang`, zero-request blocker page hoặc `PARTIALLY_READY` như tiêu chí hoàn tất.
++5. **STOP Conditions (Section 31: FE-5):** Chỉ dispatch `FE5-ALL` sau khi `FE-0 PASS` và cả ba contract cùng Backend tests đã READY. Khi đã dispatch, một writer triển khai đủ cả bảy màn hình; không chấp nhận `TinhNangChuaSanSang`, zero-request blocker page hoặc `PARTIALLY_READY` như tiêu chí hoàn tất.
+ 
+ ---
+ 
+@@ -86,7 +86,7 @@
+ 
+ ### Entry gate của phase
+ 
+-- Controller phải cung cấp evidence cho BLOCKER-03, BLOCKER-04 và BLOCKER-05: contract PT-scoped chính thức, Backend tests đã pass, và phạm vi exact-assignment đã được xác nhận.
++- Controller phải cung cấp evidence cho `FE-0 PASS`, BLOCKER-03, BLOCKER-04 và BLOCKER-05: contract PT-scoped chính thức, Backend tests đã pass, và phạm vi exact-assignment đã được xác nhận.
+ - Khi thiếu bất kỳ evidence nào, trạng thái là WAITING_DEPENDENCY và không tiêu thụ writer/reviewer. Không coi một subset màn hình READY là quyền dispatch.
+ 
+ ---
+@@ -100,5 +100,5 @@
+ - [ ] Lịch sử buổi tập hoàn thành không có nút chỉnh sửa (RULE GYM 13, 15).
+ - [ ] Sau entry gate, ba màn hình Chi tiết, Kế hoạch, Lịch sử gọi đúng contract PT-scoped; không có request trái quyền hoặc placeholder runtime.
+ - [ ] Khi phân công bị kết thúc (403/404): Store tự động xóa dữ liệu học viên đã chọn và chuyển hướng.
+-- [ ] `FE5-ALL` được nghiệm thu như một task tổng hợp duy nhất sau khi cả ba dependency contracts và Backend tests đã READY.
++- [ ] `FE5-ALL` được nghiệm thu như một task tổng hợp duy nhất sau khi `FE-0 PASS`, cả ba dependency contracts và Backend tests đã READY.
+ - [ ] Toàn bộ test của FE-5, lint (`npm run lint`), build sạch sẽ (`npm run build`).
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE6_CONTEXT.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE6_CONTEXT.md
+index a27c0c0..6e64dc9 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE6_CONTEXT.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE6_CONTEXT.md
+@@ -85,7 +85,7 @@
+ - [ ] Hoàn tất buổi tập PT gửi đúng `Idempotency-Key`, chống click trùng lặp.
+ - [ ] Giao diện mô tả trung thực giới hạn dữ liệu của buổi huấn luyện (tối đa 100 bản ghi gần nhất).
+ - [ ] Danh sách đề xuất và xem trước hiển thị chính xác các thay đổi (drawer/modal, không invent route).
+-- [ ] Tạo proposal mới tuân thủ Q13 (chỉ cần phân công hợp lệ, không đòi hỏi Membership/chat/lượt PT) và gửi source `HUAN_LUYEN_VIEN`; PT chỉ là nhãn hiển thị.
++- [ ] Tạo proposal mới tuân thủ Q13 (chỉ cần phân công hợp lệ, không đòi hỏi Membership/chat/lượt PT) và chỉ gửi các trường được verified request contract cho phép; Frontend không gửi, chọn hoặc điều khiển proposal source. Backend tự persist `nguon_de_xuat = HUAN_LUYEN_VIEN`; PT chỉ là nhãn hiển thị/domain wording.
+ - [ ] Không có nút Apply proposal trên Web PT (RULE GYM 24).
+ - [ ] Xử lý xung đột 409 giữ nguyên bản nháp của PT, hướng dẫn refetch.
+ - [ ] Khi unknown outcome, refetch/đối soát bằng cùng stable key trước khi retry; không đổi key hoặc payload để né kết quả chưa rõ.
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE8_CONTEXT.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE8_CONTEXT.md
+index fba0c71..d969b68 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE8_CONTEXT.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE8_CONTEXT.md
+@@ -9,7 +9,7 @@
+ ## 1. Danh sách Màn hình & Routes Triển khai (3 Màn hình)
+ 
+ 1. **Tra cứu Hội viên (`/le-tan/tra-cuu-hoi-vien` — route name: `leTanTraCuuHoiVien`):**
+-   - Tìm kiếm hội viên theo số điện thoại hoặc mã hội viên thuộc chi nhánh phụ trách; contract và Backend tests của `BLOCKER-06` phải READY trước entry gate.
++   - Tìm kiếm hội viên theo mã hội viên, tên, hoặc số điện thoại trong allow-list của contract Receptionist; Backend phải áp dụng branch/resource scope, và contract cùng Backend tests của `BLOCKER-06` phải READY trước entry gate.
+    - Không có contract thì không dispatch writer và không dùng Account Admin route làm workaround; không biến blocker placeholder thành writer acceptance.
+ 2. **Trạng thái Gói & Quyền Vào phòng (`/le-tan/hoi-vien/:id/trang-thai-hoi-vien` — route name: `leTanTrangThaiHoiVien`):**
+    - Xem tình trạng Membership của hội viên do Backend trả về (`DANG_HOAT_DONG`, `HET_HAN`, `CHO_KICH_HOAT`).
+@@ -55,7 +55,7 @@
+    - Tính năng quét bằng Camera chỉ là adapter phụ trợ khi trình duyệt cấp quyền (`navigator.mediaDevices`). Nếu không có camera hoặc người dùng từ chối cấp quyền, ô nhập mã thủ công vẫn luôn hoạt động bình thường, không làm gián đoạn nghiệp vụ tại quầy.
+ 4. **Cô lập Quyền Lễ tân & Blocker Handling (BLOCKER-06, 07):**
+    - Tuyệt đối không gọi API của Admin (xem doanh thu, sửa gói) hay API Member-self làm giải pháp tạm thời.
+-   - **STOP Conditions (Section 31: FE-8):** Chỉ dispatch `FE8-ALL` sau khi cả `BLOCKER-06` và `BLOCKER-07` có contract chính thức cùng Backend test evidence READY. Trước gate, thiếu API là lý do không dispatch; sau gate một writer triển khai đủ cả ba màn hình và shell.
++   - **STOP Conditions (Section 31: FE-8):** Chỉ dispatch `FE8-ALL` sau khi `FE-0 PASS` và cả `BLOCKER-06` cùng `BLOCKER-07` có contract chính thức cùng Backend test evidence READY. Trước gate, thiếu API là lý do không dispatch; sau gate một writer triển khai đủ cả ba màn hình và shell.
+ 
+ ---
+ 
+@@ -79,5 +79,5 @@
+ - [ ] Render kết quả check-in an toàn theo thẩm quyền xác thực của Backend; không hardcode logic 90s trên client.
+ - [ ] Cô lập hoàn toàn quyền Lễ tân, không gọi API Admin hay Member-self làm workaround.
+ - [ ] Hai màn hình Tra cứu và Trạng thái gọi đúng contract Lễ tân sau entry gate; không có placeholder runtime hoặc workaround Admin/Member-self.
+-- [ ] `FE8-ALL` được nghiệm thu như một task tổng hợp duy nhất sau khi cả hai contract và Backend tests đã READY.
++- [ ] `FE8-ALL` được nghiệm thu như một task tổng hợp duy nhất sau khi `FE-0 PASS`, cả hai contract và Backend tests đã READY.
+ - [ ] Toàn bộ test của FE-8, lint (`npm run lint`), build sạch sẽ (`npm run build`).
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE9_CONTEXT.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE9_CONTEXT.md
+index 6c6e3e6..83de18a 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE9_CONTEXT.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE9_CONTEXT.md
+@@ -18,6 +18,11 @@
+ ---
+ 
+ ## 2. Danh mục 7 Nhóm Kiểm tra Nghiệm thu (Section 40 Checklist)
++ 
++### Pre-dispatch entry gate của `FE9-ALL`
++ 
++- Chỉ dispatch một task `FE9-ALL` sau khi `FE-0 PASS` đến `FE-8 PASS` đã có evidence; toàn bộ 7 Backend API blockers phải có implementation, authorization và resource-scope evidence; toàn bộ 4 Backend fix rows phải regression-tested; và realtime/deployment gate phải READY.
++- Nếu dependency thiếu hoặc regress, không dispatch writer/reviewer sớm; giữ trạng thái trung thực `PARTIALLY_READY` hoặc `BLOCKED` theo mức cản trở và không biến checklist subset thành PASS.
+ 
+ ### 1. Cross-Role Isolation & Session Cleanup Audit
+ - Kiểm tra chuyển đổi vai trò: Khi Admin chuyển sang PT hoặc ngược lại, toàn bộ store nghiệp vụ (`tai_khoan`, `hoi_vien_pt`, `tro_chuyen`) phải được xóa trắng.
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/RULE_INDEX.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/RULE_INDEX.md
+index 9693d60..eb3845d 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/RULE_INDEX.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/RULE_INDEX.md
+@@ -45,20 +45,20 @@
+ | **Frontend Phase FE-0 (Foundation)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE0_CONTEXT.md](../.fitness-sdd/context/FE0_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [frontend/visual-ui.md](frontend/visual-ui.md)<br>5. [engineering/coding-conventions.md](engineering/coding-conventions.md) | Historical tasks `FE0-T01`…`FE0-T09`; auth, client, router, layouts, test/lint foundation; no domain screens. |
+ | **Frontend Phase FE-1 (Admin Foundation)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE1_CONTEXT.md](../.fitness-sdd/context/FE1_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [frontend/visual-ui.md](frontend/visual-ui.md)<br>5. [domains/auth-resource-scope.md](domains/auth-resource-scope.md) | Historical tasks `FE1-T01`…`FE1-T08`; requires FE-0 PASS; account-oriented Admin views only. |
+ | **Frontend Phase FE-2 (Admin PT)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE2_CONTEXT.md](../.fitness-sdd/context/FE2_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/auth-resource-scope.md](domains/auth-resource-scope.md)<br>5. [domains/pt-chat.md](domains/pt-chat.md) | Historical tasks `FE2-T01`…`FE2-T08`; account/profile/assignment distinction, exact blockers and fixes. |
+-| **Frontend Phase FE3 (Admin Catalog)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE3_CONTEXT.md](../.fitness-sdd/context/FE3_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/workout.md](domains/workout.md)<br>5. [domains/membership-payment.md](domains/membership-payment.md)<br>6. [engineering/security-integrity.md](engineering/security-integrity.md) | One aggregate task `FE3-ALL` (12 screens); Package, Equipment, Muscle Group, Exercise, Template; Q11/Q01, M061, exact error `INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE`, audit `CAP_NHAT_TRANG_THAI_NHOM_CO`, `WORKOUT_TEMPLATE_STALE`. |
+-| **Frontend Phase FE4 (Admin Payment)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE4_CONTEXT.md](../.fitness-sdd/context/FE4_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/membership-payment.md](domains/membership-payment.md) | One aggregate task `FE4-ALL` (3 screens); read-only Payment/reconciliation; entry waits for BE-FOLLOWUP-01A/01B. |
+-| **Frontend Phase FE5 (PT Workspace)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE5_CONTEXT.md](../.fitness-sdd/context/FE5_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/pt-chat.md](domains/pt-chat.md)<br>5. [domains/workout.md](domains/workout.md)<br>6. [domains/auth-resource-scope.md](domains/auth-resource-scope.md) | One aggregate task `FE5-ALL` (7 screens); dispatch only after BLOCKER-03/04/05 contracts and Backend tests. |
++| **Frontend Phase FE3 (Admin Catalog)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE3_CONTEXT.md](../.fitness-sdd/context/FE3_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/workout.md](domains/workout.md)<br>5. [domains/membership-payment.md](domains/membership-payment.md)<br>6. [engineering/security-integrity.md](engineering/security-integrity.md) | One aggregate task `FE3-ALL` (12 screens); entry requires FE-1 PASS and actual catalog contracts READY; Package, Equipment, Muscle Group, Exercise, Template; Q11/Q01, M061, exact error `INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE`, audit `CAP_NHAT_TRANG_THAI_NHOM_CO`, `WORKOUT_TEMPLATE_STALE`. |
++| **Frontend Phase FE4 (Admin Payment)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE4_CONTEXT.md](../.fitness-sdd/context/FE4_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/membership-payment.md](domains/membership-payment.md) | One aggregate task `FE4-ALL` (3 screens); entry requires FE-1 PASS plus BE-FOLLOWUP-01A/01B contract/test evidence PASS; read-only Payment/reconciliation. |
++| **Frontend Phase FE5 (PT Workspace)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE5_CONTEXT.md](../.fitness-sdd/context/FE5_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/pt-chat.md](domains/pt-chat.md)<br>5. [domains/workout.md](domains/workout.md)<br>6. [domains/auth-resource-scope.md](domains/auth-resource-scope.md) | One aggregate task `FE5-ALL` (7 screens); entry requires FE-0 PASS plus BLOCKER-03/04/05 contracts and Backend tests PASS. |
+ | **Frontend Phase FE6 (PT Direct + Proposal)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE6_CONTEXT.md](../.fitness-sdd/context/FE6_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/pt-chat.md](domains/pt-chat.md)<br>5. [domains/workout.md](domains/workout.md) | One aggregate task `FE6-ALL` (3 screens); requires FE5-ALL PASS; stable key, Q06, Q13. |
+ | **Frontend Phase FE7 (PT Realtime Chat)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE7_CONTEXT.md](../.fitness-sdd/context/FE7_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/pt-chat.md](domains/pt-chat.md)<br>5. [domains/auth-resource-scope.md](domains/auth-resource-scope.md) | One aggregate task `FE7-ALL` (1 screen); requires FE5-ALL, approved dependency compatibility, and Reverb/BE-FOLLOWUP-04 deployment readiness. |
+-| **Frontend Phase FE8 (Receptionist Portal)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE8_CONTEXT.md](../.fitness-sdd/context/FE8_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/membership-payment.md](domains/membership-payment.md)<br>5. [domains/auth-resource-scope.md](domains/auth-resource-scope.md) | One aggregate task `FE8-ALL` (3 screens); dispatch only after BLOCKER-06/07 contracts and Backend tests. |
+-| **Frontend Phase FE9 (Final Acceptance)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE9_CONTEXT.md](../.fitness-sdd/context/FE9_CONTEXT.md)<br>3. [engineering/testing-definition-of-done.md](engineering/testing-definition-of-done.md)<br>4. [engineering/security-integrity.md](engineering/security-integrity.md)<br>5. [frontend/visual-ui.md](frontend/visual-ui.md) | One aggregate task `FE9-ALL`; full final gate, no PASS while required blocker/fix/deployment evidence is open. |
++| **Frontend Phase FE8 (Receptionist Portal)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE8_CONTEXT.md](../.fitness-sdd/context/FE8_CONTEXT.md)<br>3. [frontend/vue-core.md](frontend/vue-core.md)<br>4. [domains/membership-payment.md](domains/membership-payment.md)<br>5. [domains/auth-resource-scope.md](domains/auth-resource-scope.md) | One aggregate task `FE8-ALL` (3 screens); entry requires FE-0 PASS plus BLOCKER-06/07 contracts and Backend tests PASS. |
++| **Frontend Phase FE9 (Final Acceptance)** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [FE9_CONTEXT.md](../.fitness-sdd/context/FE9_CONTEXT.md)<br>3. [engineering/testing-definition-of-done.md](engineering/testing-definition-of-done.md)<br>4. [engineering/security-integrity.md](engineering/security-integrity.md)<br>5. [frontend/visual-ui.md](frontend/visual-ui.md) | One aggregate task `FE9-ALL`; entry requires FE-0 through FE-8 PASS, all 7 Backend API blockers and 4 fix rows resolved/regression-tested, and realtime/deployment gate ready; no PASS while evidence is open. |
+ | **Reviewer / Test Verification Agent** | 1. [PROJECT_CORE.md](PROJECT_CORE.md)<br>2. [engineering/testing-definition-of-done.md](engineering/testing-definition-of-done.md)<br>3. Module domain tương ứng của task<br>4. Task context & Git diff | **Quy tắc:** RULE CODE 19, 20.<br>Tiêu chí nghiệm thu DoD, Test Cases 48–54.2, evidence logs. |
+ 
+ ---
+ 
+ ## 4. Phase execution and authoritative counts
+ 
+-FE-3 → FE-9 mỗi phase là đúng một task tổng hợp: FE3-ALL, FE4-ALL, FE5-ALL, FE6-ALL, FE7-ALL, FE8-ALL, FE9-ALL. Các mục checklist không phải task con và không cho phép dispatch writer chỉ cho READY subset. FE5-ALL chờ BLOCKER-03/04/05, FE8-ALL chờ BLOCKER-06/07, FE7-ALL chờ FE5-ALL, dependency compatibility và Reverb/BE-FOLLOWUP-04 deployment readiness.
++FE-3 → FE-9 mỗi phase là đúng một task tổng hợp: FE3-ALL, FE4-ALL, FE5-ALL, FE6-ALL, FE7-ALL, FE8-ALL, FE9-ALL. Các mục checklist không phải task con và không cho phép dispatch writer chỉ cho READY subset. FE3-ALL chờ FE-1 PASS và catalog contracts READY; FE4-ALL chờ FE-1 PASS và BE-FOLLOWUP-01A/01B; FE5-ALL chờ FE-0 PASS và BLOCKER-03/04/05; FE6-ALL chờ FE5-ALL PASS; FE7-ALL chờ FE5-ALL PASS, dependency compatibility và Reverb/BE-FOLLOWUP-04; FE8-ALL chờ FE-0 PASS và BLOCKER-06/07; FE9-ALL chờ FE-0 → FE-8 PASS cùng toàn bộ backend/fix/realtime gates.
+ 
+ Các count authoritative của Vue plan phải giữ nguyên: 65 capability rows, 50 router records, 48 screens = 27 Admin + 12 PT + 4 Receptionist + 5 shared, 7 Backend API blockers và 4 Backend fix-in-progress rows.
+ 
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/TASK_PACKET_TEMPLATE.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/TASK_PACKET_TEMPLATE.md
+index df37399..23f08cc 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/TASK_PACKET_TEMPLATE.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/TASK_PACKET_TEMPLATE.md
+@@ -2,7 +2,7 @@
+ 
+ > **Location:** `.fitness-sdd/context/TASK_PACKET_TEMPLATE.md`  
+ > **Mục đích:** Khung truyền giao nhiệm vụ cho Subagent mà không làm phình ngữ cảnh lịch sử (Zero History Bloat).  
+-> **Quy tắc:** Subagent chỉ nạp các file được chỉ định trong mục `REQUIRED_CONTEXT`. Tuyệt đối không đọc toàn bộ canonical `PROJECT_RULES.md` hay toàn bộ `VUE_WEB_IMPLEMENTATION_PLAN_V2.md`.
++> **Quy tắc:** Subagent mặc định chỉ nạp các file được chỉ định trong mục `REQUIRED_CONTEXT` và minimal layered set; không đọc toàn bộ canonical `PROJECT_RULES.md` hay toàn bộ `VUE_WEB_IMPLEMENTATION_PLAN_V2.md`. Ngoại lệ bắt buộc: nếu controller hoặc applicable role contract yêu cầu full read, hoặc có conflict/ambiguity/escalation, phải đọc authority được chỉ định hoàn toàn theo chunk tuần tự đến EOF.
+ 
+ ---
+ 
+@@ -72,22 +72,26 @@ Khi hoàn thành nhiệm vụ, ghi báo cáo tại EXPECTED_REPORT và phản h
+ 
+ ```markdown
+ ### Báo cáo Hoàn thành Nhiệm vụ: [TASK_ID]
+-1. Mục tiêu module
+-2. Phạm vi và actor/use case
+-3. File đã tạo
+-4. File đã sửa
+-5. Hàm/component/module liên quan
+-6. Database/API/contract impact
+-7. Business rules và Q decisions
+-8. Authorization/resource scope
+-9. Validation và failure cases
+-10. Transaction/concurrency/idempotency/audit
+-11. Error/status mapping
+-12. Tests/checks đã chạy và kết quả chính xác
+-13. Evidence cuối trạng thái và baseline/path check
+-14. Chưa hoàn tất hoặc blocker
+-15. Rủi ro còn lại
++1. Muc tieu module
++2. File da tao
++3. File da sua
++4. Database lien quan
++5. API da tao/sua
++6. Ham chinh
++   - ten ham
++   - muc dich
++   - cach hoat dong
++7. Business Rule da xu ly
++8. Authorization
++9. Validation
++10. Transaction / Idempotency
++11. Error Case
++12. Test Case
++13. Test Result
++14. Phan chua hoan thanh
++15. Rui ro con lai
+ ```
++Additional phase/task evidence fields may follow the canonical 15 sections: actor/use case, scope, concurrency/audit, exact commands/results, concerns, baseline/path preservation, and dependency-gate evidence. These additions do not replace, reorder, combine, or rename the 15 canonical sections.
+ 
+ #### 8. ĐIỀU KIỆN LEO THANG (ESCALATE WHEN)
+ - Phát hiện xung đột giữa hợp đồng API Backend và yêu cầu giao diện.
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/workout.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/workout.md
+index da3bfd7..113e454 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/workout.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/workout.md
+@@ -29,7 +29,7 @@
+   - *Ví dụ:* Một bài tập Bench Press yêu cầu cả Ghế tập (Bench) và Đòn tạ (Barbell) $\rightarrow$ Phòng tập hoặc người dùng phải có đủ **cả 2 dụng cụ** thì mới được coi là đủ điều kiện thực hiện.
+   - Thiếu bất kỳ một dụng cụ nào trong danh sách đều bị hệ thống coi là không đủ điều kiện (không tự suy diễn quan hệ OR).
+ 
+-### Giáo án Mẫu & Copy-on-Write (Workout Templates — Section 20)
++### Giáo án Mẫu & Copy-on-Write (Workout Templates — Section 21)
+ - Giáo án mẫu của Admin: `giao_an_mau`, `ngay_trong_giao_an`, `bai_tap_trong_giao_an`.
+ - **Cơ chế Copy-on-write:** Khi Member hoặc PT sử dụng giáo án mẫu, hệ thống sao chép (clone) dữ liệu sang kế hoạch riêng của Member (`ke_hoach_tap` / `phien_ban_ke_hoach_tap`).
+ - **`WORKOUT_TEMPLATE_STALE` recovery:** Đây là kết quả 409 optimistic-concurrency khi tạo revision với `expected_content_version` không còn khớp. Client giữ draft, tải lại base và cho người dùng so sánh; đây không phải cờ persistent gắn vào Plan của Member.
+@@ -100,9 +100,9 @@
+ 
+ ### RULE GYM 11 & 12 – Lịch sử Tập luyện Tồn tại Độc lập
+ - **RULE GYM 11:** Khi Membership hết hạn, hội viên vẫn truy cập và xem đầy đủ toàn bộ lịch sử các buổi tập trong quá khứ.
+-- **RULE GYM 12:** Lịch sử tập luyện gắn liền vĩnh viễn với tài khoản của người dùng, không bao giờ bị phụ thuộc, ẩn đi hay xóa bỏ theo chu kỳ gói tập.
++- **RULE GYM 12:** Trong MVP, Membership hết hạn hoặc mua gói mới không được làm ẩn, reset hoặc xóa Workout History cá nhân; mọi retention/anonymization policy ngoài phạm vi này phải theo yêu cầu vận hành/pháp lý được quyết định sau.
+ 
+ ### Q12 & Section 29 – Bảo toàn Lịch sử Dữ liệu (Audit Trail)
+-- **Không hard-delete dữ liệu lịch sử quan trọng:** Tuyệt đối cấm các câu lệnh `DELETE FROM phien_tap`, `DELETE FROM bai_tap_trong_phien`, hoặc `DELETE FROM hiep_tap` trong cơ sở dữ liệu production.
++- **MVP không hard-delete Workout History quan trọng:** Giữ các bảng `phien_tap`, `bai_tap_trong_phien`, `hiep_tap` và các trạng thái lịch sử liên quan trong MVP; thời hạn lưu trữ pháp lý, anonymization và automated purge/archive là yêu cầu vận hành/pháp lý tương lai, không tự invent retention duration hoặc cho phép cơ chế xóa ở đây.
+ - **Bảo toàn ngữ nghĩa lịch sử theo từng miền nghiệp vụ:** Giữ các bản ghi buổi tập dự kiến `HUY` và `DA_THAY_THE`, phiên tập `HUY`, cùng toàn bộ phiên tập hoàn thành (`HOAN_THANH`) bất biến theo đúng canonical domain rules. Lifecycle vô hiệu hóa của Equipment/Exercise và M061 của Muscle Group là các quy tắc riêng; không áp đặt cờ hoặc cơ chế soft-delete phổ quát lên mọi bảng workout.
+ - PT notes là dữ liệu tư vấn riêng; chỉ nêu rằng note không được mutate Plan hoặc Session/history, không mặc định gắn note vào một completed Session.

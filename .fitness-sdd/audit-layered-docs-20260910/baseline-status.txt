@@ -1,0 +1,36 @@
+## Branch
+main
+
+## Initial porcelain status
+ M AGENTS.md
+ M BE/AGENTS.md
+ M BE/README.md
+ M BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php
+ M BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php
+ M BE/app/Models/NhomCo.php
+ M BE/app/Services/Admin/ExerciseCatalogAdminService.php
+ M BE/tests/Feature/AdminCatalogApiTest.php
+ M BE/tests/Feature/AdminCatalogConcurrencyTest.php
+ M BE/tests/Support/run_admin_catalog_action.php
+ M PROJECT_RULES.md
+ M README.md
+ M docs/BACKEND_API_CONTRACT.md
+ M docs/VUE_WEB_COMPLETION_CHECKPOINT.md
+ M docs/VUE_WEB_IMPLEMENTATION_PLAN_V2.md
+ M docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md
+ M docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md
+ M docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md
+ M docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio
+ M docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio
+?? .fitness-rules.rar
+?? .fitness-rules/
+?? .fitness-sdd/
+?? BE/database/migrations/2026_09_10_000061_m061_them_trang_thai_nhom_co.php
+?? docs/thiet_ke_co_so_du_lieu/MUSCLE_GROUP_DEACTIVATION_REPORT.md
+
+## Initial untracked-path inventory
+- `.fitness-rules.rar`
+- `.fitness-rules/` (entire layered rules tree; pre-existing user work)
+- `.fitness-sdd/` (entire SDD/context tree; pre-existing user work, except this workflow scratch directory)
+- `BE/database/migrations/2026_09_10_000061_m061_them_trang_thai_nhom_co.php`
+- `docs/thiet_ke_co_so_du_lieu/MUSCLE_GROUP_DEACTIVATION_REPORT.md`

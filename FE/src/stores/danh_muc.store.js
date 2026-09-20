@@ -1,0 +1,307 @@
+import { defineStore, getActivePinia } from 'pinia'
+import {
+  capNhatBaiTap,
+  taiChiTietBaiTap,
+  taiDanhSachBaiTap,
+  taoBaiTap,
+} from '../services/bai_tap.api.js'
+import {
+  capNhatDungCu,
+  taiDanhSachDungCu,
+  taoDungCu,
+} from '../services/dung_cu.api.js'
+import {
+  capNhatGiaoAnMau,
+  taiChiTietGiaoAnMau,
+  taiDanhSachGiaoAnMau,
+  taoGiaoAnMau,
+  taoPhienBanGiaoAnMau,
+} from '../services/giao_an_mau.api.js'
+import {
+  capNhatGoiTap,
+  taiChiTietGoiTap,
+  taiDanhSachGoiTap,
+  taoGoiTap,
+  thayTheQuyenLoiGoiTap,
+} from '../services/goi_tap.api.js'
+import {
+  capNhatNhomCo,
+  taiDanhSachNhomCo,
+  taoNhomCo,
+} from '../services/nhom_co.api.js'
+
+function taoLoiAnToan(error, fallback) {
+  const fieldErrors = Object.fromEntries(Object.entries(error?.fieldErrors ?? {})
+    .filter(([, values]) => Array.isArray(values))
+    .map(([field, values]) => [field, values.filter((value) => typeof value === 'string')]))
+  return Object.freeze({
+    httpStatus: Number.isInteger(error?.httpStatus) ? error.httpStatus : null,
+    code: typeof error?.code === 'string' ? error.code : null,
+    message: typeof error?.message === 'string' && error.message.trim() !== '' ? error.message : fallback,
+    fieldErrors,
+    isNetworkError: error?.isNetworkError === true,
+    ...(error?.outcomeUnknown === true ? { outcomeUnknown: true } : {}),
+  })
+}
+
+function laLoiTamThoi(error) {
+  return error?.isNetworkError === true || (Number.isInteger(error?.httpStatus) && error.httpStatus >= 500)
+}
+
+function layMang(phanHoi) {
+  const data = phanHoi?.data ?? phanHoi
+  if (!Array.isArray(data)) throw { code: 'CATALOG_LIST_RESPONSE_INVALID', message: 'Dữ liệu danh sách danh mục không hợp lệ.' }
+  return data
+}
+
+function layBanGhi(phanHoi) {
+  const data = phanHoi?.data ?? phanHoi
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) throw { code: 'CATALOG_DETAIL_RESPONSE_INVALID', message: 'Dữ liệu chi tiết danh mục không hợp lệ.' }
+  return data
+}
+
+function taoTaiNguyen() {
+  return {
+    danhSach: [],
+    chiTiet: null,
+    dangTai: false,
+    dangTaiChiTiet: false,
+    loi: null,
+    loiChiTiet: null,
+    daTaiLanDau: false,
+    soThuTu: 0,
+    soThuTuChiTiet: 0,
+    dangMutation: false,
+    loiMutation: null,
+    ketQuaMutation: null,
+    cacheHetHanLuc: 0,
+  }
+}
+
+function taoState() {
+  return {
+    goiTap: taoTaiNguyen(),
+    dungCu: taoTaiNguyen(),
+    nhomCo: taoTaiNguyen(),
+    baiTap: taoTaiNguyen(),
+    giaoAnMau: taoTaiNguyen(),
+    boLocBaiTap: { search: '', status: '' },
+  }
+}
+
+function layTaiNguyen(store, khoa) {
+  return store[khoa]
+}
+
+/**
+ * Muc dich: nap danh sach danh muc va lam moi snapshot dung cho list/reconcile.
+ * Dau vao: resource key, ham GET, fallback an toan va tuy chon cache/bo qua cache.
+ * Xu ly: tang sequence de bo qua response cu, xoa loi cu, doc envelope va chi nhan response moi nhat.
+ * Ket qua: danh sach authoritative hoac null khi loi; loi duoc chuan hoa trong resource state.
+ * Side effect: cap nhat loading/cache/error va danh dau da tai; khong tu dong retry mutation.
+ * Quy tac/Contract: Backend la authority; reconciliation status phai GET fresh, khong suy dien tu loi sticky.
+ */
+async function taiDanhSachTaiNguyen(store, khoa, taiApi, fallback, { cacheTrongMs = 0, boQuaCache = false } = {}) {
+  const resource = layTaiNguyen(store, khoa)
+  if (!boQuaCache && cacheTrongMs > 0 && resource.daTaiLanDau && resource.cacheHetHanLuc > Date.now()) {
+    return resource.danhSach
+  }
+  const sequence = ++resource.soThuTu
+  resource.dangTai = true
+  resource.loi = null
+  try {
+    const data = layMang(await taiApi())
+    if (sequence !== resource.soThuTu) return null
+    resource.danhSach = data
+    resource.daTaiLanDau = true
+    resource.cacheHetHanLuc = cacheTrongMs > 0 ? Date.now() + cacheTrongMs : 0
+    return data
+  } catch (error) {
+    if (sequence === resource.soThuTu) {
+      resource.loi = taoLoiAnToan(error, fallback)
+      resource.daTaiLanDau = true
+    }
+    return null
+  } finally {
+    if (sequence === resource.soThuTu) resource.dangTai = false
+  }
+}
+
+/**
+ * Muc dich: nap DTO chi tiet lam nguon cho form metadata va status reconciliation.
+ * Dau vao: resource key, id da duoc service kiem tra va ham GET tuong ung.
+ * Xu ly: tang sequence chi tiet, xoa loi cu, validate envelope va bo qua response den muon.
+ * Ket qua: DTO authoritative hoac null; loi sanitized duoc giu o loiChiTiet de page cho retry.
+ * Side effect: thay snapshot chi tiet va loading state; khong sua relation, status hay lich su.
+ * Quy tac/Contract: khong retry ngam; page phai GET lai khi ket qua mutation chua ro.
+ */
+async function taiChiTietTaiNguyen(store, khoa, id, taiApi, fallback) {
+  const resource = layTaiNguyen(store, khoa)
+  const sequence = ++resource.soThuTuChiTiet
+  resource.dangTaiChiTiet = true
+  resource.loiChiTiet = null
+  resource.chiTiet = null
+  try {
+    const data = layBanGhi(await taiApi(id))
+    if (sequence !== resource.soThuTuChiTiet) return null
+    resource.chiTiet = data
+    return data
+  } catch (error) {
+    if (sequence === resource.soThuTuChiTiet) resource.loiChiTiet = taoLoiAnToan(error, fallback)
+    return null
+  } finally {
+    if (sequence === resource.soThuTuChiTiet) resource.dangTaiChiTiet = false
+  }
+}
+
+/**
+ * Mục đích: điều phối một mutation catalog theo từng resource.
+ * Đầu vào: resource key, callback mutation đã chuẩn hóa payload, fallback và cờ invalidate.
+ * Xử lý: khóa double-submit, xóa lỗi cũ, thực hiện đúng một request và chuẩn hóa kết quả/lỗi.
+ * Kết quả: DTO object khi thành công hoặc null khi lỗi; lỗi tạm thời được đánh dấu outcomeUnknown.
+ * Side effect: cập nhật loading/error/result và invalidate danh sách sau mutation thành công.
+ * Quy tắc/Contract: không retry mù; Backend là authority và caller phải GET đối soát khi chưa rõ.
+ */
+async function thucHienMutation(store, khoa, mutation, fallback, { taiLai = true } = {}) {
+  const resource = layTaiNguyen(store, khoa)
+  if (resource.dangMutation) return null
+  resource.dangMutation = true
+  resource.loiMutation = null
+  resource.ketQuaMutation = null
+  try {
+    const result = layBanGhi(await mutation())
+    resource.ketQuaMutation = result
+    resource.loiMutation = null
+    resource.cacheHetHanLuc = 0
+    if (taiLai) {
+      resource.soThuTu += 1
+      resource.daTaiLanDau = false
+    }
+    return result
+  } catch (error) {
+    resource.loiMutation = taoLoiAnToan({
+      ...error,
+      ...(laLoiTamThoi(error) ? { outcomeUnknown: true } : {}),
+    }, fallback)
+    return null
+  } finally {
+    resource.dangMutation = false
+  }
+}
+
+/**
+ * Clear catalog state only when the Pinia instance has already created it.
+ * This shared cleanup is called from logout, actor-role loss, and current-token 401 paths.
+ */
+export function xoaDuLieuDanhMucNeuDaKhoiTao(pinia = getActivePinia()) {
+  if (!pinia?.state?.value?.danh_muc) return false
+  useDanhMucStore(pinia).xoaDuLieu()
+  return true
+}
+
+export const useDanhMucStore = defineStore('danh_muc', {
+  state: taoState,
+
+  getters: {
+    danhSachGoiTap: (state) => state.goiTap.danhSach,
+    danhSachDungCu: (state) => state.dungCu.danhSach,
+    danhSachNhomCo: (state) => state.nhomCo.danhSach,
+    danhSachBaiTap: (state) => state.baiTap.danhSach,
+    danhSachGiaoAnMau: (state) => state.giaoAnMau.danhSach,
+    chiTietGoiTap: (state) => state.goiTap.chiTiet,
+    chiTietBaiTap: (state) => state.baiTap.chiTiet,
+    chiTietGiaoAnMau: (state) => state.giaoAnMau.chiTiet,
+  },
+
+  actions: {
+    async taiDanhSachGoiTap() {
+      return taiDanhSachTaiNguyen(this, 'goiTap', taiDanhSachGoiTap, 'Không thể tải danh sách gói tập.')
+    },
+    async taiChiTietGoiTap(id) {
+      return taiChiTietTaiNguyen(this, 'goiTap', id, taiChiTietGoiTap, 'Không thể tải chi tiết gói tập.')
+    },
+    async taoGoiTap(payload) {
+      return thucHienMutation(this, 'goiTap', () => taoGoiTap(payload), 'Không thể tạo gói tập.')
+    },
+    async capNhatGoiTap(id, payload) {
+      return thucHienMutation(this, 'goiTap', () => capNhatGoiTap(id, payload), 'Không thể cập nhật gói tập.')
+    },
+    async thayTheQuyenLoiGoiTap(id, payload) {
+      return thucHienMutation(this, 'goiTap', () => thayTheQuyenLoiGoiTap(id, payload), 'Không thể cập nhật quyền lợi gói tập.')
+    },
+
+    async taiDanhSachDungCu({ boQuaCache = false } = {}) {
+      return taiDanhSachTaiNguyen(this, 'dungCu', taiDanhSachDungCu, 'Không thể tải danh sách dụng cụ.', { cacheTrongMs: 30000, boQuaCache })
+    },
+    async taoDungCu(payload) {
+      return thucHienMutation(this, 'dungCu', () => taoDungCu(payload), 'Không thể tạo dụng cụ.')
+    },
+    async capNhatDungCu(id, payload) {
+      return thucHienMutation(this, 'dungCu', () => capNhatDungCu(id, payload), 'Không thể cập nhật dụng cụ.')
+    },
+
+    async taiDanhSachNhomCo({ boQuaCache = false } = {}) {
+      return taiDanhSachTaiNguyen(this, 'nhomCo', taiDanhSachNhomCo, 'Không thể tải danh sách nhóm cơ.', { cacheTrongMs: 30000, boQuaCache })
+    },
+    async taoNhomCo(payload) {
+      return thucHienMutation(this, 'nhomCo', () => taoNhomCo(payload), 'Không thể tạo nhóm cơ.')
+    },
+    async capNhatNhomCo(id, payload) {
+      return thucHienMutation(this, 'nhomCo', () => capNhatNhomCo(id, payload), 'Không thể cập nhật nhóm cơ.')
+    },
+
+    async taiDanhSachBaiTap(boLoc = this.boLocBaiTap) {
+      this.boLocBaiTap = { search: String(boLoc?.search ?? '').trim(), status: String(boLoc?.status ?? '').trim() }
+      return taiDanhSachTaiNguyen(this, 'baiTap', () => taiDanhSachBaiTap(this.boLocBaiTap), 'Không thể tải danh sách bài tập.')
+    },
+    async taiChiTietBaiTap(id) {
+      return taiChiTietTaiNguyen(this, 'baiTap', id, taiChiTietBaiTap, 'Không thể tải chi tiết bài tập.')
+    },
+    async taoBaiTap(payload) {
+      return thucHienMutation(this, 'baiTap', () => taoBaiTap(payload), 'Không thể tạo bài tập.')
+    },
+    async capNhatBaiTap(id, payload) {
+      return thucHienMutation(this, 'baiTap', () => capNhatBaiTap(id, payload), 'Không thể cập nhật bài tập.')
+    },
+
+    async taiDanhSachGiaoAnMau() {
+      return taiDanhSachTaiNguyen(this, 'giaoAnMau', taiDanhSachGiaoAnMau, 'Không thể tải danh sách giáo án mẫu.')
+    },
+    async taiChiTietGiaoAnMau(id) {
+      return taiChiTietTaiNguyen(this, 'giaoAnMau', id, taiChiTietGiaoAnMau, 'Không thể tải chi tiết giáo án mẫu.')
+    },
+    async taiNenGiaoAnMau(id) {
+      return this.taiChiTietGiaoAnMau(id)
+    },
+    async taoGiaoAnMau(payload) {
+      return thucHienMutation(this, 'giaoAnMau', () => taoGiaoAnMau(payload), 'Không thể tạo giáo án mẫu.')
+    },
+    async capNhatGiaoAnMau(id, payload) {
+      return thucHienMutation(this, 'giaoAnMau', () => capNhatGiaoAnMau(id, payload), 'Không thể cập nhật giáo án mẫu.')
+    },
+    async taoPhienBanGiaoAnMau(id, payload) {
+      return thucHienMutation(this, 'giaoAnMau', () => taoPhienBanGiaoAnMau(id, payload), 'Không thể tạo phiên bản giáo án mẫu.', { taiLai: false })
+    },
+
+    xoaDuLieu() {
+      for (const resource of Object.values(this.$state).filter((value) => value?.danhSach && value?.soThuTu !== undefined)) {
+        resource.soThuTu += 1
+        resource.soThuTuChiTiet += 1
+        resource.danhSach = []
+        resource.chiTiet = null
+        resource.dangTai = false
+        resource.dangTaiChiTiet = false
+        resource.loi = null
+        resource.loiChiTiet = null
+        resource.daTaiLanDau = false
+        resource.dangMutation = false
+        resource.loiMutation = null
+        resource.ketQuaMutation = null
+        resource.cacheHetHanLuc = 0
+      }
+      this.boLocBaiTap = { search: '', status: '' }
+    },
+  },
+})
+
+export { taoLoiAnToan }

@@ -1,6 +1,6 @@
 # Smart Fitness Backend
 
-Laravel REST API dùng chung cho Vue Web và React Native. Backend chạy PHP 8.4+, Laravel 13.29 và MariaDB 10.4.32/InnoDB. Trước mọi thay đổi phải đọc toàn bộ [PROJECT_RULES.md](../PROJECT_RULES.md) và [AGENTS.md](../AGENTS.md).
+Laravel REST API dùng chung cho Vue Web và React Native. Backend chạy PHP 8.4+, Laravel 13.29 và MariaDB 10.4.32/InnoDB. Trước mọi thay đổi xem hướng dẫn tại [AGENTS.md](../AGENTS.md) và tra cứu quy tắc qua [.fitness-rules/RULE_INDEX.md](../.fitness-rules/RULE_INDEX.md).
 
 ## Module hiện có
 

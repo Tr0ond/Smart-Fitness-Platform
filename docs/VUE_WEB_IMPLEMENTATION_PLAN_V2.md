@@ -22,7 +22,7 @@ Frontend không được coi guard, nút ẩn, trạng thái Membership hay dữ
 
 Thứ tự áp dụng khi Terra triển khai:
 
-1. `PROJECT_RULES.md` toàn bộ, đặc biệt quyết định Membership/PT/Q05/Q13 mới nhất.
+1. `PROJECT_RULES.md` là Canonical Source of Truth. Nạp qua `.fitness-rules/PROJECT_CORE.md` và các module theo `.fitness-rules/RULE_INDEX.md` (đặc biệt quyết định Membership/PT/Q05/Q13 mới nhất); không bắt buộc đọc toàn bộ file canonical nếu không có xung đột.
 2. Route, middleware, controller, request validation, service, event/channel và test Backend thực tế trong `BE/`.
 3. `docs/BACKEND_API_CONTRACT.md` để tra contract công khai; nếu lệch source thì source và test hiện tại thắng, sau đó ghi nhận lệch tài liệu.
 4. `docs/thiet_ke_co_so_du_lieu/BACKEND_FOLLOW_UP_FIXES.md`, ngày hậu kiểm 31/08/2026, là nguồn trạng thái follow-up mới nhất.
@@ -1936,8 +1936,8 @@ Số batch giữ nhãn lịch sử để dễ đối chiếu roadmap; execution 
 
 ### Chỉ thị bắt buộc cho GPT-5.6 Terra
 
-1. Đọc toàn bộ `PROJECT_RULES.md` trước khi làm.
-2. Đọc toàn bộ `docs/VUE_WEB_IMPLEMENTATION_PLAN_V2.md` trước khi làm.
+1. Đọc `.fitness-rules/PROJECT_CORE.md` và các module quy tắc tương ứng qua `.fitness-rules/RULE_INDEX.md`. Không mặc định đọc toàn bộ `PROJECT_RULES.md` trừ khi gặp xung đột hoặc điều kiện leo thang.
+2. Đọc file Phase Context tương ứng trong `.fitness-sdd/context/` (ví dụ: `FE3_CONTEXT.md`) và Task Packet được giao; không mặc định đọc toàn bộ 2,000 dòng của `VUE_WEB_IMPLEMENTATION_PLAN_V2.md`.
 3. Đọc contract/source Backend thực tế trước mỗi phase.
 4. Triển khai đúng thứ tự FE-0 đến FE-9; chỉ song song theo Phase Gates đã ghi.
 5. Không sửa Backend nếu chưa có task/ủy quyền riêng.

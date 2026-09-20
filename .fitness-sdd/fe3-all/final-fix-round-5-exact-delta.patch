@@ -1,0 +1,537 @@
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\components\\danh_muc\\cay_giao_an.vue" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\components\\danh_muc\\cay_giao_an.vue"
+index 1fb7c59..89e61f0 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\components\\danh_muc\\cay_giao_an.vue"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\components\\danh_muc\\cay_giao_an.vue"
+@@ -12,6 +12,35 @@ const emit = defineEmits(['update:modelValue', 'update:days', 'thayDoi'])
+ const danhSachBaiTap = computed(() => props.exerciseOptions ?? props.baiTap)
+ const danhSachNgay = computed(() => props.days ?? props.modelValue)
+ 
++function laGiaTriBaiTap(value) {
++  return value !== undefined && value !== null && value !== ''
++}
++
++function coCungMaBaiTap(first, second) {
++  return String(first) === String(second)
++}
++
++/**
++ * Giữ lại lựa chọn bài tập đã lưu khi bài tập không còn trong danh sách hoạt động.
++ * Input: dòng bài tập từ DTO và các bài tập hoạt động do Backend cấp cho selector.
++ * Process: chỉ thêm một lựa chọn lịch sử cho dòng đã có exercise_id, đánh dấu lựa chọn đó bị khóa.
++ * Output: danh sách hiển thị; side effect: không thay đổi cây hoặc tự thay thế bài tập.
++ */
++function layDanhSachBaiTapChoDong(item) {
++  const danhSachHoatDong = Array.isArray(danhSachBaiTap.value) ? danhSachBaiTap.value : []
++  if (!laGiaTriBaiTap(item?.exercise_id)) return danhSachHoatDong
++  if (danhSachHoatDong.some((exercise) => coCungMaBaiTap(exercise?.id, item.exercise_id))) return danhSachHoatDong
++
++  return [
++    ...danhSachHoatDong,
++    {
++      id: item.exercise_id,
++      name: item.exercise_name || `Bài tập #${item.exercise_id}`,
++      laLuaChonLichSu: true,
++    },
++  ]
++}
++
+ /**
+  * Emit a copy of the workout-template tree after a user edit.
+  * The tree is copied so revision callers can submit a stable COW payload.
+@@ -19,7 +48,10 @@ const danhSachNgay = computed(() => props.days ?? props.modelValue)
+ function xuLyPhatThayDoi() {
+   const value = danhSachNgay.value.map((day) => ({
+     ...day,
+-    exercises: Array.isArray(day.exercises) ? day.exercises.map((item) => ({ ...item })) : [],
++    exercises: Array.isArray(day.exercises) ? day.exercises.map((item) => ({
++      ...item,
++      notes: item.notes === '' ? null : item.notes,
++    })) : [],
+   }))
+   emit('update:modelValue', value)
+   emit('update:days', value)
+@@ -41,7 +73,19 @@ function xuLyXoaNgay(index) {
+ function xuLyThemBaiTap(day) {
+   const order = (day.exercises?.length ?? 0) + 1
+   day.exercises ??= []
+-  day.exercises.push({ exercise_id: '', order, target_sets: 3, min_reps: 8, max_reps: 12, rest_seconds: 60, notes: '' })
++  day.exercises.push({ exercise_id: '', order, target_sets: 3, min_reps: 8, max_reps: 12, rest_seconds: 60, notes: null })
++  xuLyPhatThayDoi()
++}
++
++function xuLyChonBaiTap(item) {
++  if (danhSachBaiTap.value.some((exercise) => coCungMaBaiTap(exercise?.id, item.exercise_id))) {
++    delete item.exercise_name
++  }
++  xuLyPhatThayDoi()
++}
++
++function xuLyThayDoiGhiChu(item, event) {
++  item.notes = event.target.value === '' ? null : event.target.value
+   xuLyPhatThayDoi()
+ }
+ 
+@@ -109,17 +153,18 @@ function xuLyXoaBaiTap(day, index) {
+             :id="`giao-an-exercise-${dayIndex}-${itemIndex}`"
+             v-model="item.exercise_id"
+             :disabled="props.disabled"
+-            @change="xuLyPhatThayDoi"
++            @change="xuLyChonBaiTap(item)"
+           >
+             <option value="">
+               Chọn bài tập
+             </option>
+             <option
+-              v-for="exercise in danhSachBaiTap"
++              v-for="exercise in layDanhSachBaiTapChoDong(item)"
+               :key="exercise.id"
+               :value="exercise.id"
++              :disabled="exercise.laLuaChonLichSu"
+             >
+-              {{ exercise.name }}
++              {{ exercise.name }}{{ exercise.laLuaChonLichSu ? ' (ngừng sử dụng)' : '' }}
+             </option>
+           </select>
+           <label :for="`giao-an-sets-${dayIndex}-${itemIndex}`">Số hiệp</label>
+@@ -149,6 +194,26 @@ function xuLyXoaBaiTap(day, index) {
+             :disabled="props.disabled"
+             @change="xuLyPhatThayDoi"
+           >
++          <label :for="`giao-an-rest-${dayIndex}-${itemIndex}`">Thời gian nghỉ (giây)</label>
++          <input
++            :id="`giao-an-rest-${dayIndex}-${itemIndex}`"
++            v-model.number="item.rest_seconds"
++            type="number"
++            min="0"
++            max="65535"
++            step="1"
++            required
++            :disabled="props.disabled"
++            @change="xuLyPhatThayDoi"
++          >
++          <label :for="`giao-an-notes-${dayIndex}-${itemIndex}`">Ghi chú bài tập</label>
++          <textarea
++            :id="`giao-an-notes-${dayIndex}-${itemIndex}`"
++            :value="item.notes ?? ''"
++            maxlength="1000"
++            :disabled="props.disabled"
++            @input="xuLyThayDoiGhiChu(item, $event)"
++          />
+           <button
+             class="nut nut--phu"
+             type="button"
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js"
+index 38a5eba..3076a12 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js"
+@@ -9,4 +9,64 @@ describe('cay_giao_an FE3', () => {
+     expect(wrapper.findAll('article')).toHaveLength(2)
+     expect(wrapper.emitted('update:modelValue')?.at(-1)?.[0]).toHaveLength(2)
+   })
++
++  it('hien thi bai tap lich su va cho sua prescription day du', async () => {
++    const wrapper = mount(CayGiaoAn, {
++      props: {
++        modelValue: [{ order: 1, name: 'Ngay 1', estimated_minutes: 45, exercises: [{
++          exercise_id: 11,
++          exercise_name: 'Retired squat',
++          order: 1,
++          target_sets: 3,
++          min_reps: 8,
++          max_reps: 12,
++          rest_seconds: 60,
++          notes: null,
++        }] }],
++        exerciseOptions: [{ id: 12, name: 'Active squat' }],
++      },
++    })
++    const select = wrapper.get('#giao-an-exercise-0-0')
++    expect(select.get('option[value="11"]').text()).toContain('Retired squat')
++    expect(select.get('option[value="11"]').attributes('disabled')).toBeDefined()
++    expect(select.element.value).toBe('11')
++
++    await select.setValue('12')
++    await wrapper.get('#giao-an-rest-0-0').setValue(120)
++    await wrapper.get('#giao-an-notes-0-0').setValue('Keep tempo')
++    expect(wrapper.get('#giao-an-rest-0-0').attributes()).toMatchObject({ min: '0', max: '65535', step: '1', required: '' })
++    expect(wrapper.get('#giao-an-notes-0-0').attributes('maxlength')).toBe('1000')
++    expect(wrapper.emitted('update:modelValue')?.at(-1)?.[0][0].exercises[0]).toEqual({
++      exercise_id: 12,
++      order: 1,
++      target_sets: 3,
++      min_reps: 8,
++      max_reps: 12,
++      rest_seconds: 120,
++      notes: 'Keep tempo',
++    })
++
++    await wrapper.setProps({ disabled: true })
++    expect(wrapper.get('#giao-an-rest-0-0').element.disabled).toBe(true)
++    expect(wrapper.get('#giao-an-notes-0-0').element.disabled).toBe(true)
++  })
++
++  it('xoa ghi chu thanh null', async () => {
++    const wrapper = mount(CayGiaoAn, {
++      props: {
++        modelValue: [{ order: 1, name: 'Ngay 1', estimated_minutes: 45, exercises: [{
++          exercise_id: 12,
++          order: 1,
++          target_sets: 3,
++          min_reps: 8,
++          max_reps: 12,
++          rest_seconds: 60,
++          notes: 'Cu',
++        }] }],
++        exerciseOptions: [{ id: 12, name: 'Active squat' }],
++      },
++    })
++    await wrapper.get('#giao-an-notes-0-0').setValue('')
++    expect(wrapper.emitted('update:modelValue')?.at(-1)?.[0][0].exercises[0].notes).toBeNull()
++  })
+ })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
+index ba7990c..32c60ed 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
+@@ -35,6 +35,10 @@ describe('giao_an_mau.chi_tiet FE3', () => {
+     const wrapper = mount(GiaoAnMauChiTiet)
+     await flushPromises()
+     expect(wrapper.find('#giao-an-detail-status').element.disabled).toBe(true)
++    expect(wrapper.find('#giao-an-rest-0-0').element.value).toBe('60')
++    expect(wrapper.find('#giao-an-rest-0-0').element.disabled).toBe(true)
++    expect(wrapper.find('#giao-an-notes-0-0').element.value).toBe('')
++    expect(wrapper.find('#giao-an-notes-0-0').element.disabled).toBe(true)
+     await wrapper.find('#giao-an-detail-name').setValue('Sức mạnh mới')
+     await wrapper.find('form').trigger('submit')
+     await flushPromises()
+@@ -44,6 +48,35 @@ describe('giao_an_mau.chi_tiet FE3', () => {
+     expect(router.push).toHaveBeenCalledWith({ name: 'adminTaoPhienBanGiaoAnMau', params: { id: 5 } })
+   })
+ 
++  it('giữ exercise_name của bài tập đã ngừng khi danh sách hoạt động không có ID', async () => {
++    api.taiChiTietGiaoAnMau.mockReset().mockResolvedValueOnce(detail('HOAT_DONG', {
++      days: [{
++        order: 1,
++        name: 'Ngày 1',
++        estimated_minutes: 45,
++        exercises: [{
++          exercise_id: 77,
++          exercise_name: 'Bài tập đã ngừng',
++          order: 1,
++          target_sets: 3,
++          min_reps: 8,
++          max_reps: 12,
++          rest_seconds: 45,
++          notes: 'Ghi chú cũ',
++        }],
++      }],
++    }))
++    api.taiDanhSachBaiTap.mockResolvedValueOnce({ data: [] })
++    const wrapper = mount(GiaoAnMauChiTiet)
++    await flushPromises()
++
++    const option = wrapper.find('#giao-an-exercise-0-0 option[value="77"]')
++    expect(option.exists()).toBe(true)
++    expect(option.text()).toContain('Bài tập đã ngừng')
++    expect(option.element.disabled).toBe(true)
++    expect(wrapper.find('#giao-an-notes-0-0').element.value).toBe('Ghi chú cũ')
++  })
++
+   it('status detail chỉ hiển thị read-only và metadata không gửi status', async () => {
+     const wrapper = mount(GiaoAnMauChiTiet)
+     await flushPromises()
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js"
+index ee9c4ac..5ef1dfa 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js"
+@@ -45,6 +45,37 @@ describe('giao_an_mau.tao_moi FE3', () => {
+     expect(router.push).toHaveBeenCalledWith({ name: 'adminChiTietGiaoAnMau', params: { id: 14 } })
+   })
+ 
++  it('chọn bài tập và gửi đủ prescription rest/notes', async () => {
++    api.taiDanhSachBaiTap.mockResolvedValueOnce({ data: [{ id: 11, name: 'Squat' }] })
++    api.taoGiaoAnMau.mockResolvedValueOnce({ data: { id: 15 } })
++    const wrapper = mount(GiaoAnMauTaoMoi)
++    await flushPromises()
++    await dienForm(wrapper)
++    await wrapper.find('.cay-giao-an article > button').trigger('click')
++    await wrapper.find('#giao-an-exercise-0-0').setValue('11')
++    await wrapper.find('#giao-an-rest-0-0').setValue(90)
++    await wrapper.find('#giao-an-notes-0-0').setValue('Giu nhip')
++    await wrapper.find('form').trigger('submit')
++    await flushPromises()
++
++    expect(api.taoGiaoAnMau).toHaveBeenCalledTimes(1)
++    expect(api.taoGiaoAnMau.mock.calls[0][0].days).toEqual([{
++      order: 1,
++      name: 'Ngày 1',
++      estimated_minutes: 45,
++      exercises: [{
++        exercise_id: 11,
++        order: 1,
++        target_sets: 3,
++        min_reps: 8,
++        max_reps: 12,
++        rest_seconds: 90,
++        notes: 'Giu nhip',
++      }],
++    }])
++    expect(router.push).toHaveBeenCalledWith({ name: 'adminChiTietGiaoAnMau', params: { id: 15 } })
++  })
++
+   it('hiển thị lỗi 422 từ server, giữ bản nháp và không điều hướng', async () => {
+     api.taoGiaoAnMau.mockRejectedValueOnce({
+       httpStatus: 422,
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js"
+index d34dae0..da3b2c7 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js"
+@@ -137,6 +137,61 @@ describe('giao_an_mau.tao_phien_ban FE3', () => {
+     expect(router.push).not.toHaveBeenCalled()
+   })
+ 
++  it('thay thế bài tập đã ngừng và giữ prescription đầy đủ trong revision', async () => {
++    const detail = {
++      id: 7,
++      code: 'GA01',
++      name: 'Nền cũ',
++      goal: 'Mục tiêu',
++      level: 'Beginner',
++      sessions_per_week: 1,
++      content_version: 1,
++      status: 'HOAT_DONG',
++      days: [{
++        order: 1,
++        name: 'Ngày 1',
++        estimated_minutes: 45,
++        exercises: [{
++          exercise_id: 77,
++          exercise_name: 'Bài tập đã ngừng',
++          order: 1,
++          target_sets: 3,
++          min_reps: 8,
++          max_reps: 12,
++          rest_seconds: 60,
++          notes: null,
++        }],
++      }],
++    }
++    api.taiChiTietGiaoAnMau.mockReset().mockResolvedValueOnce({ data: detail })
++    api.taiDanhSachBaiTap.mockReset().mockResolvedValueOnce({ data: [{ id: 88, name: 'Bài tập mới' }] })
++    api.taoPhienBanGiaoAnMau.mockReset().mockResolvedValueOnce({ data: { new_template_id: 18 } })
++    api.xuLyGiaoAnMauDaCu.mockImplementation(() => ({ laXungDot: false }))
++
++    const wrapper = mount(GiaoAnMauTaoPhienBan)
++    await flushPromises()
++    expect(wrapper.find('#giao-an-exercise-0-0 option[value="77"]').text()).toContain('Bài tập đã ngừng')
++    await wrapper.find('#giao-an-exercise-0-0').setValue('88')
++    await wrapper.find('#giao-an-rest-0-0').setValue(75)
++    await wrapper.find('#giao-an-notes-0-0').setValue('Thay thế chủ động')
++    await wrapper.find('form').trigger('submit')
++    await flushPromises()
++
++    expect(api.taoPhienBanGiaoAnMau).toHaveBeenCalledTimes(1)
++    const payload = api.taoPhienBanGiaoAnMau.mock.calls[0][1]
++    expect(payload.days[0].exercises[0]).toEqual({
++      exercise_id: 88,
++      order: 1,
++      target_sets: 3,
++      min_reps: 8,
++      max_reps: 12,
++      rest_seconds: 75,
++      notes: 'Thay thế chủ động',
++    })
++    expect(JSON.stringify(payload.days)).not.toContain('77')
++    expect(router.push).toHaveBeenCalledWith({ name: 'adminChiTietGiaoAnMau', params: { id: 18 } })
++  })
++
+   it('khóa double-submit khi POST revision đang chờ và chỉ điều hướng sau khi hoàn tất', async () => {
+     let resolveMutation
+     api.taoPhienBanGiaoAnMau.mockReset().mockReturnValueOnce(new Promise((resolve) => { resolveMutation = resolve }))
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\services\\bai_tap.api.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\services\\bai_tap.api.js"
+index 3995807..1a0734c 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\services\\bai_tap.api.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\services\\bai_tap.api.js"
+@@ -77,7 +77,7 @@ function taoPayloadBaiTap(value = {}, { partial = false } = {}) {
+     if (current !== undefined) body[field] = current
+   }
+   if (value.metadata !== undefined) {
+-    if (value.metadata === null || typeof value.metadata !== 'object' || Array.isArray(value.metadata)) throw taoLoiDauVao('Metadata bài tập không hợp lệ.', { metadata: ['Phải là object.'] })
++    if (value.metadata !== null && (typeof value.metadata !== 'object' || Array.isArray(value.metadata))) throw taoLoiDauVao('Metadata bài tập không hợp lệ.', { metadata: ['Phải là object.'] })
+     body.metadata = value.metadata
+   }
+   const status = layTrangThai(value.status, !partial)
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\services\\bai_tap.api.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\services\\bai_tap.api.test.js"
+index ce8625f..1350a21 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\services\\bai_tap.api.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\services\\bai_tap.api.test.js"
+@@ -53,6 +53,28 @@ describe('bai_tap.api FE3', () => {
+     expect(patch.mock.calls[0][1]).toEqual({ image_path: null, video_path: null })
+   })
+ 
++  it('giữ nguyên metadata null trong create va update', async () => {
++    await taoBaiTap({ ...base, metadata: null })
++    await capNhatBaiTap(1, { metadata: null })
++    expect(post.mock.calls[0][1]).toHaveProperty('metadata', null)
++    expect(patch.mock.calls[0][1]).toEqual({ metadata: null })
++  })
++
++  it('chặn metadata non-null sai hình dạng trước network', async () => {
++    for (const metadata of [[], 'text', 42, true]) {
++      await expect(taoBaiTap({ ...base, metadata })).rejects.toMatchObject({
++        httpStatus: 422,
++        code: 'INVALID_EXERCISE_REQUEST',
++      })
++      await expect(capNhatBaiTap(1, { metadata })).rejects.toMatchObject({
++        httpStatus: 422,
++        code: 'INVALID_EXERCISE_REQUEST',
++      })
++    }
++    expect(post).not.toHaveBeenCalled()
++    expect(patch).not.toHaveBeenCalled()
++  })
++
+   it('tao bai tap chan khi thieu instructions truoc network', async () => {
+     const payload = { ...base }
+     delete payload.instructions
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue"
+index 3d756d1..18ba67a 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue"
+@@ -24,7 +24,7 @@ const trangThaiCanDoi = ref(null)
+ const yDinhTrangThai = ref(null)
+ const giaiDoanTrangThai = ref('CHO_XAC_NHAN')
+ const loiTrangThai = ref(null)
+-const form = reactive({ code: '', name: '', difficulty: '', instructions: '', image_path: null, video_path: null, metadata: {}, status: 'HOAT_DONG', equipment_ids: [], muscle_groups: [] })
++const form = reactive({ code: '', name: '', difficulty: '', instructions: '', image_path: null, video_path: null, metadata: null, status: 'HOAT_DONG', equipment_ids: [], muscle_groups: [] })
+ function nap(item) {
+   if (!item) return
+   Object.assign(form, {
+@@ -34,7 +34,7 @@ function nap(item) {
+     video_path: Object.prototype.hasOwnProperty.call(item, 'video_path') ? item.video_path : null,
+     equipment_ids: (item.equipment ?? []).map((value) => Number(value.id)),
+     muscle_groups: (item.muscle_groups ?? []).map((value) => ({ id: Number(value.id), role: value.role })),
+-    metadata: { ...(item.metadata ?? {}) },
++    metadata: Object.prototype.hasOwnProperty.call(item, 'metadata') ? item.metadata : null,
+   })
+ }
+ function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js"
+index 728b53f..cd81e5e 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js"
+@@ -92,6 +92,37 @@ describe('bai_tap.chi_tiet FE3', () => {
+     expect(api.taiChiTietBaiTap).toHaveBeenCalledTimes(2)
+   })
+ 
++  it('giu metadata null khi sua truong khac va tai lai authoritative', async () => {
++    const detail = {
++      id: 21,
++      code: 'SQUAT',
++      name: 'Squat',
++      difficulty: 'Beginner',
++      instructions: 'Keep the back straight.',
++      image_path: null,
++      video_path: null,
++      metadata: null,
++      status: 'HOAT_DONG',
++      equipment: [],
++      muscle_groups: [],
++    }
++    api.taiChiTietBaiTap.mockReset()
++      .mockResolvedValueOnce({ data: detail })
++      .mockResolvedValueOnce({ data: { ...detail, name: 'Squat authoritative', metadata: null } })
++    api.capNhatBaiTap.mockReset().mockResolvedValueOnce({ data: { id: 21 } })
++
++    const wrapper = mount(BaiTapChiTiet)
++    await flushPromises()
++    await wrapper.find('#bai-tap-detail-name').setValue('Squat draft')
++    await wrapper.find('form').trigger('submit')
++    await flushPromises()
++
++    expect(api.capNhatBaiTap).toHaveBeenCalledWith(21, expect.objectContaining({ metadata: null }))
++    expect(api.capNhatBaiTap.mock.calls[0][1]).not.toHaveProperty('metadata', {})
++    expect(wrapper.vm.form.metadata).toBeNull()
++    expect(wrapper.find('#bai-tap-detail-name').element.value).toBe('Squat authoritative')
++  })
++
+   it('chặn instructions blank ở detail trước store/PATCH và giữ bản nháp', async () => {
+     const wrapper = mount(BaiTapChiTiet)
+     await flushPromises()
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue"
+index 8c8c11e..f193da4 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue"
+@@ -180,6 +180,7 @@ function xuLyHuy() { void router.push({ name: 'adminGoiTap' }) }
+         v-model="form.benefits"
+         :dang-luu="dangLuu"
+         :loi="loi"
++        @luu="xuLyLuu"
+       />
+       <p
+         v-if="loi?.message"
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js"
+index 0883019..d3cdc8d 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js"
+@@ -65,6 +65,17 @@ describe('goi_tap.tao_moi FE3', () => {
+     expect(router.push).not.toHaveBeenCalled()
+   })
+ 
++  it('lưu quyền lợi từ nút trong component bằng đúng luồng tạo gói', async () => {
++    api.taoGoiTap.mockResolvedValueOnce({ data: { id: 11 } })
++    const wrapper = mount(GoiTapTaoMoi)
++    await dienForm(wrapper)
++    await wrapper.get('.danh-muc-quyen-loi button').trigger('click')
++    await flushPromises()
++
++    expect(api.taoGoiTap).toHaveBeenCalledTimes(1)
++    expect(router.push).toHaveBeenCalledWith({ name: 'adminChiTietGoiTap', params: { id: 11 } })
++  })
++
+   it('chặn price 0/fraction và duration ngoài bounds trước request', async () => {
+     const wrapper = mount(GoiTapTaoMoi)
+     await dienForm(wrapper)
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md"
+index c953318..20e818e 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-before\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md"
+@@ -179,3 +179,38 @@ Round 4 status: DONE. The repair closes F-013 and F-015 while preserving every f
+ `STATUS: DONE`
+ 
+ Browser smoke was not run because no authenticated local Admin session was available; the brief-approved mounted, service-boundary, router, Pinia, accessibility, lint, build, and static evidence was used.
++
++## 23. FE3-ALL final repair wave 5
++
++Wave 5 closes `FINAL-F-001` through `FINAL-F-004` while preserving F-001 through F-015, the Vue compiler-warning closure, and the Backend entry repair.
++
++- `FINAL-F-001`: the shared Workout Template tree now renders and edits bounded `rest_seconds` and nullable `notes`; clearing notes emits `null`, disabled detail preserves the stored values, and create/revision submit the complete prescription.
++- `FINAL-F-002`: a stored Exercise missing from the active option list is rendered from Backend `exercise_name` as a disabled retained selection. New rows do not receive that fallback, and explicit replacement emits only the selected active Exercise ID.
++- `FINAL-F-003`: Exercise `metadata` now accepts and preserves `null` at the public service boundary and mounted detail state. An unrelated edit sends `metadata: null` instead of rewriting it to `{}`; invalid non-null shapes still fail before Axios.
++- `FINAL-F-004`: Package create consumes the benefit editor's existing `luu` event through the guarded `xuLyLuu` flow, producing one create request and the existing navigation.
++- Product writes are limited to the 11 existing paths in `final-fix-round-5-targets.txt`; no source/test addition, Backend/Database/route/store/dependency/lock/checkpoint/progress change was made.
++
++## 24. Wave 5 verification evidence
++
++- Focused regression command: 7 files / 45 tests PASS.
++- Closed-finding preservation matrix: 28 files / 218 tests PASS; this exceeds the prior 28/209 baseline without a silent reduction.
++- Full Frontend: 58 files / 684 tests PASS.
++- Frontend lint: PASS, exit 0, zero warnings and zero errors.
++- Frontend build: PASS, Vite transformed 169 modules.
++- `npm ls --depth=0`: PASS; package and lockfile diff is empty.
++- Static scans: no skip/only marker, TODO/FIXME, `__file`, `v-model="form"`, legacy `handleXxx`, executable catalog DELETE, hard-coded API root, or secret/token logging in the Wave 5 targets. Direct semantic scans confirm rest/notes controls, retained `exercise_name`, nullable metadata regressions, and the single `@luu="xuLyLuu"` binding.
++- Backend guard: PASS with `E:\Fitness\.tools\php\php.exe` 8.4.25, `APP_ENV=testing`, MySQL, and configured/current/approved database `smart_fitness_test`.
++- `AdminCatalogApiTest`: 11 tests / 232 assertions PASS.
++- `AdminCatalogConcurrencyTest`: 3 tests / 48 assertions PASS.
++- First full Backend run: 328/329 passed; the unrelated `PtChatApiTest::test_history_remains_readable_after_membership_end_but_new_send_is_blocked` received a transient 401 instead of 201. Its isolated rerun passed 1 test / 19 assertions, then a complete rerun passed 329/329 tests / 3,907 assertions.
++- Backend Pint `--test`: PASS.
++- Browser smoke remains unavailable because no authenticated local Admin session exists; mounted Vue/Pinia/router/service-boundary and accessibility evidence is used as authorized.
++
++## 25. Wave 5 completion status
++
++`FINAL-F-001: CLOSED`  
++`FINAL-F-002: CLOSED`  
++`FINAL-F-003: CLOSED`  
++`FINAL-F-004: CLOSED`  
++`WAVE_5_IMPLEMENTATION_GATE: PASS`  
++`STATUS: DONE_PENDING_FRESH_FINAL_REVIEW`

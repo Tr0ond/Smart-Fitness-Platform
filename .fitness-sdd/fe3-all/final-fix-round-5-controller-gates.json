@@ -1,0 +1,36 @@
+﻿{
+    "unexpected_paths":  [
+
+                         ],
+    "unexpected_count":  0,
+    "staged_empty":  true,
+    "checked_preservation_paths":  710,
+    "product_target_count":  11,
+    "changed_product_targets":  [
+                                    "FE/src/components/danh_muc/cay_giao_an.vue",
+                                    "FE/src/components/danh_muc/cay_giao_an.test.js",
+                                    "FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.test.js",
+                                    "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_moi.test.js",
+                                    "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_phien_ban.test.js",
+                                    "FE/src/services/bai_tap.api.js",
+                                    "FE/src/services/bai_tap.api.test.js",
+                                    "FE/src/pages/admin/bai_tap/bai_tap.chi_tiet.vue",
+                                    "FE/src/pages/admin/bai_tap/bai_tap.chi_tiet.test.js",
+                                    "FE/src/pages/admin/goi_tap/goi_tap.tao_moi.vue",
+                                    "FE/src/pages/admin/goi_tap/goi_tap.tao_moi.test.js"
+                                ],
+    "unchanged_product_targets":  [
+
+                                  ],
+    "report_changed":  true,
+    "backend_entry_checked":  17,
+    "backend_entry_mismatches":  [
+
+                                 ],
+    "backend_entry_mismatch_count":  0,
+    "original_fe3_target_count":  51,
+    "missing_original_targets":  [
+
+                                 ],
+    "missing_original_target_count":  0
+}

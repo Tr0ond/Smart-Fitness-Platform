@@ -1,0 +1,2 @@
+ M docs/VUE_WEB_COMPLETION_CHECKPOINT.md
+?? .fitness-sdd/

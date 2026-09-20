@@ -1,18 +1,21 @@
 # Vue Web Completion Checkpoint
 
-CURRENT_PHASE: FE-2
-CURRENT_TASK: FE2-T08
+CURRENT_PHASE: FE-3
+CURRENT_TASK: FE3-ALL
 STATUS: PASS
 FE0_PHASE_STATUS: PASS
 FE1_PHASE_STATUS: PASS
 FE2_PHASE_STATUS: PASS
+FE3_PHASE_STATUS: PASS
 
 COMPLETED_PHASES:
+- FE-3 — Admin Catalog; FE3-ALL và final repair Wave 5 đã PASS với Frontend 684 tests, Backend 329 tests và independent final review.
 - FE-0 — Foundation; remediation đã PASS với 200 tests.
 - FE-1 — Admin Foundation; remediation 7 finding và full gate đã PASS với 470 tests.
 - FE-2 — Admin PT; FE2-ALL và menu remediation round 5 đã PASS với Backend 323 tests và Frontend 572 tests.
 
 COMPLETED_TASKS:
+- FE3-ALL
 - FE0-T01
 - FE0-T02
 - FE0-T03
@@ -49,9 +52,12 @@ REMEDIATED_TASKS:
 - FE1-T08 — Cleanup/race/pagination/422/drawer/filter/status label đã sửa và full gate chạy lại PASS.
 - FE2-T08 — Trang phân công PT đã được mở trong menu Admin; route metadata, thứ tự/active state và full FE gate 572 tests đã PASS ở remediation round 5.
 
-EXACT_NEXT_ACTION: FE3-ALL — eligible after FE-2 PASS; not started because the owner requested stopping after FE2
+EXACT_NEXT_ACTION: FE4-ALL
 
 BLOCKED_FEATURES:
+- CURRENT: Không còn blocker hiện hành thuộc FE-3. Các dòng FE3 quota/entry-gate cũ ngay bên dưới là historical evidence đã được supersede bởi final review Wave 5 PASS.
+- FE3 execution is temporarily blocked by required-model capacity: three Luna Max writer attempts ended during mandatory preflight with zero target changes; current Codex weekly/secondary usage is 100%, `rateLimitReachedType=rate_limit_reached`, no reset credit, reset expected 15/09/2026 12:49:44 ICT. The approved Sol repair plan/brief and 16-target byte-for-byte snapshot are preserved in `.fitness-sdd/fe3-all`; model substitution is prohibited.
+- FE3-ALL entry gate failed on 10/09/2026: actual `nhom_co` schema/model/create-update requests/service DTO have no `status`, so Muscle Group cannot be deactivated without hard delete. Backend tests also lack Muscle Group deactivate coverage and Muscle Group PATCH authorization-matrix coverage. Planner verdict is `WAITING_BACKEND_FIX`; no FE3 writer/reviewer was dispatched and no product code changed.
 - Không còn blocker thuộc FE-0 sau remediation.
 - Không còn blocker source/test thuộc FE-1 sau remediation; browser visual smoke chưa chạy lại do máy hiện không có `agent-browser`, nhưng đây không phải exit gate FE1-T08 trong V2.
 - Không còn current-state blocker thuộc FE-2. `FE2-MENU-F-001` đã CLOSED bằng menu remediation round 5; `BE-FOLLOWUP-02`, `BE-FOLLOWUP-03`, `BLOCKER-01` và `BLOCKER-02` vẫn đã đóng bằng evidence FE2-ALL.

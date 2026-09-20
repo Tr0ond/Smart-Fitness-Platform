@@ -1,0 +1,22 @@
+﻿[
+    {
+        "target":  "BE\\database\\seeders\\ExerciseDatasetSeeder.php",
+        "byte_equal":  true,
+        "sha256":  "D055C8E580910FFDEAB8B2CEC4B86AD7A61408664A7F45E74EFFAC9AA82568CB"
+    },
+    {
+        "target":  "BE\\tests\\Feature\\AdminCatalogApiTest.php",
+        "byte_equal":  true,
+        "sha256":  "71BC150D998EFF30341253BC1DD40D0AAA3983EFEC379EF5C091A331F3067F61"
+    },
+    {
+        "target":  "docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md",
+        "byte_equal":  true,
+        "sha256":  "713FD346D778A17CB363172698E2CFF490ED293ACDD6FAE4E917B698BE14965F"
+    },
+    {
+        "target":  ".fitness-sdd\\fe3-all\\entry-gate-repair-report-round-1.md",
+        "byte_equal":  true,
+        "sha256":  "48FB0202EB821530956CCBF8AFC307CC616E025B5F7C2360855F44699205AF1B"
+    }
+]

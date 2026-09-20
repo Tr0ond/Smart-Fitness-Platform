@@ -1,0 +1,223 @@
+﻿[
+    {
+        "path":  {
+                     "value":  "BE/database/migrations/2026_09_10_000061_m061_them_trang_thai_nhom_co.php",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  1
+                 },
+        "bytes":  646,
+        "sha256":  "3BC01381825F08C976A8F97206CF2DE1128B9EBB83DFCA0E8525F99482682D66"
+    },
+    {
+        "path":  {
+                     "value":  "BE/app/Models/NhomCo.php",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  2
+                 },
+        "bytes":  887,
+        "sha256":  "87D9CDF051697C69F5B4F3F339DAB470608320FF20B757E5F6887A77B995CFE5"
+    },
+    {
+        "path":  {
+                     "value":  "BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  3
+                 },
+        "bytes":  1542,
+        "sha256":  "C90AAC0E7A1A880C9F8E76B7DB6CB1E43D08E26B0BEF43D650D89F4575A50C20"
+    },
+    {
+        "path":  {
+                     "value":  "BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  4
+                 },
+        "bytes":  1808,
+        "sha256":  "81155F45996F1C1F3B5F302B066C1075E4FA009E797A4D19BD5212DA987367FF"
+    },
+    {
+        "path":  {
+                     "value":  "BE/app/Services/Admin/ExerciseCatalogAdminService.php",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  5
+                 },
+        "bytes":  24381,
+        "sha256":  "B785E0CE565AE68C9464821B518E16484F70006402A996FDCD8942F26E77C5B2"
+    },
+    {
+        "path":  {
+                     "value":  "BE/database/seeders/ExerciseDatasetSeeder.php",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  6
+                 },
+        "bytes":  16040,
+        "sha256":  "A7CA871086B86A708E8C5B642C1C25E10F74FDD9775288E1406FC5158CAF64E8"
+    },
+    {
+        "path":  {
+                     "value":  "BE/tests/Feature/AdminCatalogApiTest.php",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  7
+                 },
+        "bytes":  37042,
+        "sha256":  "606AEE17CABC0FBA78E1F989C6847E9C9AB8D91E90E81AA3B7F327B96A12DC64"
+    },
+    {
+        "path":  {
+                     "value":  "BE/tests/Feature/AdminCatalogConcurrencyTest.php",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  8
+                 },
+        "bytes":  21694,
+        "sha256":  "44F6E1DDE77E75507384BC6F9297FBCE41F869D3C83720890B86D45B2166DAA8"
+    },
+    {
+        "path":  {
+                     "value":  "BE/tests/Support/run_admin_catalog_action.php",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  9
+                 },
+        "bytes":  2291,
+        "sha256":  "B775CF250A6D67E5BB5E6664125BB80E3A6C26E73B5C4F70EB510F048A0CBA6F"
+    },
+    {
+        "path":  {
+                     "value":  "PROJECT_RULES.md",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  10
+                 },
+        "bytes":  93148,
+        "sha256":  "1E6830EFBA749066865C469B438C0D476F2293598BEDBE16E23D551950807794"
+    },
+    {
+        "path":  {
+                     "value":  "docs/BACKEND_API_CONTRACT.md",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  11
+                 },
+        "bytes":  14049,
+        "sha256":  "9FF58956CBAE2C22CFD32ABE6B6DAA9E8A1366DB661DD822944AE27CB0834423"
+    },
+    {
+        "path":  {
+                     "value":  "docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  12
+                 },
+        "bytes":  161335,
+        "sha256":  "D7BFBFB1D0D1A281B82457359938E054E19DC28C09129F2B04420F418166AF95"
+    },
+    {
+        "path":  {
+                     "value":  "docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  13
+                 },
+        "bytes":  68152,
+        "sha256":  "FD8E920933D817800FB0588C8A4BA85E86B9C4962D54257DDBD1CBD5D907C265"
+    },
+    {
+        "path":  {
+                     "value":  "docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  14
+                 },
+        "bytes":  200508,
+        "sha256":  "AF52C82B31A665CDB3C7A91B85D7465FF21B37418B8F3461C22B1307081A20C1"
+    },
+    {
+        "path":  {
+                     "value":  "docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  15
+                 },
+        "bytes":  701533,
+        "sha256":  "E9ED40DDFE98181D29DCDEEC326835C609022DA72EF63DD25E1A636CE6D3A1FD"
+    },
+    {
+        "path":  {
+                     "value":  "docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  16
+                 },
+        "bytes":  2452630,
+        "sha256":  "8887077DA966BDABEE266C39525128DD0619F685CA7E56E2B3684F81D6D0ADCC"
+    },
+    {
+        "path":  {
+                     "value":  "docs/thiet_ke_co_so_du_lieu/MUSCLE_GROUP_DEACTIVATION_REPORT.md",
+                     "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\final-fix-round-5-backend-entry-paths.txt",
+                     "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                     "PSChildName":  "final-fix-round-5-backend-entry-paths.txt",
+                     "PSDrive":  "E",
+                     "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                     "ReadCount":  17
+                 },
+        "bytes":  10196,
+        "sha256":  "416C0007C5EDCD27C1C571DF82ACD9B70EB20467984E5A8E60EA17998DFD3530"
+    }
+]

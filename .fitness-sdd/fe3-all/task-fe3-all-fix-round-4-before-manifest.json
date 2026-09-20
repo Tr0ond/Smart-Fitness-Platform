@@ -1,0 +1,69 @@
+﻿[
+    {
+        "target":  {
+                       "value":  "FE/src/services/bai_tap.api.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-fix-round-4-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  1
+                   },
+        "state":  "PRESENT",
+        "bytes":  7362,
+        "sha256":  "6DF7D2DF7267B647A1B5E46CC4F7140E171CCBDD8E3F1971D30E4564AA98D532",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\services\\bai_tap.api.js"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/bai_tap.api.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-fix-round-4-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  2
+                   },
+        "state":  "PRESENT",
+        "bytes":  3835,
+        "sha256":  "44068B8A97997595834C849ECCF65F01C2C87F17B5611E7A5A389BF7DC14AE4C",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\services\\bai_tap.api.test.js"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-fix-round-4-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  3
+                   },
+        "state":  "PRESENT",
+        "bytes":  7995,
+        "sha256":  "FF0EC472001F91C4E0BD1541744884D3A851FB86DE7342E0E3A5C46343E45321",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-fix-round-4-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  4
+                   },
+        "state":  "PRESENT",
+        "bytes":  8244,
+        "sha256":  "0D47D2406E4CA67A622B67378BC4B0E5B714C436B099648960022E74A5E82181",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
+    },
+    {
+        "target":  ".fitness-sdd/fe3-all/task-fe3-all-report.md",
+        "state":  "PRESENT",
+        "bytes":  18354,
+        "sha256":  "4BACAA9BF2CBEF0AC128B201672495C662464061C8222E62E606E46E02F8DDE5",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md"
+    }
+]

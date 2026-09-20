@@ -1,0 +1,17 @@
+BE/database/migrations/2026_09_10_000061_m061_them_trang_thai_nhom_co.php
+BE/app/Models/NhomCo.php
+BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php
+BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php
+BE/app/Services/Admin/ExerciseCatalogAdminService.php
+BE/database/seeders/ExerciseDatasetSeeder.php
+BE/tests/Feature/AdminCatalogApiTest.php
+BE/tests/Feature/AdminCatalogConcurrencyTest.php
+BE/tests/Support/run_admin_catalog_action.php
+PROJECT_RULES.md
+docs/BACKEND_API_CONTRACT.md
+docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md
+docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md
+docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md
+docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio
+docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio
+docs/thiet_ke_co_so_du_lieu/MUSCLE_GROUP_DEACTIVATION_REPORT.md

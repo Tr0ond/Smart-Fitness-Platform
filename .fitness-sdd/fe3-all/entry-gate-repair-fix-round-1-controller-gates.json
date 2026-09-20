@@ -1,0 +1,14 @@
+﻿{
+    "unexpected_paths":  [
+
+                         ],
+    "unexpected_count":  0,
+    "staged_empty":  true,
+    "checked_preservation_paths":  666,
+    "changed_targets":  [
+                            "BE\\database\\seeders\\ExerciseDatasetSeeder.php",
+                            "BE\\tests\\Feature\\AdminCatalogApiTest.php",
+                            "docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md",
+                            ".fitness-sdd\\fe3-all\\entry-gate-repair-report-round-1.md"
+                        ]
+}

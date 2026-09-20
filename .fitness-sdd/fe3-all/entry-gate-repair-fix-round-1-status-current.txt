@@ -1,0 +1,172 @@
+ M AGENTS.md
+ M BE/AGENTS.md
+ M BE/README.md
+ M BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php
+ M BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php
+ M BE/app/Models/NhomCo.php
+ M BE/app/Services/Admin/ExerciseCatalogAdminService.php
+ M BE/database/seeders/ExerciseDatasetSeeder.php
+ M BE/tests/Feature/AdminCatalogApiTest.php
+ M BE/tests/Feature/AdminCatalogConcurrencyTest.php
+ M BE/tests/Support/run_admin_catalog_action.php
+ M PROJECT_RULES.md
+ M README.md
+ M docs/BACKEND_API_CONTRACT.md
+ M docs/VUE_WEB_COMPLETION_CHECKPOINT.md
+ M docs/VUE_WEB_IMPLEMENTATION_PLAN_V2.md
+ M docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md
+ M docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md
+ M docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md
+ M docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio
+ M docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio
+?? .fitness-rules/PROJECT_CORE.md
+?? .fitness-rules/RULE_INDEX.md
+?? .fitness-rules/domains/ai-proposal.md
+?? .fitness-rules/domains/auth-resource-scope.md
+?? .fitness-rules/domains/database.md
+?? .fitness-rules/domains/membership-payment.md
+?? .fitness-rules/domains/pt-chat.md
+?? .fitness-rules/domains/workout.md
+?? .fitness-rules/engineering/coding-conventions.md
+?? .fitness-rules/engineering/security-integrity.md
+?? .fitness-rules/engineering/testing-definition-of-done.md
+?? .fitness-rules/frontend/visual-ui.md
+?? .fitness-rules/frontend/vue-core.md
+?? .fitness-sdd/audit-layered-docs-20260910/baseline-staged.patch
+?? .fitness-sdd/audit-layered-docs-20260910/baseline-status.txt
+?? .fitness-sdd/audit-layered-docs-20260910/baseline-working.patch
+?? .fitness-sdd/audit-layered-docs-20260910/current-staged.patch
+?? .fitness-sdd/audit-layered-docs-20260910/current-working.patch
+?? .fitness-sdd/audit-layered-docs-20260910/final-tracked-working.patch
+?? .fitness-sdd/audit-layered-docs-20260910/plan.md
+?? .fitness-sdd/audit-layered-docs-20260910/progress.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-brief.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-report.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-review-package.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-review-round-1.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-review-round-2.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-review.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-0-before/.fitness-sdd/context/FE0_CONTEXT.md.absent
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-0-before/.fitness-sdd/context/FE1_CONTEXT.md.absent
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-0-before/.fitness-sdd/context/FE2_CONTEXT.md.absent
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE3_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE4_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE5_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE6_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE8_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/FE9_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/RULE_INDEX.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/TASK_PACKET_TEMPLATE.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-after/workout.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE3_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE4_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE5_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE6_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE8_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/FE9_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/RULE_INDEX.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/TASK_PACKET_TEMPLATE.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-before/workout.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-delta.patch
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-1-repair-brief.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-2-after/FE4_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-2-after/FE5_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-2-after/FE8_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-2-before/FE4_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-2-before/FE5_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-2-before/FE8_CONTEXT.md
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-2-delta.patch
+?? .fitness-sdd/audit-layered-docs-20260910/task-1-round-2-repair-brief.md
+?? .fitness-sdd/context/FE0_CONTEXT.md
+?? .fitness-sdd/context/FE1_CONTEXT.md
+?? .fitness-sdd/context/FE2_CONTEXT.md
+?? .fitness-sdd/context/FE3_CONTEXT.md
+?? .fitness-sdd/context/FE4_CONTEXT.md
+?? .fitness-sdd/context/FE5_CONTEXT.md
+?? .fitness-sdd/context/FE6_CONTEXT.md
+?? .fitness-sdd/context/FE7_CONTEXT.md
+?? .fitness-sdd/context/FE8_CONTEXT.md
+?? .fitness-sdd/context/FE9_CONTEXT.md
+?? .fitness-sdd/context/TASK_PACKET_TEMPLATE.md
+?? .fitness-sdd/fe3-all/baseline-staged.patch
+?? .fitness-sdd/fe3-all/baseline-status.txt
+?? .fitness-sdd/fe3-all/baseline-tree/.pending-targets
+?? .fitness-sdd/fe3-all/baseline-working.patch
+?? .fitness-sdd/fe3-all/controller-handoff-revalidate.ps1
+?? .fitness-sdd/fe3-all/controller-package-fix-r1.ps1
+?? .fitness-sdd/fe3-all/controller-test-guard.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-brief-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-brief-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-controller-tests-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-plan-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-review-package-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-before-manifest.json
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-before/.fitness-sdd/fe3-all/entry-gate-repair-report-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-before/BE/database/seeders/ExerciseDatasetSeeder.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-before/BE/tests/Feature/AdminCatalogApiTest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-before/docs/thiet_ke_co_so_du_lieu/MUSCLE_GROUP_DEACTIVATION_REPORT.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-current-manifest.json
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-current/.fitness-sdd/fe3-all/entry-gate-repair-report-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-current/BE/database/seeders/ExerciseDatasetSeeder.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-current/BE/tests/Feature/AdminCatalogApiTest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-current/docs/thiet_ke_co_so_du_lieu/MUSCLE_GROUP_DEACTIVATION_REPORT.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-exact-delta.patch
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-staged-before.patch
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-status-before.txt
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-targets.txt
+?? .fitness-sdd/fe3-all/entry-gate-repair-fix-round-1-working-before.patch
+?? .fitness-sdd/fe3-all/entry-gate-repair-plan-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-report-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-review-package-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-review-round-1.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/BE/app/Models/NhomCo.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/BE/app/Services/Admin/ExerciseCatalogAdminService.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/BE/database/migrations/2026_09_10_000061_m061_them_trang_thai_nhom_co.php.absent
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/BE/tests/Feature/AdminCatalogApiTest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/BE/tests/Feature/AdminCatalogConcurrencyTest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/BE/tests/Support/run_admin_catalog_action.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/PROJECT_RULES.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/docs/BACKEND_API_CONTRACT.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/docs/thiet_ke_co_so_du_lieu/MUSCLE_GROUP_DEACTIVATION_REPORT.md.absent
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-before/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-checkpoint-current.patch
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current-manifest.json
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/BE/app/Models/NhomCo.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/BE/app/Services/Admin/ExerciseCatalogAdminService.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/BE/database/migrations/2026_09_10_000061_m061_them_trang_thai_nhom_co.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/BE/tests/Feature/AdminCatalogApiTest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/BE/tests/Feature/AdminCatalogConcurrencyTest.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/BE/tests/Support/run_admin_catalog_action.php
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/PROJECT_RULES.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/docs/BACKEND_API_CONTRACT.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/docs/thiet_ke_co_so_du_lieu/MUSCLE_GROUP_DEACTIVATION_REPORT.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-current/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-exact-delta.patch
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-snapshot-manifest.json
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-staged-before.patch
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-staged-current.patch
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-status-before.txt
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-status-current.txt
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-targets.txt
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-working-before.patch
+?? .fitness-sdd/fe3-all/entry-gate-repair-round-1-working-current.patch
+?? .fitness-sdd/fe3-all/fe3-all-brief.md
+?? .fitness-sdd/fe3-all/handoff-preservation-manifest-20260912.json
+?? .fitness-sdd/fe3-all/handoff-revalidation-20260912.json
+?? .fitness-sdd/fe3-all/handoff-status-20260912.txt
+?? .fitness-sdd/fe3-all/plan.md
+?? .fitness-sdd/fe3-all/progress.md
+?? BE/database/migrations/2026_09_10_000061_m061_them_trang_thai_nhom_co.php
+?? docs/thiet_ke_co_so_du_lieu/MUSCLE_GROUP_DEACTIVATION_REPORT.md

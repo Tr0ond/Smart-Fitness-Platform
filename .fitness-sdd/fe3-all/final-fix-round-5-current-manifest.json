@@ -1,0 +1,98 @@
+﻿[
+    {
+        "target":  "FE/src/components/danh_muc/cay_giao_an.vue",
+        "state":  "PRESENT",
+        "bytes":  7911,
+        "sha256":  "1949B8D25C2ADF1E21603A5BDE602A77121CE6B892632B2D89E13DC13C8A2169",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\components\\danh_muc\\cay_giao_an.vue"
+    },
+    {
+        "target":  "FE/src/components/danh_muc/cay_giao_an.test.js",
+        "state":  "PRESENT",
+        "bytes":  2744,
+        "sha256":  "82BD37ABA9F31C3CB7A672C8C3FDD1B6B2FCE46D5DDF67CFD36C92F532CBF65E",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js"
+    },
+    {
+        "target":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.test.js",
+        "state":  "PRESENT",
+        "bytes":  9834,
+        "sha256":  "E761F1287943FA3A210C339C14555FD42B04410C8181A4552873F706BD0DACB2",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
+    },
+    {
+        "target":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_moi.test.js",
+        "state":  "PRESENT",
+        "bytes":  5426,
+        "sha256":  "1B5A0EB85F75DF8675594BA30ED6B328E546F3A53A594204ABF6A7857550587F",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js"
+    },
+    {
+        "target":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_phien_ban.test.js",
+        "state":  "PRESENT",
+        "bytes":  10186,
+        "sha256":  "2D668E6B71C1CFD1026C268EB9F2CEBBA9C323BD79B3336D2A9CB90D4D3750D4",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js"
+    },
+    {
+        "target":  "FE/src/services/bai_tap.api.js",
+        "state":  "PRESENT",
+        "bytes":  7380,
+        "sha256":  "1DADB516829B3CDE1DF788D0E706D52369BA2CAF60DEB592626B18A6D5EE1871",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\services\\bai_tap.api.js"
+    },
+    {
+        "target":  "FE/src/services/bai_tap.api.test.js",
+        "state":  "PRESENT",
+        "bytes":  5061,
+        "sha256":  "25DAC40C21073F94FB8CFED863F25840615E1F21CCD7F2B87DC4517D3A763BEF",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\services\\bai_tap.api.test.js"
+    },
+    {
+        "target":  "FE/src/pages/admin/bai_tap/bai_tap.chi_tiet.vue",
+        "state":  "PRESENT",
+        "bytes":  13974,
+        "sha256":  "B848D4F68251D082BA95493F6FF45A481424FC193CAD7E994D3D7B3D23E9B25A",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue"
+    },
+    {
+        "target":  "FE/src/pages/admin/bai_tap/bai_tap.chi_tiet.test.js",
+        "state":  "PRESENT",
+        "bytes":  10845,
+        "sha256":  "5F2628151FE3ED5DA7ECE388CD7B5F9CB3C4438ACF53C877DBC6E4A6CD169BF7",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js"
+    },
+    {
+        "target":  "FE/src/pages/admin/goi_tap/goi_tap.tao_moi.vue",
+        "state":  "PRESENT",
+        "bytes":  7004,
+        "sha256":  "E1525A5D77366EB100F2C0C2A9915209F6C4973DA9B038A95A9AEEBF4DD69482",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue"
+    },
+    {
+        "target":  "FE/src/pages/admin/goi_tap/goi_tap.tao_moi.test.js",
+        "state":  "PRESENT",
+        "bytes":  5410,
+        "sha256":  "88FC8D7C09498AAE287B0E04C13CEE7EFD4BA9B1226197291023B6F939AD7C07",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js"
+    },
+    {
+        "target":  ".fitness-sdd/fe3-all/task-fe3-all-report.md",
+        "state":  "PRESENT",
+        "bytes":  24830,
+        "sha256":  "7A54AAA377A330D27E179E0D92737A5EB68BA159EAB7BC58520E4BD7B7E0433F",
+        "changed":  true,
+        "snapshot":  ".fitness-sdd\\fe3-all\\final-fix-round-5-current-verified\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md"
+    }
+]

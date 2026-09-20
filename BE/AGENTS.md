@@ -1,6 +1,6 @@
 # Backend instructions
 
-Read `../AGENTS.md` and the complete `../PROJECT_RULES.md` before changing this project.
+Read `../AGENTS.md` and the relevant modules in `../.fitness-rules/` (or canonical `../PROJECT_RULES.md` on escalation) before changing this project.
 This directory now contains the implemented Laravel REST Backend core. Preserve
 the approved M001-M060 schema, business invariants, authorization, idempotency,
 transaction/concurrency tests, immutable history and backend-only secrets.

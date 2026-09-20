@@ -1,0 +1,1324 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 801603b..de6f5f0 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,29 +1,37 @@
+ # AGENTS.md — Smart Fitness Platform
+ 
+-## Bắt buộc đọc trước khi làm việc
++## Bắt buộc đọc trước khi làm việc (Quy trình Nạp Context Phân tầng)
+ 
+-Trước mỗi tác vụ phân tích, thiết kế Database/API, viết hoặc sửa code, test, refactor hay code review trong dự án này, phải đọc **toàn bộ [PROJECT_RULES.md](PROJECT_RULES.md)** ở thư mục gốc.
++Dự án áp dụng **Kiến trúc Context Phân tầng (Layered Context Architecture)** để tối ưu token và ngăn ngừa quá tải ngữ cảnh cho Subagent:
+ 
+-- Không chỉ đọc tóm tắt, tìm kiếm từ khóa hoặc dựa vào hội thoại cũ.
+-- Nếu đầu ra bị cắt, đọc tiếp các phần còn thiếu trước khi triển khai.
+-- Nếu tệp thiếu hoặc không đọc được, báo rõ và dừng phần triển khai phụ thuộc vào quy tắc.
+-- PROJECT_RULES.md là bản đặc tả đã hợp nhất, gồm quyết định Membership/PT mới nhất. Không áp dụng lại quy tắc lỗi thời từ bản prompt cũ.
+-- Khi chủ dự án đưa yêu cầu mới thay đổi nghiệp vụ, cập nhật nhất quán các mục, ví dụ và test liên quan; không để hai quy tắc mâu thuẫn cùng có hiệu lực.
+-- Khi gặp điểm chưa được quyết định có ảnh hưởng nghiệp vụ, hỏi chủ dự án trước khi triển khai phần đó. Không tự mở rộng scope.
++1. **PROJECT_RULES.md là Canonical Source of Truth:**
++   - [PROJECT_RULES.md](PROJECT_RULES.md) ở thư mục gốc là bản đặc tả đã hợp nhất, có giá trị pháp lý cao nhất cho toàn bộ hệ thống.
++   - **KHÔNG mặc định đọc toàn bộ 3,000 dòng `PROJECT_RULES.md`** cho mỗi subagent/phiên làm việc thông thường.
++2. **Quy trình nạp ngữ cảnh tối thiểu (Minimal Working Context):**
++   - **Bước 1:** Bắt buộc đọc [.fitness-rules/PROJECT_CORE.md](.fitness-rules/PROJECT_CORE.md) để nắm toàn bộ Invariant bất biến cốt lõi.
++   - **Bước 2:** Tra cứu [.fitness-rules/RULE_INDEX.md](.fitness-rules/RULE_INDEX.md) hoặc đọc chỉ định trong `TASK_PACKET` để nạp chính xác các module nghiệp vụ liên quan (Domain/Engineering/Frontend).
++   - **Bước 3 (FE Phase):** Nếu thực hiện nhiệm vụ Frontend, đọc file Phase Context tương ứng trong `.fitness-sdd/context/` (ví dụ: `FE3_CONTEXT.md`).
++3. **Khi nào phải đối chiếu Canonical Document (PROJECT_RULES.md)?**
++   - Chỉ khi: (1) Phát hiện xung đột giữa các module hoặc giữa code và tài liệu; (2) Có sự mơ hồ nghiệp vụ (ambiguity); (3) Module/version mismatch; (4) Controller/Planner yêu cầu thẩm định canonical cụ thể.
++4. **Kỷ luật ngữ cảnh (Anti-Token-Waste):**
++   - Cấm tự ý đọc tràn lan tất cả các module trong `.fitness-rules/` "cho chắc chắn".
++   - Cấm tự ý thay đổi bất kỳ Business Rule nào (Q01–Q13, RULE GYM 01–25, RULE CODE 01–20).
++   - Khi gặp điểm chưa được quyết định có ảnh hưởng nghiệp vụ, hỏi chủ dự án trước khi triển khai. Không tự mở rộng scope.
+ 
+ ## Quy trình thực hiện
+ 
+-1. Đọc PROJECT_RULES.md và các hướng dẫn áp dụng trong phạm vi tệp sẽ sửa.
++1. Đọc `PROJECT_CORE.md`, tra cứu module tương ứng qua `RULE_INDEX.md`, và đọc file task context/packet.
+ 2. Trước chức năng lớn, xác định Actor, Use Case, Business Rule, Database, API, Authorization, Validation, Failure Case, Concurrency, Idempotency, Transaction và Test.
+-3. Chỉ triển khai phạm vi được yêu cầu, tuân thủ naming và comment trong PROJECT_RULES.md.
+-4. Ưu tiên tính đúng của dữ liệu, phân quyền, validation, transaction và kiểm thử.
++3. Chỉ triển khai phạm vi được yêu cầu, tuân thủ naming và comment chuẩn (tiếng Việt không dấu camelCase cho FE, snake_case cho DB).
++4. Ưu tiên tính đúng của dữ liệu, phân quyền theo tài nguyên (RULE CODE 17), validation, transaction và kiểm thử.
+ 5. Báo cáo đúng những thay đổi và kiểm thử thực sự đã thực hiện; không tuyên bố hoàn thành dựa riêng vào UI.
+-6. Khi hoàn thành một module, dùng format báo cáo ở PHẦN XXI của PROJECT_RULES.md.
++6. Khi hoàn thành một module, dùng format báo cáo ở PHẦN XXI của PROJECT_RULES.md (hoặc `engineering/testing-definition-of-done.md`).
+ 
+ ## Nhắc lại quy tắc dễ nhầm
+ 
+ - Payment chỉ ghi nhận quyền sở hữu. Lần dùng quyền lợi trả phí đầu tiên hợp lệ kích hoạt kỳ đầu bằng một đồng hồ chung cho Gym/AI/PT.
+ - Các kỳ mua nối tiếp giữ snapshot riêng, không dùng quyền kỳ sau trước lượt; lượt PT không carry-over.
+ - PT xác nhận buổi hoàn thành mới trừ lượt; chat không tự trừ lượt.
+-- AI/PT đề xuất thay đổi kế hoạch phải theo workflow xác nhận tương ứng; Workout Session hoàn thành là bất biến.
+-- Bản nhắc này không thay thế việc đọc toàn bộ PROJECT_RULES.md.
++- AI/PT đề xuất thay đổi kế hoạch phải theo workflow xác nhận tương ứng (Proposal TTL 24h); Workout Session hoàn thành là bất biến (RULE GYM 13).
++- Workout Tracking là quyền cơ bản của Member (Q08), không phụ thuộc có gói hay hết hạn Membership.
++- Mọi thắc mắc chi tiết tra cứu qua `.fitness-rules/RULE_INDEX.md`.
+diff --git a/BE/AGENTS.md b/BE/AGENTS.md
+index dc6cdce..cb65087 100644
+--- a/BE/AGENTS.md
++++ b/BE/AGENTS.md
+@@ -1,6 +1,6 @@
+ # Backend instructions
+ 
+-Read `../AGENTS.md` and the complete `../PROJECT_RULES.md` before changing this project.
++Read `../AGENTS.md` and the relevant modules in `../.fitness-rules/` (or canonical `../PROJECT_RULES.md` on escalation) before changing this project.
+ This directory now contains the implemented Laravel REST Backend core. Preserve
+ the approved M001-M060 schema, business invariants, authorization, idempotency,
+ transaction/concurrency tests, immutable history and backend-only secrets.
+diff --git a/BE/README.md b/BE/README.md
+index 167fa3b..3746d6e 100644
+--- a/BE/README.md
++++ b/BE/README.md
+@@ -1,6 +1,6 @@
+ # Smart Fitness Backend
+ 
+-Laravel REST API dùng chung cho Vue Web và React Native. Backend chạy PHP 8.4+, Laravel 13.29 và MariaDB 10.4.32/InnoDB. Trước mọi thay đổi phải đọc toàn bộ [PROJECT_RULES.md](../PROJECT_RULES.md) và [AGENTS.md](../AGENTS.md).
++Laravel REST API dùng chung cho Vue Web và React Native. Backend chạy PHP 8.4+, Laravel 13.29 và MariaDB 10.4.32/InnoDB. Trước mọi thay đổi xem hướng dẫn tại [AGENTS.md](../AGENTS.md) và tra cứu quy tắc qua [.fitness-rules/RULE_INDEX.md](../.fitness-rules/RULE_INDEX.md).
+ 
+ ## Module hiện có
+ 
+diff --git a/BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php b/BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php
+index a56ea0a..11b3e9b 100644
+--- a/BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php
++++ b/BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php
+@@ -3,6 +3,7 @@
+ namespace App\Http\Requests\Admin\Catalog;
+ 
+ use Illuminate\Foundation\Http\FormRequest;
++use Illuminate\Validation\Rule;
+ 
+ class CreateMuscleGroupRequest extends FormRequest
+ {
+@@ -11,23 +12,38 @@ public function authorize(): bool
+         return true;
+     }
+ 
+-    /** @return array<string, array<int, string>> */
++    /** @return array<string, array<int, mixed>> */
+     public function rules(): array
+     {
+         return [
+             'code' => ['required', 'string', 'max:40', 'regex:/\A[A-Za-z0-9_-]+\z/'],
+             'name' => ['required', 'string', 'max:150'],
+             'description' => ['sometimes', 'nullable', 'string', 'max:500'],
++            'status' => ['sometimes', 'string', Rule::in(['HOAT_DONG', 'NGUNG_SU_DUNG'])],
+             'id' => ['prohibited'],
+             'created_at' => ['prohibited'],
+             'updated_at' => ['prohibited'],
++            'ngay_tao' => ['prohibited'],
++            'ngay_cap_nhat' => ['prohibited'],
++            'branch_id' => ['prohibited'],
++            'chi_nhanh_id' => ['prohibited'],
++            'actor_id' => ['prohibited'],
++            'nguoi_thuc_hien_id' => ['prohibited'],
++            'created_by_id' => ['prohibited'],
++            'nguoi_tao_id' => ['prohibited'],
+         ];
+     }
+ 
+     protected function prepareForValidation(): void
+     {
+-        if (is_string($this->input('code'))) {
+-            $this->merge(['code' => strtoupper(trim($this->input('code')))]);
++        $values = [];
++        foreach (['code', 'status'] as $field) {
++            if (is_string($this->input($field))) {
++                $values[$field] = strtoupper(trim($this->input($field)));
++            }
++        }
++        if ($values !== []) {
++            $this->merge($values);
+         }
+     }
+ }
+diff --git a/BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php b/BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php
+index 4f015ba..f18b844 100644
+--- a/BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php
++++ b/BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php
+@@ -2,7 +2,9 @@
+ 
+ namespace App\Http\Requests\Admin\Catalog;
+ 
++use Illuminate\Contracts\Validation\Validator;
+ use Illuminate\Foundation\Http\FormRequest;
++use Illuminate\Validation\Rule;
+ 
+ class UpdateMuscleGroupRequest extends FormRequest
+ {
+@@ -11,16 +13,41 @@ public function authorize(): bool
+         return true;
+     }
+ 
+-    /** @return array<string, array<int, string>> */
++    /** @return array<string, array<int, mixed>> */
+     public function rules(): array
+     {
+         return [
+             'name' => ['sometimes', 'required', 'string', 'max:150'],
+             'description' => ['sometimes', 'nullable', 'string', 'max:500'],
++            'status' => ['sometimes', 'required', 'string', Rule::in(['HOAT_DONG', 'NGUNG_SU_DUNG'])],
+             'code' => ['prohibited'],
+             'id' => ['prohibited'],
+             'created_at' => ['prohibited'],
+             'updated_at' => ['prohibited'],
++            'ngay_tao' => ['prohibited'],
++            'ngay_cap_nhat' => ['prohibited'],
++            'branch_id' => ['prohibited'],
++            'chi_nhanh_id' => ['prohibited'],
++            'actor_id' => ['prohibited'],
++            'nguoi_thuc_hien_id' => ['prohibited'],
++            'created_by_id' => ['prohibited'],
++            'nguoi_tao_id' => ['prohibited'],
+         ];
+     }
++
++    public function withValidator(Validator $validator): void
++    {
++        $validator->after(function (Validator $validator): void {
++            if (array_intersect(array_keys($this->all()), ['name', 'description', 'status']) === []) {
++                $validator->errors()->add('payload', 'Phải cung cấp ít nhất một trường có thể cập nhật.');
++            }
++        });
++    }
++
++    protected function prepareForValidation(): void
++    {
++        if (is_string($this->input('status'))) {
++            $this->merge(['status' => strtoupper(trim($this->input('status')))]);
++        }
++    }
+ }
+diff --git a/BE/app/Models/NhomCo.php b/BE/app/Models/NhomCo.php
+index dc8aca6..cbc622d 100644
+--- a/BE/app/Models/NhomCo.php
++++ b/BE/app/Models/NhomCo.php
+@@ -27,6 +27,7 @@ class NhomCo extends Model
+         'ma_nhom_co',
+         'ten_nhom_co',
+         'mo_ta',
++        'trang_thai',
+         'ngay_tao',
+         'ngay_cap_nhat',
+     ];
+diff --git a/BE/app/Services/Admin/ExerciseCatalogAdminService.php b/BE/app/Services/Admin/ExerciseCatalogAdminService.php
+index 44e4ece..5c4e3a2 100644
+--- a/BE/app/Services/Admin/ExerciseCatalogAdminService.php
++++ b/BE/app/Services/Admin/ExerciseCatalogAdminService.php
+@@ -8,10 +8,13 @@
+ use App\Models\BaiTapNhomCo;
+ use App\Models\DungCu;
+ use App\Models\NguoiDung;
++use App\Models\NhatKyHeThong;
+ use App\Models\NhomCo;
+ use Carbon\CarbonImmutable;
+ use Illuminate\Database\QueryException;
++use Illuminate\Support\Collection;
+ use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Str;
+ 
+ class ExerciseCatalogAdminService
+ {
+@@ -93,6 +96,7 @@ public function taoNhomCo(NguoiDung $actor, array $duLieu): array
+                     'ma_nhom_co' => strtoupper(trim((string) $duLieu['code'])),
+                     'ten_nhom_co' => trim((string) $duLieu['name']),
+                     'mo_ta' => isset($duLieu['description']) ? trim((string) $duLieu['description']) : null,
++                    'trang_thai' => $this->chuanHoaTrangThai($duLieu['status'] ?? 'HOAT_DONG'),
+                     'ngay_tao' => $hienTai,
+                     'ngay_cap_nhat' => $hienTai,
+                 ]);
+@@ -108,20 +112,41 @@ public function taoNhomCo(NguoiDung $actor, array $duLieu): array
+     public function capNhatNhomCo(NguoiDung $actor, int $nhomCoId, array $duLieu): array
+     {
+         return DB::transaction(function () use ($actor, $nhomCoId, $duLieu): array {
+-            $this->guard->khoaVaDamBaoQuanTriVien($actor);
++            $actorDaKhoa = $this->guard->khoaVaDamBaoQuanTriVien($actor);
+             $nhomCo = NhomCo::query()->lockForUpdate()->find($nhomCoId);
+             if (! $nhomCo instanceof NhomCo) {
+                 throw new CatalogWorkflowException('Không tìm thấy nhóm cơ.', 404, 'MUSCLE_GROUP_NOT_FOUND');
+             }
++            $trangThaiCu = (string) $nhomCo->trang_thai;
+             $values = [];
+-            foreach (['name' => 'ten_nhom_co', 'description' => 'mo_ta'] as $api => $cot) {
++            foreach (['name' => 'ten_nhom_co', 'description' => 'mo_ta', 'status' => 'trang_thai'] as $api => $cot) {
+                 if (array_key_exists($api, $duLieu)) {
+-                    $values[$cot] = is_string($duLieu[$api]) ? trim($duLieu[$api]) : $duLieu[$api];
++                    $values[$cot] = $api === 'status'
++                        ? $this->chuanHoaTrangThai($duLieu[$api])
++                        : (is_string($duLieu[$api]) ? trim($duLieu[$api]) : $duLieu[$api]);
+                 }
+             }
+             if ($values !== []) {
+-                $values['ngay_cap_nhat'] = CarbonImmutable::now('UTC');
+-                $nhomCo->forceFill($values)->save();
++                $nhomCo->forceFill($values);
++                if ($nhomCo->isDirty()) {
++                    $hienTai = CarbonImmutable::now('UTC');
++                    $nhomCo->forceFill(['ngay_cap_nhat' => $hienTai])->save();
++                    if (array_key_exists('trang_thai', $values) && $trangThaiCu !== (string) $nhomCo->trang_thai) {
++                        NhatKyHeThong::query()->create([
++                            'nguoi_thuc_hien_id' => $actorDaKhoa->getKey(),
++                            'loai_tac_nhan' => 'NGUOI_DUNG',
++                            'hanh_dong' => 'CAP_NHAT_TRANG_THAI_NHOM_CO',
++                            'loai_doi_tuong' => 'NHOM_CO',
++                            'dinh_danh_doi_tuong' => $nhomCo->getKey(),
++                            'khoa_tuong_quan' => (string) Str::uuid(),
++                            'du_lieu_truoc' => ['trang_thai' => $trangThaiCu],
++                            'du_lieu_sau' => ['trang_thai' => (string) $nhomCo->trang_thai],
++                            'ket_qua' => 'THANH_CONG',
++                            'thuc_hien_luc' => $hienTai,
++                            'ngay_tao' => $hienTai,
++                        ]);
++                    }
++                }
+             }
+ 
+             return $this->duLieuNhomCo($nhomCo->refresh());
+@@ -164,7 +189,7 @@ public function taoBaiTap(NguoiDung $actor, array $duLieu): array
+             return DB::transaction(function () use ($actor, $duLieu): array {
+                 $actorDaKhoa = $this->guard->khoaVaDamBaoQuanTriVien($actor);
+                 $hienTai = CarbonImmutable::now('UTC');
+-                $this->khoaVaXacThucLienKet($duLieu['equipment_ids'], $duLieu['muscle_groups']);
++                $lienKet = $this->khoaVaXacThucLienKet($duLieu['equipment_ids'], $duLieu['muscle_groups']);
+                 $baiTap = BaiTap::query()->create([
+                     'ma_bai_tap' => strtoupper(trim((string) $duLieu['code'])),
+                     'ten_bai_tap' => trim((string) $duLieu['name']),
+@@ -179,7 +204,8 @@ public function taoBaiTap(NguoiDung $actor, array $duLieu): array
+                     'ngay_tao' => $hienTai,
+                     'ngay_cap_nhat' => $hienTai,
+                 ]);
+-                $this->thayTheLienKet($baiTap, $duLieu['equipment_ids'], $duLieu['muscle_groups'], $hienTai);
++                $this->dongBoDungCu($baiTap, $lienKet['equipment_ids'], $hienTai);
++                $this->dongBoNhomCo($baiTap, $lienKet['muscle_groups'], $hienTai);
+ 
+                 return $this->duLieuBaiTap($baiTap->load(['baiTapDungCus.dungCu', 'baiTapNhomCos.nhomCo']));
+             }, 3);
+@@ -198,14 +224,24 @@ public function capNhatBaiTap(NguoiDung $actor, int $baiTapId, array $duLieu): a
+                 throw new CatalogWorkflowException('Không tìm thấy bài tập.', 404, 'EXERCISE_NOT_FOUND');
+             }
+ 
+-            $equipment = $duLieu['equipment_ids'] ?? null;
+-            $muscles = $duLieu['muscle_groups'] ?? null;
+-            if ($equipment !== null || $muscles !== null) {
+-                $this->khoaVaXacThucLienKet(
+-                    $equipment ?? BaiTapDungCu::query()->where('bai_tap_id', $baiTapId)->pluck('dung_cu_id')->all(),
+-                    $muscles ?? BaiTapNhomCo::query()->where('bai_tap_id', $baiTapId)
+-                        ->get()->map(fn (BaiTapNhomCo $row): array => ['id' => $row->nhom_co_id, 'role' => $row->vai_tro_nhom_co])->all(),
+-                );
++            $equipmentSubmitted = array_key_exists('equipment_ids', $duLieu);
++            $musclesSubmitted = array_key_exists('muscle_groups', $duLieu);
++            $equipment = $equipmentSubmitted ? $this->chuanHoaIdList($duLieu['equipment_ids']) : null;
++            $muscles = $musclesSubmitted ? $this->chuanHoaNhomCoPayload($duLieu['muscle_groups']) : null;
++            $currentMuscleRows = null;
++            if ($equipmentSubmitted) {
++                $this->khoaVaXacThucDungCu($equipment);
++            }
++            if ($musclesSubmitted) {
++                $currentMuscleRows = BaiTapNhomCo::query()
++                    ->where('bai_tap_id', $baiTapId)
++                    ->orderBy('nhom_co_id')
++                    ->orderBy('id')
++                    ->get();
++                $currentMuscleIds = $currentMuscleRows->pluck('nhom_co_id')->map(fn ($id): int => (int) $id)->all();
++                $submittedMuscleIds = array_map(fn (array $row): int => $row['id'], $muscles);
++                $lockedMuscleGroups = $this->khoaVaXacThucNhomCo(array_merge($currentMuscleIds, $submittedMuscleIds));
++                $this->xacThucThayTheNhomCo($currentMuscleRows, $muscles, $lockedMuscleGroups);
+             }
+ 
+             $values = [];
+@@ -233,55 +269,212 @@ public function capNhatBaiTap(NguoiDung $actor, int $baiTapId, array $duLieu): a
+                 $values['ngay_cap_nhat'] = $hienTai;
+                 $baiTap->forceFill($values)->save();
+             }
+-            if ($equipment !== null || $muscles !== null) {
+-                $this->thayTheLienKet(
+-                    $baiTap,
+-                    $equipment ?? BaiTapDungCu::query()->where('bai_tap_id', $baiTapId)->pluck('dung_cu_id')->all(),
+-                    $muscles ?? BaiTapNhomCo::query()->where('bai_tap_id', $baiTapId)
+-                        ->get()->map(fn (BaiTapNhomCo $row): array => ['id' => $row->nhom_co_id, 'role' => $row->vai_tro_nhom_co])->all(),
+-                    $hienTai,
+-                );
++            if ($equipmentSubmitted) {
++                $this->dongBoDungCu($baiTap, $equipment, $hienTai);
++            }
++            if ($musclesSubmitted) {
++                $this->dongBoNhomCo($baiTap, $muscles, $hienTai, $currentMuscleRows);
+             }
+ 
+             return $this->duLieuBaiTap($baiTap->refresh()->load(['baiTapDungCus.dungCu', 'baiTapNhomCos.nhomCo']));
+         }, 3);
+     }
+ 
+-    private function khoaVaXacThucLienKet(array $equipmentIds, array $muscleGroups): void
++    /** @return array{equipment_ids: array<int, int>, muscle_groups: array<int, array{id:int,role:string}>} */
++    private function khoaVaXacThucLienKet(array $equipmentIds, array $muscleGroups): array
+     {
+-        $equipmentIds = array_values(array_unique(array_map('intval', $equipmentIds)));
+-        $muscleIds = array_values(array_unique(array_map(fn (array $row): int => (int) $row['id'], $muscleGroups)));
+-        if ($equipmentIds !== [] && DungCu::query()->whereIn('id', $equipmentIds)->lockForUpdate()->count() !== count($equipmentIds)) {
++        $equipmentIds = $this->chuanHoaIdList($equipmentIds);
++        $muscleGroups = $this->chuanHoaNhomCoPayload($muscleGroups);
++        $this->khoaVaXacThucDungCu($equipmentIds);
++        $lockedMuscleGroups = $this->khoaVaXacThucNhomCo(array_map(
++            fn (array $row): int => $row['id'],
++            $muscleGroups,
++        ));
++        foreach ($muscleGroups as $row) {
++            $nhomCo = $lockedMuscleGroups->get($row['id']);
++            if (! $nhomCo instanceof NhomCo || (string) $nhomCo->trang_thai !== 'HOAT_DONG') {
++                throw new CatalogWorkflowException(
++                    'Nhóm cơ không hoạt động không thể được liên kết mới.',
++                    422,
++                    'INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE',
++                );
++            }
++        }
++
++        return ['equipment_ids' => $equipmentIds, 'muscle_groups' => $muscleGroups];
++    }
++
++    /** @param array<int, int> $ids */
++    private function khoaVaXacThucDungCu(array $ids): void
++    {
++        if ($ids === []) {
++            return;
++        }
++
++        $found = DungCu::query()->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->pluck('id')
++            ->map(fn ($id): int => (int) $id)->all();
++        if (count($found) !== count($ids)) {
+             throw new CatalogWorkflowException('Danh sách dụng cụ chứa ID không tồn tại.', 422, 'INVALID_EQUIPMENT');
+         }
+-        if ($muscleIds !== [] && NhomCo::query()->whereIn('id', $muscleIds)->lockForUpdate()->count() !== count($muscleIds)) {
++    }
++
++    /** @param array<int, int> $ids @return Collection<int, NhomCo> */
++    private function khoaVaXacThucNhomCo(array $ids): Collection
++    {
++        $ids = $this->chuanHoaIdList($ids);
++        if ($ids === []) {
++            return collect();
++        }
++
++        $groups = NhomCo::query()->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get()->keyBy(
++            fn (NhomCo $nhomCo): int => (int) $nhomCo->getKey(),
++        );
++        if ($groups->count() !== count($ids)) {
+             throw new CatalogWorkflowException('Danh sách nhóm cơ chứa ID không tồn tại.', 422, 'INVALID_MUSCLE_GROUP');
+         }
++
++        return $groups;
+     }
+ 
+-    private function thayTheLienKet(BaiTap $baiTap, array $equipmentIds, array $muscleGroups, CarbonImmutable $hienTai): void
++    /** @param array<int, int> $ids @return array<int, int> */
++    private function chuanHoaIdList(array $ids): array
+     {
+-        BaiTapDungCu::query()->where('bai_tap_id', $baiTap->getKey())->delete();
+-        foreach (array_values(array_unique(array_map('intval', $equipmentIds))) as $dungCuId) {
+-            BaiTapDungCu::query()->create([
+-                'bai_tap_id' => $baiTap->getKey(),
+-                'dung_cu_id' => $dungCuId,
+-                'ngay_tao' => $hienTai,
+-                'ngay_cap_nhat' => $hienTai,
+-            ]);
++        $normalized = [];
++        foreach ($ids as $id) {
++            $normalized[(int) $id] = true;
+         }
+-        BaiTapNhomCo::query()->where('bai_tap_id', $baiTap->getKey())->delete();
++        $result = array_map('intval', array_keys($normalized));
++        sort($result, SORT_NUMERIC);
++
++        return $result;
++    }
++
++    /** @param array<int, mixed> $muscleGroups @return array<int, array{id:int,role:string}> */
++    private function chuanHoaNhomCoPayload(array $muscleGroups): array
++    {
++        $result = [];
+         foreach ($muscleGroups as $row) {
++            if (! is_array($row) || ! array_key_exists('id', $row) || ! array_key_exists('role', $row)) {
++                throw new CatalogWorkflowException('Danh sách nhóm cơ không hợp lệ.', 422, 'INVALID_MUSCLE_GROUP');
++            }
++            $id = (int) $row['id'];
++            $role = (string) $row['role'];
++            if ($id < 1 || ! in_array($role, ['CHINH', 'PHU'], true) || array_key_exists($id, $result)) {
++                throw new CatalogWorkflowException('Danh sách nhóm cơ không hợp lệ.', 422, 'INVALID_MUSCLE_GROUP');
++            }
++            $result[$id] = ['id' => $id, 'role' => $role];
++        }
++        ksort($result, SORT_NUMERIC);
++
++        return array_values($result);
++    }
++
++    /**
++     * @param  Collection<int, BaiTapNhomCo>  $currentRows
++     * @param  array<int, array{id:int,role:string}>  $submittedRows
++     * @param  Collection<int, NhomCo>  $lockedGroups
++     */
++    private function xacThucThayTheNhomCo(Collection $currentRows, array $submittedRows, Collection $lockedGroups): void
++    {
++        $currentById = $currentRows->keyBy(fn (BaiTapNhomCo $row): int => (int) $row->nhom_co_id);
++        $submittedById = collect($submittedRows)->keyBy('id');
++        foreach ($submittedRows as $submitted) {
++            $nhomCo = $lockedGroups->get($submitted['id']);
++            if (! $nhomCo instanceof NhomCo) {
++                throw new CatalogWorkflowException('Danh sách nhóm cơ chứa ID không tồn tại.', 422, 'INVALID_MUSCLE_GROUP');
++            }
++            if ((string) $nhomCo->trang_thai !== 'HOAT_DONG') {
++                $current = $currentById->get($submitted['id']);
++                if (! $current instanceof BaiTapNhomCo || (string) $current->vai_tro_nhom_co !== $submitted['role']) {
++                    throw $this->loiLienKetNhomCoKhongHoatDong();
++                }
++            }
++        }
++        foreach ($currentRows as $current) {
++            $nhomCo = $lockedGroups->get((int) $current->nhom_co_id);
++            if ($nhomCo instanceof NhomCo && (string) $nhomCo->trang_thai !== 'HOAT_DONG') {
++                $submitted = $submittedById->get((int) $current->nhom_co_id);
++                if (! is_array($submitted) || (string) $current->vai_tro_nhom_co !== (string) ($submitted['role'] ?? '')) {
++                    throw $this->loiLienKetNhomCoKhongHoatDong();
++                }
++            }
++        }
++    }
++
++    /** @param array<int, int> $equipmentIds */
++    private function dongBoDungCu(BaiTap $baiTap, array $equipmentIds, CarbonImmutable $hienTai): void
++    {
++        $currentIds = BaiTapDungCu::query()->where('bai_tap_id', $baiTap->getKey())->pluck('dung_cu_id')
++            ->map(fn ($id): int => (int) $id)->all();
++        $current = array_fill_keys($currentIds, true);
++        $remove = array_values(array_diff($currentIds, $equipmentIds));
++        if ($remove !== []) {
++            BaiTapDungCu::query()->where('bai_tap_id', $baiTap->getKey())->whereIn('dung_cu_id', $remove)->delete();
++        }
++        foreach ($equipmentIds as $dungCuId) {
++            if (! isset($current[$dungCuId])) {
++                BaiTapDungCu::query()->create([
++                    'bai_tap_id' => $baiTap->getKey(),
++                    'dung_cu_id' => $dungCuId,
++                    'ngay_tao' => $hienTai,
++                    'ngay_cap_nhat' => $hienTai,
++                ]);
++            }
++        }
++    }
++
++    /** @param array<int, array{id:int,role:string}> $muscleGroups @param Collection<int, BaiTapNhomCo>|null $currentRows */
++    private function dongBoNhomCo(
++        BaiTap $baiTap,
++        array $muscleGroups,
++        CarbonImmutable $hienTai,
++        ?Collection $currentRows = null,
++    ): void {
++        $currentRows ??= BaiTapNhomCo::query()->where('bai_tap_id', $baiTap->getKey())
++            ->orderBy('nhom_co_id')->orderBy('id')->get();
++        $currentById = $currentRows->keyBy(fn (BaiTapNhomCo $row): int => (int) $row->nhom_co_id);
++        $targetById = collect($muscleGroups)->keyBy('id');
++        $remove = $currentRows->filter(fn (BaiTapNhomCo $row): bool => ! $targetById->has((int) $row->nhom_co_id))
++            ->pluck('nhom_co_id')->map(fn ($id): int => (int) $id)->all();
++        if ($remove !== []) {
++            BaiTapNhomCo::query()->where('bai_tap_id', $baiTap->getKey())->whereIn('nhom_co_id', $remove)->delete();
++        }
++        foreach ($muscleGroups as $target) {
++            $current = $currentById->get($target['id']);
++            if ($current instanceof BaiTapNhomCo) {
++                if ((string) $current->vai_tro_nhom_co !== $target['role']) {
++                    $current->forceFill([
++                        'vai_tro_nhom_co' => $target['role'],
++                        'ngay_cap_nhat' => $hienTai,
++                    ])->save();
++                }
++
++                continue;
++            }
+             BaiTapNhomCo::query()->create([
+                 'bai_tap_id' => $baiTap->getKey(),
+-                'nhom_co_id' => (int) $row['id'],
+-                'vai_tro_nhom_co' => (string) $row['role'],
++                'nhom_co_id' => $target['id'],
++                'vai_tro_nhom_co' => $target['role'],
+                 'ngay_tao' => $hienTai,
+                 'ngay_cap_nhat' => $hienTai,
+             ]);
+         }
+     }
+ 
++    private function loiLienKetNhomCoKhongHoatDong(): CatalogWorkflowException
++    {
++        return new CatalogWorkflowException(
++            'Quan hệ với nhóm cơ ngừng sử dụng phải được giữ nguyên.',
++            422,
++            'INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE',
++        );
++    }
++
++    private function chuanHoaTrangThai(mixed $status): string
++    {
++        return strtoupper(trim((string) $status));
++    }
++
+     private function xungDot(QueryException $exception, string $message, string $code): CatalogWorkflowException
+     {
+         if ((int) ($exception->errorInfo[1] ?? 0) === 1062) {
+@@ -311,6 +504,7 @@ private function duLieuNhomCo(NhomCo $nhomCo): array
+             'code' => (string) $nhomCo->ma_nhom_co,
+             'name' => (string) $nhomCo->ten_nhom_co,
+             'description' => $nhomCo->mo_ta,
++            'status' => (string) $nhomCo->trang_thai,
+         ];
+     }
+ 
+@@ -340,6 +534,7 @@ private function duLieuBaiTap(BaiTap $baiTap): array
+                 'code' => (string) $row->nhomCo?->ma_nhom_co,
+                 'name' => (string) $row->nhomCo?->ten_nhom_co,
+                 'role' => (string) $row->vai_tro_nhom_co,
++                'status' => (string) $row->nhomCo?->trang_thai,
+             ])->values()->all(),
+         ];
+     }
+diff --git a/BE/tests/Feature/AdminCatalogApiTest.php b/BE/tests/Feature/AdminCatalogApiTest.php
+index ed4091b..1a45b35 100644
+--- a/BE/tests/Feature/AdminCatalogApiTest.php
++++ b/BE/tests/Feature/AdminCatalogApiTest.php
+@@ -3,10 +3,13 @@
+ namespace Tests\Feature;
+ 
+ use App\Models\GoiTap;
++use App\Models\NhomCo;
+ use App\Services\Workout\WorkoutPlanService;
+ use App\Services\Workout\WorkoutScheduleService;
+ use App\Services\Workout\WorkoutSessionService;
+ use Carbon\CarbonImmutable;
++use Illuminate\Database\QueryException;
++use Illuminate\Support\Facades\Artisan;
+ use Illuminate\Support\Facades\DB;
+ use Illuminate\Support\Str;
+ use Tests\Concerns\CreatesWorkoutFixtures;
+@@ -206,6 +209,173 @@ public function test_admin_exercise_api_preserves_and_semantics_and_deactivates_
+         ], $headers)->assertUnprocessable()->assertJsonPath('code', 'INVALID_EQUIPMENT');
+     }
+ 
++    public function test_muscle_group_status_and_inactive_relation_contract_is_atomic(): void
++    {
++        [, $headers] = $this->admin();
++        $suffix = strtoupper(bin2hex(random_bytes(4)));
++        $activeGroup = (int) $this->postJson('/api/admin/muscle-groups', [
++            'code' => 'STATUS_ACTIVE_'.$suffix,
++            'name' => 'Nhóm cơ đang hoạt động',
++        ], $headers)->assertCreated()->assertJsonPath('data.status', 'HOAT_DONG')->json('data.id');
++        $inactiveGroup = (int) $this->postJson('/api/admin/muscle-groups', [
++            'code' => 'STATUS_INACTIVE_'.$suffix,
++            'name' => 'Nhóm cơ ngừng dùng',
++            'status' => ' ngung_su_dung ',
++        ], $headers)->assertCreated()->assertJsonPath('data.status', 'NGUNG_SU_DUNG')->json('data.id');
++
++        $this->getJson('/api/admin/muscle-groups', $headers)
++            ->assertOk()
++            ->assertJsonFragment(['id' => $activeGroup, 'status' => 'HOAT_DONG'])
++            ->assertJsonFragment(['id' => $inactiveGroup, 'status' => 'NGUNG_SU_DUNG']);
++        $invalidCode = 'STATUS_INVALID_'.$suffix;
++        $this->postJson('/api/admin/muscle-groups', [
++            'code' => $invalidCode,
++            'name' => 'Không được lưu',
++            'status' => 'UNKNOWN',
++        ], $headers)->assertUnprocessable()->assertJsonValidationErrors('status');
++        $this->assertDatabaseMissing('nhom_co', ['ma_nhom_co' => $invalidCode]);
++        $authorityCode = 'STATUS_AUTH_'.$suffix;
++        $this->postJson('/api/admin/muscle-groups', [
++            'code' => $authorityCode,
++            'name' => 'Không được ghi authority',
++            'ngay_tao' => '2026-01-01 00:00:00',
++            'branch_id' => 1,
++        ], $headers)->assertUnprocessable();
++        $this->assertDatabaseMissing('nhom_co', ['ma_nhom_co' => $authorityCode]);
++
++        $equipmentId = $this->createEquipment($headers, 'STATUS_EQUIP_'.$suffix);
++        $exerciseId = (int) $this->postJson('/api/admin/exercises', [
++            'code' => 'STATUS_EX_'.$suffix,
++            'name' => 'Bài tập giữ quan hệ nhóm cơ',
++            'difficulty' => 'TRUNG_BINH',
++            'instructions' => 'Giữ lịch sử quan hệ.',
++            'equipment_ids' => [],
++            'muscle_groups' => [['id' => $activeGroup, 'role' => 'CHINH']],
++        ], $headers)->assertCreated()->json('data.id');
++        $pivotBefore = (array) DB::table('bai_tap_nhom_co')->where('bai_tap_id', $exerciseId)
++            ->where('nhom_co_id', $activeGroup)->sole();
++        $auditBefore = DB::table('nhat_ky_he_thong')
++            ->where('hanh_dong', 'CAP_NHAT_TRANG_THAI_NHOM_CO')
++            ->where('loai_doi_tuong', 'NHOM_CO')
++            ->where('dinh_danh_doi_tuong', $activeGroup)->count();
++
++        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-08-31 09:01:00.000000', 'UTC'));
++        $this->patchJson('/api/admin/muscle-groups/'.$activeGroup, ['status' => ' ngung_su_dung '], $headers)
++            ->assertOk()->assertJsonPath('data.status', 'NGUNG_SU_DUNG');
++        $groupAfterDeactivate = DB::table('nhom_co')->where('id', $activeGroup)->sole();
++        $audit = DB::table('nhat_ky_he_thong')
++            ->where('hanh_dong', 'CAP_NHAT_TRANG_THAI_NHOM_CO')
++            ->where('loai_doi_tuong', 'NHOM_CO')
++            ->where('dinh_danh_doi_tuong', $activeGroup)->latest('id')->sole();
++        $this->assertSame($auditBefore + 1, DB::table('nhat_ky_he_thong')
++            ->where('hanh_dong', 'CAP_NHAT_TRANG_THAI_NHOM_CO')
++            ->where('dinh_danh_doi_tuong', $activeGroup)->count());
++        $this->assertSame(['trang_thai' => 'HOAT_DONG'], json_decode($audit->du_lieu_truoc, true));
++        $this->assertSame(['trang_thai' => 'NGUNG_SU_DUNG'], json_decode($audit->du_lieu_sau, true));
++        $this->assertSame('THANH_CONG', $audit->ket_qua);
++        $this->assertSame('NHOM_CO', $audit->loai_doi_tuong);
++        $this->assertSame('CAP_NHAT_TRANG_THAI_NHOM_CO', $audit->hanh_dong);
++        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/i', $audit->khoa_tuong_quan);
++        $this->assertSame($pivotBefore, (array) DB::table('bai_tap_nhom_co')->where('bai_tap_id', $exerciseId)
++            ->where('nhom_co_id', $activeGroup)->sole());
++        $this->getJson('/api/admin/exercises/'.$exerciseId, $headers)
++            ->assertOk()->assertJsonPath('data.muscle_groups.0.status', 'NGUNG_SU_DUNG');
++
++        $sameTimestamp = (string) $groupAfterDeactivate->ngay_cap_nhat;
++        $sameAuditCount = DB::table('nhat_ky_he_thong')
++            ->where('hanh_dong', 'CAP_NHAT_TRANG_THAI_NHOM_CO')->where('dinh_danh_doi_tuong', $activeGroup)->count();
++        $this->patchJson('/api/admin/muscle-groups/'.$activeGroup, ['status' => ' NGUNG_SU_DUNG '], $headers)
++            ->assertOk()->assertJsonPath('data.status', 'NGUNG_SU_DUNG');
++        $this->assertSame($sameTimestamp, (string) DB::table('nhom_co')->where('id', $activeGroup)->value('ngay_cap_nhat'));
++        $this->assertSame($sameAuditCount, DB::table('nhat_ky_he_thong')
++            ->where('hanh_dong', 'CAP_NHAT_TRANG_THAI_NHOM_CO')->where('dinh_danh_doi_tuong', $activeGroup)->count());
++
++        $this->patchJson('/api/admin/exercises/'.$exerciseId, [
++            'muscle_groups' => [['id' => $activeGroup, 'role' => 'CHINH']],
++        ], $headers)->assertOk();
++        $this->assertSame($pivotBefore, (array) DB::table('bai_tap_nhom_co')->where('bai_tap_id', $exerciseId)
++            ->where('nhom_co_id', $activeGroup)->sole());
++
++        $this->patchJson('/api/admin/exercises/'.$exerciseId, ['instructions' => 'Scalar only.'], $headers)->assertOk();
++        $this->assertSame($pivotBefore, (array) DB::table('bai_tap_nhom_co')->where('bai_tap_id', $exerciseId)
++            ->where('nhom_co_id', $activeGroup)->sole());
++        $this->patchJson('/api/admin/exercises/'.$exerciseId, ['equipment_ids' => [$equipmentId]], $headers)->assertOk();
++        $this->assertSame($pivotBefore, (array) DB::table('bai_tap_nhom_co')->where('bai_tap_id', $exerciseId)
++            ->where('nhom_co_id', $activeGroup)->sole());
++
++        $this->patchJson('/api/admin/exercises/'.$exerciseId, [
++            'name' => 'Tên không được lưu khi đổi role inactive',
++            'muscle_groups' => [['id' => $activeGroup, 'role' => 'PHU']],
++        ], $headers)->assertUnprocessable()->assertJsonPath('code', 'INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE');
++        $this->assertSame('Bài tập giữ quan hệ nhóm cơ', DB::table('bai_tap')->where('id', $exerciseId)->value('ten_bai_tap'));
++        $this->assertSame($pivotBefore, (array) DB::table('bai_tap_nhom_co')->where('bai_tap_id', $exerciseId)
++            ->where('nhom_co_id', $activeGroup)->sole());
++        $this->patchJson('/api/admin/exercises/'.$exerciseId, [
++            'name' => 'Tên không được lưu khi xóa inactive',
++            'equipment_ids' => [],
++            'muscle_groups' => [],
++        ], $headers)->assertUnprocessable()->assertJsonPath('code', 'INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE');
++        $this->assertSame('Bài tập giữ quan hệ nhóm cơ', DB::table('bai_tap')->where('id', $exerciseId)->value('ten_bai_tap'));
++        $this->assertSame(1, DB::table('bai_tap_dung_cu')->where('bai_tap_id', $exerciseId)->count());
++
++        $inactiveExerciseCode = 'STATUS_INACTIVE_EX_'.$suffix;
++        $this->postJson('/api/admin/exercises', [
++            'code' => $inactiveExerciseCode,
++            'name' => 'Không liên kết inactive mới',
++            'difficulty' => 'DE',
++            'instructions' => 'Không được lưu.',
++            'equipment_ids' => [],
++            'muscle_groups' => [['id' => $inactiveGroup, 'role' => 'CHINH']],
++        ], $headers)->assertUnprocessable()->assertJsonPath('code', 'INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE');
++        $this->assertDatabaseMissing('bai_tap', ['ma_bai_tap' => $inactiveExerciseCode]);
++
++        $this->patchJson('/api/admin/muscle-groups/'.$activeGroup, ['status' => 'HOAT_DONG'], $headers)
++            ->assertOk()->assertJsonPath('data.status', 'HOAT_DONG');
++        $this->patchJson('/api/admin/exercises/'.$exerciseId, ['muscle_groups' => []], $headers)->assertOk();
++        $this->assertDatabaseMissing('bai_tap_nhom_co', ['bai_tap_id' => $exerciseId, 'nhom_co_id' => $activeGroup]);
++        $this->assertSame($sameAuditCount + 1, DB::table('nhat_ky_he_thong')
++            ->where('hanh_dong', 'CAP_NHAT_TRANG_THAI_NHOM_CO')->where('dinh_danh_doi_tuong', $activeGroup)->count());
++        $this->deleteJson('/api/admin/muscle-groups/'.$activeGroup, [], $headers)->assertMethodNotAllowed();
++
++        $this->assertSame(0, Artisan::call('db:seed', ['--force' => true]));
++        $this->assertSame('NGUNG_SU_DUNG', DB::table('nhom_co')->where('id', $inactiveGroup)->value('trang_thai'));
++    }
++
++    public function test_muscle_group_schema_model_and_check_contract_is_current(): void
++    {
++        $column = DB::selectOne(
++            'SELECT COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT, COLLATION_NAME, ORDINAL_POSITION '
++            .'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
++            ['nhom_co', 'trang_thai'],
++        );
++        $this->assertNotNull($column);
++        $this->assertSame('varchar(30)', strtolower((string) $column->COLUMN_TYPE));
++        $this->assertSame('NO', $column->IS_NULLABLE);
++        $this->assertSame("'HOAT_DONG'", $column->COLUMN_DEFAULT);
++        $this->assertSame('utf8mb4_nopad_bin', $column->COLLATION_NAME);
++        $this->assertSame(5, (int) $column->ORDINAL_POSITION);
++        $constraint = DB::selectOne(
++            'SELECT CHECK_CLAUSE FROM information_schema.CHECK_CONSTRAINTS '
++            .'WHERE CONSTRAINT_SCHEMA = DATABASE() AND CONSTRAINT_NAME = ?',
++            ['kiem_tra_b26_01'],
++        );
++        $this->assertNotNull($constraint);
++        $this->assertStringContainsString('HOAT_DONG', $constraint->CHECK_CLAUSE);
++        $this->assertStringContainsString('NGUNG_SU_DUNG', $constraint->CHECK_CLAUSE);
++        $this->assertContains('trang_thai', (new NhomCo)->getFillable());
++        $this->assertGreaterThan(0, DB::table('nhom_co')->where('trang_thai', 'HOAT_DONG')->count());
++
++        $groupId = (int) DB::table('nhom_co')->orderBy('id')->value('id');
++        $rejected = false;
++        try {
++            DB::table('nhom_co')->where('id', $groupId)->update(['trang_thai' => 'INVALID']);
++        } catch (QueryException) {
++            $rejected = true;
++        }
++        $this->assertTrue($rejected, 'B26 CHECK must reject an invalid status.');
++        $this->assertSame('HOAT_DONG', DB::table('nhom_co')->where('id', $groupId)->value('trang_thai'));
++    }
++
+     public function test_template_mutation_changes_future_catalog_only_and_preserves_plan_and_completed_history(): void
+     {
+         [$admin, $headers] = $this->admin();
+@@ -331,6 +501,7 @@ public function test_all_catalog_mutations_block_unauthenticated_and_non_admin_r
+             ['POST', '/api/admin/equipment'],
+             ['PATCH', '/api/admin/equipment/1'],
+             ['POST', '/api/admin/muscle-groups'],
++            ['PATCH', '/api/admin/muscle-groups/1'],
+             ['POST', '/api/admin/exercises'],
+             ['PATCH', '/api/admin/exercises/1'],
+             ['POST', '/api/admin/workout-templates'],
+diff --git a/BE/tests/Feature/AdminCatalogConcurrencyTest.php b/BE/tests/Feature/AdminCatalogConcurrencyTest.php
+index fd407e4..4465862 100644
+--- a/BE/tests/Feature/AdminCatalogConcurrencyTest.php
++++ b/BE/tests/Feature/AdminCatalogConcurrencyTest.php
+@@ -113,19 +113,116 @@ public function test_actual_process_catalog_mutations_serialize_without_lost_par
+         }
+     }
+ 
+-    /** @param array<int, array{0:string,1:int,2:array<string,mixed>}> $actions */
++    public function test_muscle_group_process_race_serializes_different_admins_and_audits_once(): void
++    {
++        TestDatabaseGuard::damBaoDatabaseHienTai();
++        $database = (string) DB::selectOne('SELECT DATABASE() AS ten')->ten;
++        $suffix = strtoupper(bin2hex(random_bytes(5)));
++        $adminA = $this->createRaceAdmin('A_'.$suffix);
++        $adminB = $this->createRaceAdmin('B_'.$suffix);
++        $now = CarbonImmutable::now('UTC');
++        $groupId = DB::table('nhom_co')->insertGetId([
++            'ma_nhom_co' => 'RACE_MUSCLE_'.$suffix,
++            'ten_nhom_co' => 'Tên ban đầu',
++            'mo_ta' => null,
++            'trang_thai' => 'HOAT_DONG',
++            'ngay_tao' => $now,
++            'ngay_cap_nhat' => $now,
++        ]);
++
++        try {
++            $results = $this->runProcesses($database, [
++                ['muscle_group', $groupId, ['name' => 'Tên từ Admin A'], $adminA['admin_id']],
++                ['muscle_group', $groupId, ['status' => 'NGUNG_SU_DUNG'], $adminB['admin_id']],
++            ], $adminA['admin_id']);
++            $this->assertSame(['success', 'success'], collect($results)->pluck('status')->all());
++            $this->assertSame('Tên từ Admin A', DB::table('nhom_co')->where('id', $groupId)->value('ten_nhom_co'));
++            $this->assertSame('NGUNG_SU_DUNG', DB::table('nhom_co')->where('id', $groupId)->value('trang_thai'));
++            $this->assertSame(1, DB::table('nhat_ky_he_thong')
++                ->where('hanh_dong', 'CAP_NHAT_TRANG_THAI_NHOM_CO')
++                ->where('dinh_danh_doi_tuong', $groupId)->count());
++        } finally {
++            DB::table('nhat_ky_he_thong')->where('dinh_danh_doi_tuong', $groupId)->delete();
++            DB::table('nhom_co')->where('id', $groupId)->delete();
++            $this->cleanupRaceAdmin($adminA);
++            $this->cleanupRaceAdmin($adminB);
++        }
++    }
++
++    public function test_muscle_group_deactivation_race_with_new_relation_is_linearizable(): void
++    {
++        TestDatabaseGuard::damBaoDatabaseHienTai();
++        $database = (string) DB::selectOne('SELECT DATABASE() AS ten')->ten;
++        $suffix = strtoupper(bin2hex(random_bytes(5)));
++        $adminA = $this->createRaceAdmin('REL_A_'.$suffix);
++        $adminB = $this->createRaceAdmin('REL_B_'.$suffix);
++        $now = CarbonImmutable::now('UTC');
++        $groupId = DB::table('nhom_co')->insertGetId([
++            'ma_nhom_co' => 'RACE_REL_MUSCLE_'.$suffix,
++            'ten_nhom_co' => 'Nhóm cơ race relation',
++            'mo_ta' => null,
++            'trang_thai' => 'HOAT_DONG',
++            'ngay_tao' => $now,
++            'ngay_cap_nhat' => $now,
++        ]);
++        $oldExerciseId = $this->insertRaceExercise($adminA['admin_id'], 'RACE_OLD_'.$suffix, $now);
++        $newExerciseId = $this->insertRaceExercise($adminA['admin_id'], 'RACE_NEW_'.$suffix, $now);
++        $oldPivotId = DB::table('bai_tap_nhom_co')->insertGetId([
++            'bai_tap_id' => $oldExerciseId,
++            'nhom_co_id' => $groupId,
++            'vai_tro_nhom_co' => 'CHINH',
++            'ngay_tao' => $now->copy()->subMinute(),
++            'ngay_cap_nhat' => $now->copy()->subMinute(),
++        ]);
++        $oldPivotBefore = (array) DB::table('bai_tap_nhom_co')->where('id', $oldPivotId)->sole();
++
++        try {
++            $results = $this->runProcesses($database, [
++                ['exercise', $newExerciseId, [
++                    'muscle_groups' => [['id' => $groupId, 'role' => 'CHINH']],
++                ], $adminA['admin_id']],
++                ['muscle_group', $groupId, ['status' => 'NGUNG_SU_DUNG'], $adminB['admin_id']],
++            ], $adminA['admin_id']);
++            $relationResult = $results[0];
++            $deactivationResult = $results[1];
++            $this->assertSame('success', $deactivationResult['status'], json_encode($results));
++            $this->assertSame('NGUNG_SU_DUNG', DB::table('nhom_co')->where('id', $groupId)->value('trang_thai'));
++            $this->assertSame($oldPivotBefore, (array) DB::table('bai_tap_nhom_co')->where('id', $oldPivotId)->sole());
++            if ($relationResult['status'] === 'success') {
++                $this->assertSame(1, DB::table('bai_tap_nhom_co')
++                    ->where('bai_tap_id', $newExerciseId)->where('nhom_co_id', $groupId)->count());
++            } else {
++                $this->assertSame('error', $relationResult['status']);
++                $this->assertSame('INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE', $relationResult['code']);
++                $this->assertSame(0, DB::table('bai_tap_nhom_co')
++                    ->where('bai_tap_id', $newExerciseId)->where('nhom_co_id', $groupId)->count());
++            }
++            $this->assertSame(1, DB::table('bai_tap')->where('id', $newExerciseId)->count());
++        } finally {
++            DB::table('bai_tap_nhom_co')->whereIn('bai_tap_id', [$oldExerciseId, $newExerciseId])->delete();
++            DB::table('bai_tap')->whereIn('id', [$oldExerciseId, $newExerciseId])->delete();
++            DB::table('nhat_ky_he_thong')->where('dinh_danh_doi_tuong', $groupId)->delete();
++            DB::table('nhom_co')->where('id', $groupId)->delete();
++            $this->cleanupRaceAdmin($adminA);
++            $this->cleanupRaceAdmin($adminB);
++        }
++    }
++
++    /** @param array<int, array{0:string,1:int,2:array<string,mixed>,3?:int}> $actions */
+     private function runProcesses(string $database, array $actions, int $actorId): array
+     {
+         $barrier = sys_get_temp_dir().DIRECTORY_SEPARATOR.'admin_catalog_start_'.bin2hex(random_bytes(8));
+         $descriptor = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+         $processes = [];
+-        foreach ($actions as [$action, $targetId, $payload]) {
++        foreach ($actions as $actionData) {
++            [$action, $targetId, $payload] = $actionData;
++            $processActorId = (int) ($actionData[3] ?? $actorId);
+             $pipes = [];
+             $process = proc_open([
+                 PHP_BINARY,
+                 base_path('tests/Support/run_admin_catalog_action.php'),
+                 $database,
+-                (string) $actorId,
++                (string) $processActorId,
+                 $action,
+                 (string) $targetId,
+                 json_encode($payload, JSON_THROW_ON_ERROR),
+@@ -261,6 +358,72 @@ private function createFixture(): array
+         ];
+     }
+ 
++    /** @return array{branch_id:int,admin_id:int,assignment_id:int} */
++    private function createRaceAdmin(string $suffix): array
++    {
++        $now = CarbonImmutable::now('UTC');
++        $branchId = DB::table('chi_nhanh')->insertGetId([
++            'ma_chi_nhanh' => 'RACE_BRANCH_'.$suffix,
++            'ten_chi_nhanh' => 'Race branch '.$suffix,
++            'dia_chi' => 'Test only',
++            'so_dien_thoai' => null,
++            'mui_gio' => 'Asia/Ho_Chi_Minh',
++            'trang_thai' => 'HOAT_DONG',
++            'ngay_tao' => $now,
++            'ngay_cap_nhat' => $now,
++        ]);
++        $adminId = DB::table('nguoi_dung')->insertGetId([
++            'chi_nhanh_id' => $branchId,
++            'ho_ten' => 'Race admin '.$suffix,
++            'thu_dien_tu' => strtolower('race.'.$suffix.'@example.com'),
++            'so_dien_thoai' => null,
++            'mat_khau_bam' => Hash::make('Concurrent!Password123'),
++            'anh_dai_dien' => null,
++            'xac_minh_thu_luc' => null,
++            'trang_thai' => 'HOAT_DONG',
++            'dang_nhap_gan_nhat_luc' => null,
++            'ngay_tao' => $now,
++            'ngay_cap_nhat' => $now,
++        ]);
++        $assignmentId = DB::table('phan_quyen_nguoi_dung')->insertGetId([
++            'nguoi_dung_id' => $adminId,
++            'vai_tro_id' => DB::table('vai_tro')->where('ma_vai_tro', 'ADMIN')->value('id'),
++            'nguoi_cap_id' => null,
++            'cap_luc' => $now,
++            'thu_hoi_luc' => null,
++            'ngay_tao' => $now,
++            'ngay_cap_nhat' => $now,
++        ]);
++
++        return ['branch_id' => $branchId, 'admin_id' => $adminId, 'assignment_id' => $assignmentId];
++    }
++
++    private function insertRaceExercise(int $adminId, string $code, CarbonImmutable $now): int
++    {
++        return (int) DB::table('bai_tap')->insertGetId([
++            'ma_bai_tap' => $code,
++            'ten_bai_tap' => $code,
++            'do_kho' => 'DE',
++            'huong_dan' => 'Race test',
++            'duong_dan_hinh_anh' => null,
++            'duong_dan_video' => null,
++            'thong_tin_bo_sung' => null,
++            'phien_ban_noi_dung' => 1,
++            'trang_thai' => 'HOAT_DONG',
++            'nguoi_tao_id' => $adminId,
++            'ngay_tao' => $now,
++            'ngay_cap_nhat' => $now,
++        ]);
++    }
++
++    /** @param array{branch_id:int,admin_id:int,assignment_id:int} $admin */
++    private function cleanupRaceAdmin(array $admin): void
++    {
++        DB::table('phan_quyen_nguoi_dung')->where('id', $admin['assignment_id'])->delete();
++        DB::table('nguoi_dung')->where('id', $admin['admin_id'])->delete();
++        DB::table('chi_nhanh')->where('id', $admin['branch_id'])->delete();
++    }
++
+     /** @param array<string, int> $fixture */
+     private function cleanupFixture(array $fixture, ?int $revisionTemplateId = null): void
+     {
+diff --git a/BE/tests/Support/run_admin_catalog_action.php b/BE/tests/Support/run_admin_catalog_action.php
+index df849bf..3753d1f 100644
+--- a/BE/tests/Support/run_admin_catalog_action.php
++++ b/BE/tests/Support/run_admin_catalog_action.php
+@@ -34,6 +34,8 @@
+             ->capNhatQuyenLoi($actor, (int) $targetId, $payload),
+         'exercise' => $app->make(ExerciseCatalogAdminService::class)
+             ->capNhatBaiTap($actor, (int) $targetId, $payload),
++        'muscle_group' => $app->make(ExerciseCatalogAdminService::class)
++            ->capNhatNhomCo($actor, (int) $targetId, $payload),
+         'template' => $app->make(WorkoutTemplateCatalogAdminService::class)
+             ->capNhat($actor, (int) $targetId, $payload),
+         'template_revision' => $app->make(WorkoutTemplateCatalogAdminService::class)
+diff --git a/PROJECT_RULES.md b/PROJECT_RULES.md
+index 27d17f4..a93da6f 100644
+--- a/PROJECT_RULES.md
++++ b/PROJECT_RULES.md
+@@ -12,7 +12,7 @@
+ - Đây là bản hợp nhất có cập nhật, không phải bản sao nguyên văn của prompt ban đầu. Những phần không được chủ dự án thay đổi vẫn được giữ nguyên.
+ - Quyết định kích hoạt mới nhất thay thế các mô tả kích hoạt mâu thuẫn trong những bản trước; áp dụng thống nhất cho gói kết hợp và gói chỉ có dịch vụ online.
+ - Không dùng nội dung từ bản cũ để ghi đè các quy tắc đã hợp nhất ở đây. Chỉ thay đổi business rule khi chủ dự án có yêu cầu mới.
+-- Agent phải đọc toàn bộ tệp này trước khi phân tích, thiết kế, viết/sửa code, test, refactor hoặc review dự án. Nếu đầu ra đọc tệp bị cắt, phải đọc tiếp các phần còn thiếu.
++- Canonical Source Policy: Tệp `PROJECT_RULES.md` là nguồn chân lý tối cao (Canonical Source of Truth) của toàn bộ dự án. Nhằm tối ưu token, Agent không mặc định đọc toàn bộ 3,000 dòng của tệp này cho mọi tác vụ thông thường. Thay vào đó, Agent đọc [.fitness-rules/PROJECT_CORE.md](.fitness-rules/PROJECT_CORE.md) và tra cứu module tương ứng qua [.fitness-rules/RULE_INDEX.md](.fitness-rules/RULE_INDEX.md). Chỉ tra cứu trực tiếp các mục trong tệp này khi có xung đột, điểm mơ hồ nghiệp vụ, hoặc khi Controller yêu cầu kiểm chứng canonical.
+ 
+ ---
+ 
+@@ -1179,6 +1179,8 @@ KHÔNG phải quản lý tài sản thiết bị.
+ 
+ **Q11:** Mọi hàng `bai_tap_dung_cu` của một bài có nghĩa AND: bài cần Bench và Barbell thì phải có cả hai. Không xây nhóm dụng cụ OR trong MVP. Biến thể dùng dụng cụ khác quản lý như bài/biến thể bài khác trong Exercise Library; Rule Engine và Apply kiểm tra đủ tập dụng cụ.
+ 
++**M061 — vòng đời Muscle Group:** `nhom_co.trang_thai` chỉ nhận `HOAT_DONG` hoặc `NGUNG_SU_DUNG`, mặc định `HOAT_DONG`; Admin quản lý bằng GET/POST/PATCH và không có DELETE. GET vẫn trả cả nhóm ngừng sử dụng để đọc catalog và quan hệ lịch sử. Backend chỉ cho tạo quan hệ `bai_tap_nhom_co` mới với nhóm đang hoạt động. Việc ngừng sử dụng không xóa/sửa pivot hoặc history; quan hệ hiện hữu vẫn đọc được kèm status và phải giữ nguyên id, vai trò, `ngay_tao`, `ngay_cap_nhat` cho tới khi nhóm được kích hoạt lại. Khi PATCH Exercise gửi replacement `muscle_groups`, mọi quan hệ inactive hiện hữu phải được gửi lại đúng vai trò; thêm, bỏ hoặc đổi vai trò bị từ chối nguyên tử với mã `INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE`. Bỏ trường `muscle_groups` khỏi PATCH chỉ cập nhật các chiều khác. PATCH nhóm cùng trạng thái sau chuẩn hóa là no-op; chuyển trạng thái thật ghi một audit `CAP_NHAT_TRANG_THAI_NHOM_CO` cùng transaction.
++
+ ---
+ 
+ # 20. Equipment Maintenance đã loại khỏi Scope
+@@ -2468,6 +2470,7 @@ Các ca bổ sung Q04/Q12:
+ - Hai Admin đồng thời gán hai PT khác nhau cho cùng Member: chỉ một phân công hiệu lực; không overlap.
+ - Member không có PT hợp lệ; đổi PT đúng ranh giới hợp lệ, hai khoảng hữu hạn giao nhau bị từ chối.
+ - Xóa account/catalog không cascade mất history; khóa/ngừng sử dụng giữ đầy đủ tham chiếu.
++- Muscle Group: list gồm cả hai trạng thái; create/patch chuẩn hóa enum; transition audit nguyên tử; same-state không đổi timestamp/audit; inactive relation không được tạo mới và pivot cũ giữ nguyên; PATCH Exercise thiếu `muscle_groups` không được chạm B29; race status/relation phải tuyến tính hóa dưới khóa hàng.
+ 
+ ---
+ 
+@@ -2776,7 +2779,7 @@ Chỉ sau khi xác định các nội dung trên mới bắt đầu triển khai
+ 
+ Khi tôi yêu cầu bạn viết hoặc sửa code Smart Fitness Platform:
+ 
+-1. Đọc toàn bộ MASTER PROMPT trước.
++1. Đọc `.fitness-rules/PROJECT_CORE.md`, tra cứu module quy tắc tương ứng qua `.fitness-rules/RULE_INDEX.md` và đọc Task Packet được giao; không mặc định đọc toàn bộ file canonical nếu không có yêu cầu leo thang (escalation).
+ 2. Không thay đổi Business Rule.
+ 3. Không tự mở rộng Scope.
+ 4. Database dùng tiếng Việt không dấu.
+diff --git a/README.md b/README.md
+index 5b1daab..f4d8863 100644
+--- a/README.md
++++ b/README.md
+@@ -2,7 +2,7 @@
+ 
+ Repository hiện tại là gốc dự án (`E:\Fitness` trên máy khởi tạo); không có thư mục `Smart_Fitness` lồng bên trong.
+ 
+-**Trạng thái Backend:** core REST API đã triển khai trên schema 52 bảng/M001–M060, gồm Auth/Role, catalog, Profile, Membership, payOS, QR check-in, PT, Realtime Chat, Workout, Progress, Dashboard và Gemini AI Proposal/Apply. Đọc toàn bộ [PROJECT_RULES.md](PROJECT_RULES.md) trước khi thay đổi source. FE và Mobile vẫn là skeleton tích hợp, chưa triển khai màn hình nghiệp vụ.
++**Trạng thái Backend:** core REST API đã triển khai trên schema 52 bảng/M001–M060, gồm Auth/Role, catalog, Profile, Membership, payOS, QR check-in, PT, Realtime Chat, Workout, Progress, Dashboard và Gemini AI Proposal/Apply. Tra cứu quy tắc phát triển qua [AGENTS.md](AGENTS.md) và [.fitness-rules/RULE_INDEX.md](.fitness-rules/RULE_INDEX.md). FE và Mobile vẫn là skeleton tích hợp, chưa triển khai màn hình nghiệp vụ.
+ 
+ Tài liệu vận hành chính:
+ 
+diff --git a/docs/BACKEND_API_CONTRACT.md b/docs/BACKEND_API_CONTRACT.md
+index aa55301..a788a71 100644
+--- a/docs/BACKEND_API_CONTRACT.md
++++ b/docs/BACKEND_API_CONTRACT.md
+@@ -40,6 +40,14 @@
+ 
+ Catalog records are deactivated through state; there is no hard-delete API. Existing Membership/Plan/Workout snapshots are not rewritten.
+ 
++### 3.1. Muscle Group catalog lifecycle
++
++`GET /admin/muscle-groups` returns every catalog row, including `NGUNG_SU_DUNG`, ordered by `code` (then `id`). Each item is `{ id, code, name, description, status }`. `POST /admin/muscle-groups` accepts an optional `status`; the only values are `HOAT_DONG` and `NGUNG_SU_DUNG`, and omission defaults to `HOAT_DONG`. `PATCH /admin/muscle-groups/{id}` accepts any non-empty subset of `name`, `description`, and `status`; code, IDs, timestamps, branch/actor fields, and other authority fields are server-owned. Status input is trimmed and uppercased before validation.
++
++There is deliberately no `DELETE /admin/muscle-groups/{id}`. Deactivation and reactivation use `PATCH` with `status: NGUNG_SU_DUNG` or `status: HOAT_DONG`. An identical normalized PATCH is a successful no-op: it does not change `updated_at`/`ngay_cap_nhat` and does not add an audit row. A real status transition writes one atomic `CAP_NHAT_TRANG_THAI_NHOM_CO` audit row with the actor, target `NHOM_CO`, correlation UUID, UTC timestamp, and before/after state. Missing rows return `404 MUSCLE_GROUP_NOT_FOUND`; invalid state or prohibited fields return `422`.
++
++New Exercise-to-Muscle-Group relations may reference only `HOAT_DONG` groups. A stale or malicious request that creates a relation to an inactive group returns `422 INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE`. Existing relations are historical/readable: deactivation never deletes or rewrites `bai_tap_nhom_co`, and Exercise list/detail DTOs include the related group `status`. When an Exercise replacement payload includes `muscle_groups`, every existing inactive relation must be included with its original role; adding, omitting/removing, or changing the role of an inactive relation returns the same `422` code atomically. Omitting `muscle_groups` means that dimension is untouched. Once reactivated, normal relation additions/removals/role changes are allowed. The service locks actor, Exercise (for updates), and referenced Muscle Group rows in deterministic ascending-ID order before validation and diff synchronization.
++
+ Trainer onboarding requires a UUID `Idempotency-Key`. The new-account endpoint creates the account, PT profile, role, and audit rows transactionally, then reports and stores `invitation: "QUEUED"` only after the existing password-reset dispatcher accepts the job. A queue acceptance failure returns `503`; the domain rows remain committed with stored `invitation: "NOT_QUEUED"`, and the same actor/key/body can recover the invitation without recreating or re-auditing those rows. Initial success is `201` with `replayed: false`; an ordinary replay or recovered invitation is `200` with `replayed: true`. The existing-account endpoint is `200`, returns `invitation: "NOT_REQUESTED"`, never sends a reset invitation, and hashes the account path plus only supplied canonical profile fields, preserving absent versus explicit `null`. A reused key with a different body or account path returns `409`.
+ 
+ Each successful account/profile/PT-role transition writes an append-only audit row with immutable safe snapshots. Account creation uses `before: null` and an after snapshot containing only `id`, `name`, `email`, `branch_id`, and `status`; it never records `mat_khau_bam`, tokens, or raw request data. Profile snapshots use exactly `id`, `account_id`, `trainer_code`, `introduction`, `specialties`, and `status`. Existing-profile updates compare normalized persisted values, keep omitted fields unchanged, represent explicit `null`, and write one profile audit only when a persisted value changes. PT-role snapshots use `assignment_id`, `account_id`, `role`, `granted_by_id`, `granted_at`, `revoked_at`, and `active`; regrant records revoked-before/active-after while preserving the assignment row ID and original `ngay_tao`. All audit rows from one logical onboarding transaction share one UUID `khoa_tuong_quan`. Mutation and audit writes share the domain transaction; audit failure rolls back the corresponding account/profile/role/idempotency changes. Active-role no-op and idempotent replay do not create duplicate successful audits. Invitation dispatch remains outside this domain transaction.
+diff --git a/docs/VUE_WEB_COMPLETION_CHECKPOINT.md b/docs/VUE_WEB_COMPLETION_CHECKPOINT.md
+index b8f1d8e..242873b 100644
+--- a/docs/VUE_WEB_COMPLETION_CHECKPOINT.md
++++ b/docs/VUE_WEB_COMPLETION_CHECKPOINT.md
+@@ -1,11 +1,12 @@
+ # Vue Web Completion Checkpoint
+ 
+-CURRENT_PHASE: FE-2
+-CURRENT_TASK: FE2-T08
+-STATUS: PASS
++CURRENT_PHASE: FE-3
++CURRENT_TASK: FE3-ALL
++STATUS: BLOCKED
+ FE0_PHASE_STATUS: PASS
+ FE1_PHASE_STATUS: PASS
+ FE2_PHASE_STATUS: PASS
++FE3_PHASE_STATUS: BLOCKED
+ 
+ COMPLETED_PHASES:
+ - FE-0 — Foundation; remediation đã PASS với 200 tests.
+@@ -49,9 +50,11 @@ REMEDIATED_TASKS:
+ - FE1-T08 — Cleanup/race/pagination/422/drawer/filter/status label đã sửa và full gate chạy lại PASS.
+ - FE2-T08 — Trang phân công PT đã được mở trong menu Admin; route metadata, thứ tự/active state và full FE gate 572 tests đã PASS ở remediation round 5.
+ 
+-EXACT_NEXT_ACTION: FE3-ALL — eligible after FE-2 PASS; not started because the owner requested stopping after FE2
++EXACT_NEXT_ACTION: After required Luna Max capacity resets, revalidate the 16-target repair snapshot and run the existing consolidated Muscle Group Backend repair; then pass Backend review and rerun the FE3-ALL entry gate before any FE3 writer
+ 
+ BLOCKED_FEATURES:
++- FE3 execution is temporarily blocked by required-model capacity: three Luna Max writer attempts ended during mandatory preflight with zero target changes; current Codex weekly/secondary usage is 100%, `rateLimitReachedType=rate_limit_reached`, no reset credit, reset expected 15/09/2026 12:49:44 ICT. The approved Sol repair plan/brief and 16-target byte-for-byte snapshot are preserved in `.fitness-sdd/fe3-all`; model substitution is prohibited.
++- FE3-ALL entry gate failed on 10/09/2026: actual `nhom_co` schema/model/create-update requests/service DTO have no `status`, so Muscle Group cannot be deactivated without hard delete. Backend tests also lack Muscle Group deactivate coverage and Muscle Group PATCH authorization-matrix coverage. Planner verdict is `WAITING_BACKEND_FIX`; no FE3 writer/reviewer was dispatched and no product code changed.
+ - Không còn blocker thuộc FE-0 sau remediation.
+ - Không còn blocker source/test thuộc FE-1 sau remediation; browser visual smoke chưa chạy lại do máy hiện không có `agent-browser`, nhưng đây không phải exit gate FE1-T08 trong V2.
+ - Không còn current-state blocker thuộc FE-2. `FE2-MENU-F-001` đã CLOSED bằng menu remediation round 5; `BE-FOLLOWUP-02`, `BE-FOLLOWUP-03`, `BLOCKER-01` và `BLOCKER-02` vẫn đã đóng bằng evidence FE2-ALL.
+diff --git a/docs/VUE_WEB_IMPLEMENTATION_PLAN_V2.md b/docs/VUE_WEB_IMPLEMENTATION_PLAN_V2.md
+index 61ca48b..7268cd3 100644
+--- a/docs/VUE_WEB_IMPLEMENTATION_PLAN_V2.md
++++ b/docs/VUE_WEB_IMPLEMENTATION_PLAN_V2.md
+@@ -22,7 +22,7 @@ Frontend không được coi guard, nút ẩn, trạng thái Membership hay dữ
+ 
+ Thứ tự áp dụng khi Terra triển khai:
+ 
+-1. `PROJECT_RULES.md` toàn bộ, đặc biệt quyết định Membership/PT/Q05/Q13 mới nhất.
++1. `PROJECT_RULES.md` là Canonical Source of Truth. Nạp qua `.fitness-rules/PROJECT_CORE.md` và các module theo `.fitness-rules/RULE_INDEX.md` (đặc biệt quyết định Membership/PT/Q05/Q13 mới nhất); không bắt buộc đọc toàn bộ file canonical nếu không có xung đột.
+ 2. Route, middleware, controller, request validation, service, event/channel và test Backend thực tế trong `BE/`.
+ 3. `docs/BACKEND_API_CONTRACT.md` để tra contract công khai; nếu lệch source thì source và test hiện tại thắng, sau đó ghi nhận lệch tài liệu.
+ 4. `docs/thiet_ke_co_so_du_lieu/BACKEND_FOLLOW_UP_FIXES.md`, ngày hậu kiểm 31/08/2026, là nguồn trạng thái follow-up mới nhất.
+@@ -1936,8 +1936,8 @@ Số batch giữ nhãn lịch sử để dễ đối chiếu roadmap; execution
+ 
+ ### Chỉ thị bắt buộc cho GPT-5.6 Terra
+ 
+-1. Đọc toàn bộ `PROJECT_RULES.md` trước khi làm.
+-2. Đọc toàn bộ `docs/VUE_WEB_IMPLEMENTATION_PLAN_V2.md` trước khi làm.
++1. Đọc `.fitness-rules/PROJECT_CORE.md` và các module quy tắc tương ứng qua `.fitness-rules/RULE_INDEX.md`. Không mặc định đọc toàn bộ `PROJECT_RULES.md` trừ khi gặp xung đột hoặc điều kiện leo thang.
++2. Đọc file Phase Context tương ứng trong `.fitness-sdd/context/` (ví dụ: `FE3_CONTEXT.md`) và Task Packet được giao; không mặc định đọc toàn bộ 2,000 dòng của `VUE_WEB_IMPLEMENTATION_PLAN_V2.md`.
+ 3. Đọc contract/source Backend thực tế trước mỗi phase.
+ 4. Triển khai đúng thứ tự FE-0 đến FE-9; chỉ song song theo Phase Gates đã ghi.
+ 5. Không sửa Backend nếu chưa có task/ủy quyền riêng.
+diff --git a/docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md b/docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md
+index 3e65dca..5ea6516 100644
+--- a/docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md
++++ b/docs/thiet_ke_co_so_du_lieu/MIGRATION_PLAN.md
+@@ -8,6 +8,10 @@
+ 
+ Thiết kế nguồn đã đạt **DATABASE DESIGN = APPROVED FOR MARIADB 10.4.32** sau vòng review chuyển DBMS. Tài liệu này chuyển thiết kế đó thành thứ tự triển khai schema và tiêu chí nghiệm thu; không phê duyệt thêm nghiệp vụ, không phải migration có thể thực thi và không chứng minh Database đã chạy.
+ 
++### Addendum hậu baseline — 10/09/2026 (M061)
++
++Baseline M001–M060 và kế hoạch 60 file lịch sử vẫn giữ nguyên. M061 là migration additive hậu baseline, chạy sau M060 để thêm `nhom_co.trang_thai` (`VARCHAR(30)`, `utf8mb4_nopad_bin`, NOT NULL, DEFAULT `HOAT_DONG`) cùng CHECK `kiem_tra_b26_01` giới hạn `HOAT_DONG`/`NGUNG_SU_DUNG`. `down()` chỉ bỏ CHECK và cột trên schema test cô lập; không đụng B26/B29 row data, pivot hay FK. Khi triển khai thực tế, phải xác minh metadata, backfill và số dòng B26/B29 trước/sau up/down/up; không rollback schema production vì mất bit trạng thái.
++
+ ## 1. Mục tiêu, nguồn và giới hạn
+ 
+ ### 1.1. Nguồn bắt buộc
+diff --git a/docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md b/docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md
+index 601b240..e432877 100644
+--- a/docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md
++++ b/docs/thiet_ke_co_so_du_lieu/THIET_KE_DATABASE.md
+@@ -6,6 +6,10 @@ Q01–Q13 đã đồng bộ, không còn blocker thiết kế thuộc các quy
+ 
+ Thiết kế đã được đối chiếu toàn bộ [PROJECT_RULES.md](../../PROJECT_RULES.md), từ điển, hai ERD và cập nhật theo toàn bộ Q01–Q13 đã được chủ dự án chốt, đồng thời giữ các quyết định trước đó. Lần cập nhật này chỉ sửa quy tắc, tài liệu thiết kế và ERD; không sửa source BE/FE/Mobile, không tạo/chạy SQL, migration hoặc seed.
+ 
++### Addendum hậu baseline — 10/09/2026 (M061)
++
++Các số liệu và trạng thái “chưa tạo/chạy migration” ở phần baseline ngày 29/08/2026 vẫn được giữ nguyên như bằng chứng lịch sử. Sau khi được phép triển khai, M061 là thay đổi additive duy nhất cho B26: thêm `nhom_co.trang_thai VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_nopad_bin NOT NULL DEFAULT 'HOAT_DONG'` và CHECK có tên `kiem_tra_b26_01` (`HOAT_DONG`/`NGUNG_SU_DUNG`), không thêm bảng, FK hoặc index. Nhóm ngừng sử dụng được giữ để đọc; B29 hiện hữu không bị xóa/sửa, còn quan hệ mới chỉ nhận nhóm đang hoạt động. Down M061 chỉ dành cho schema thử nghiệm được phép vì sẽ bỏ trạng thái đã ghi.
++
+ ## 1. Kết quả bàn giao và cách đọc
+ 
+ - [Từ điển dữ liệu đầy đủ](TU_DIEN_DU_LIEU.md): 52 bảng, tất cả cột, kiểu, nullability, PK/FK/UNIQUE, CHECK dự kiến, index và quan hệ.
+diff --git a/docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md b/docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md
+index 3940dd9..ee25bab 100644
+--- a/docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md
++++ b/docs/thiet_ke_co_so_du_lieu/TU_DIEN_DU_LIEU.md
+@@ -2,6 +2,10 @@
+ 
+ **DATABASE DESIGN = APPROVED FOR MARIADB 10.4.32 — Q01–Q13 đã đồng bộ và kiểm tra ngày 29/08/2026. Không có bảng/migration nào được tạo/chạy.** Giữ các quyết định trước về Chat PT/quota buổi, cấp lại Role, Workout từ lịch và usage Chat. Xem [phân tích nghiệp vụ và các quyết định đã chốt](THIET_KE_DATABASE.md).
+ 
++### Addendum hậu baseline — 10/09/2026 (M061)
++
++Baseline 52 bảng/575 cột ở trên là bằng chứng thiết kế ngày 29/08/2026 và không bị viết lại. Migration additive M061 hiện bổ sung một cột vào B26 (không thêm bảng, FK hay index): `nhom_co.trang_thai VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_nopad_bin NOT NULL DEFAULT 'HOAT_DONG'`, với CHECK `kiem_tra_b26_01` chỉ nhận `HOAT_DONG` hoặc `NGUNG_SU_DUNG`. Dữ liệu B26 trước M061 được backfill `HOAT_DONG`; nhóm ngừng sử dụng vẫn được đọc và giữ các quan hệ B29 lịch sử.
++
+ ## Quy ước đọc
+ 
+ - Tổng cộng **52 bảng, 575 cột** (kể cả PK/timestamp/cột sinh), 113 tham chiếu FK cột và 31 FK kép bổ sung bảo vệ ownership.
+@@ -1028,6 +1032,7 @@
+ | `ma_nhom_co` | VARCHAR(40) | Không | UNIQUE | Mã nhóm cơ. |
+ | `ten_nhom_co` | VARCHAR(150) | Không | — | Tên nhóm cơ. |
+ | `mo_ta` | VARCHAR(500) | Có | — | Mô tả. |
++| `trang_thai` | VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_nopad_bin | Không | DEFAULT `HOAT_DONG` | `HOAT_DONG` / `NGUNG_SU_DUNG`; CHECK `kiem_tra_b26_01`. |
+ | `ngay_tao` | DATETIME(6) | Không | — | Thời điểm tạo, UTC. |
+ | `ngay_cap_nhat` | DATETIME(6) | Không | — | Thời điểm cập nhật, UTC. |
+ 
+@@ -1035,7 +1040,7 @@
+ 
+ **FK đơn:** Không có.
+ 
+-**CHECK/điều kiện cùng hàng dự kiến:** Theo kiểu, NOT NULL, tập trạng thái/cờ nêu trong mô tả; chỉ áp dụng các ràng buộc nghiệp vụ đã được chốt.
++**CHECK/điều kiện cùng hàng dự kiến:** `kiem_tra_b26_01`: `trang_thai IN ('HOAT_DONG', 'NGUNG_SU_DUNG')`.
+ 
+ **Index truy vấn bổ sung:** Chưa cần ngoài PK/UNIQUE và index FK. Index FK đơn/ghép được bổ sung nếu chưa có index bao phủ tiền tố.
+ 
+@@ -1043,7 +1048,7 @@
+ 
+ **Được tham chiếu bởi:** `bai_tap_nhom_co` qua `nhom_co_id` [0..N].
+ 
+-**Bảo toàn và lưu ý:**
++**Bảo toàn và lưu ý:** M061 chỉ thêm trạng thái, không hard-delete nhóm cơ và không xóa/sửa `bai_tap_nhom_co` khi chuyển sang `NGUNG_SU_DUNG`. Danh sách quản trị vẫn đọc cả hai trạng thái; Backend chỉ cho tạo quan hệ B29 mới với nhóm `HOAT_DONG`. Quan hệ B29 hiện hữu tới nhóm ngừng sử dụng vẫn đọc được và phải giữ nguyên hàng, vai trò và timestamp cho tới khi nhóm được kích hoạt lại. PATCH cùng trạng thái đã chuẩn hóa là no-op, không đổi `ngay_cap_nhat` và không tạo audit trùng.
+ 
+ <a id="b27"></a>
+ 
+diff --git a/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio b/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio
+index 3531ac4..a9db01c 100644
+--- a/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio
++++ b/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd.drawio
+@@ -2621,8 +2621,8 @@
+         <mxCell id="3" value="APPROVED FOR MIGRATION PLANNING • Q01–Q13 đã chốt • Chưa tạo/chạy migration" style="text;html=0;align=left;fontSize=10;fontColor=#52606d;" vertex="1" parent="1">
+           <mxGeometry x="40" y="58" width="720" height="20" as="geometry" />
+         </mxCell>
+-        <mxCell id="4" value="" style="rounded=0;fillColor=#ffffff;strokeColor=#466da9;strokeWidth=1.5;" vertex="1" parent="1" bang_du_lieu="nhom_co" unique_du_lieu="[[&quot;ma_nhom_co&quot;]]" fk_kep_du_lieu="[]" index_du_lieu="[]" tooltip="Danh mục nhóm cơ dùng lọc và phân loại bài tập.&#10;U1 = (ma_nhom_co)&#10;CHECK cùng hàng: Kiểu/NULL/tập trạng thái theo từ điển; không CHECK chéo hàng/bảng.&#10;">
+-          <mxGeometry x="40" y="90" width="420.0" height="167" as="geometry" />
++        <mxCell id="4" value="" style="rounded=0;fillColor=#ffffff;strokeColor=#466da9;strokeWidth=1.5;" vertex="1" parent="1" bang_du_lieu="nhom_co" unique_du_lieu="[[&quot;ma_nhom_co&quot;]]" fk_kep_du_lieu="[]" index_du_lieu="[]" tooltip="Danh mục nhóm cơ dùng lọc và phân loại bài tập.&#10;U1 = (ma_nhom_co)&#10;CHECK kiem_tra_b26_01: trang_thai IN ('HOAT_DONG','NGUNG_SU_DUNG').&#10;M061 additive: inactive relation cũ được giữ/readable; relation mới chỉ dùng nhóm HOAT_DONG.&#10;">
++          <mxGeometry x="40" y="90" width="420.0" height="182" as="geometry" />
+         </mxCell>
+         <mxCell id="5" value="nhom_co" style="rounded=0;fillColor=#466da9;strokeColor=none;fontColor=#ffffff;fontSize=13;fontStyle=1;align=left;spacingLeft=10;" vertex="1" parent="4">
+           <mxGeometry x="0" y="0" width="420.0" height="32" as="geometry" />
+@@ -2639,17 +2639,20 @@
+         <mxCell id="9" value="   mo_ta : VARCHAR(500) ?" style="rounded=0;strokeColor=none;fillColor=#f3f6fa;fontFamily=Consolas;fontSize=9;align=left;spacingLeft=7;whiteSpace=nowrap;overflow=hidden;" vertex="1" parent="4" bang_du_lieu="nhom_co" cot_du_lieu="mo_ta" kieu_du_lieu="VARCHAR(500)" cho_phep_null="1" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="VARCHAR(500); NULL; &#10;Mô tả.">
+           <mxGeometry x="0" y="81" width="420.0" height="15" as="geometry" />
+         </mxCell>
++        <mxCell id="b26-trang-thai" value="   trang_thai : VARCHAR(30) [M061]" style="rounded=0;strokeColor=none;fillColor=#f3f6fa;fontFamily=Consolas;fontSize=9;align=left;spacingLeft=7;whiteSpace=nowrap;overflow=hidden;" vertex="1" parent="4" bang_du_lieu="nhom_co" cot_du_lieu="trang_thai" kieu_du_lieu="VARCHAR(30)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="VARCHAR(30); NOT NULL; DEFAULT HOAT_DONG; CHARACTER SET utf8mb4 COLLATE utf8mb4_nopad_bin; CHECK kiem_tra_b26_01: HOAT_DONG / NGUNG_SU_DUNG.">
++          <mxGeometry x="0" y="96" width="420" height="15" as="geometry" />
++        </mxCell>
+         <mxCell id="10" value="   ngay_tao : DATETIME(6)" style="rounded=0;strokeColor=none;fillColor=#ffffff;fontFamily=Consolas;fontSize=9;align=left;spacingLeft=7;whiteSpace=nowrap;overflow=hidden;" vertex="1" parent="4" bang_du_lieu="nhom_co" cot_du_lieu="ngay_tao" kieu_du_lieu="DATETIME(6)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="DATETIME(6); NOT NULL; &#10;Thời điểm tạo, UTC.">
+-          <mxGeometry x="0" y="96" width="420.0" height="15" as="geometry" />
++          <mxGeometry x="0" y="111" width="420.0" height="15" as="geometry" />
+         </mxCell>
+         <mxCell id="11" value="   ngay_cap_nhat : DATETIME(6)" style="rounded=0;strokeColor=none;fillColor=#f3f6fa;fontFamily=Consolas;fontSize=9;align=left;spacingLeft=7;whiteSpace=nowrap;overflow=hidden;" vertex="1" parent="4" bang_du_lieu="nhom_co" cot_du_lieu="ngay_cap_nhat" kieu_du_lieu="DATETIME(6)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="DATETIME(6); NOT NULL; &#10;Thời điểm cập nhật, UTC.">
+-          <mxGeometry x="0" y="111" width="420.0" height="15" as="geometry" />
++          <mxGeometry x="0" y="126" width="420.0" height="15" as="geometry" />
+         </mxCell>
+         <mxCell id="12" value="U1..U1: cùng mã = cùng bộ UNIQUE. ? = NULL • G = VIRTUAL. Bộ cột/điều kiện ở ghi chú dưới." style="text;html=0;fontSize=8.5;fontColor=#52606d;align=left;" vertex="1" parent="4">
+-          <mxGeometry x="5" y="136" width="410.0" height="29" as="geometry" />
++          <mxGeometry x="5" y="151" width="410.0" height="29" as="geometry" />
+         </mxCell>
+-        <mxCell id="q-rang-buoc" parent="1" vertex="1" value="Danh mục nhóm cơ dùng lọc và phân loại bài tập.&#10;U1 = (ma_nhom_co)&#10;CHECK cùng hàng: Kiểu/NULL/tập trạng thái theo từ điển; không CHECK chéo hàng/bảng.&#10;" style="rounded=0;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=10;fontFamily=Arial;fontSize=10;fillColor=#f5f5f5;strokeColor=#aaaaaa;fontColor=#172b4d;">
+-          <mxGeometry x="40" y="300" width="720.0" height="84" as="geometry" />
++        <mxCell id="q-rang-buoc" parent="1" vertex="1" value="Danh mục nhóm cơ dùng lọc và phân loại bài tập.&#10;U1 = (ma_nhom_co)&#10;M061: trang_thai NOT NULL DEFAULT HOAT_DONG COLLATE utf8mb4_nopad_bin; CHECK kiem_tra_b26_01: HOAT_DONG / NGUNG_SU_DUNG.&#10;Quan hệ B29 hiện hữu tới nhóm inactive được giữ/readable; quan hệ mới chỉ dùng nhóm HOAT_DONG.&#10;" style="rounded=0;whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=10;fontFamily=Arial;fontSize=10;fillColor=#f5f5f5;strokeColor=#aaaaaa;fontColor=#172b4d;">
++          <mxGeometry x="40" y="300" width="720.0" height="99" as="geometry" />
+         </mxCell>
+       </root>
+     </mxGraphModel>
+diff --git a/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio b/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio
+index 258afd2..49dbaaa 100644
+--- a/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio
++++ b/docs/thiet_ke_co_so_du_lieu/smart_fitness_erd_theo_mau.drawio
+@@ -368,8 +368,8 @@
+             <mxRectangle height="24" width="318" as="alternateBounds" />
+           </mxGeometry>
+         </mxCell>
+-        <mxCell id="bang-nhom_co" parent="1" style="shape=table;startSize=36;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=0;fillColor=#ffffff;strokeColor=#222222;fontColor=#111111;fontFamily=Arial;fontSize=14;" value="nhom_co" vertex="1" bang_du_lieu="nhom_co" unique_du_lieu="[[&quot;ma_nhom_co&quot;]]" fk_kep_du_lieu="[]" index_du_lieu="[]" tooltip="Danh mục nhóm cơ dùng lọc và phân loại bài tập.&#10;U1 = (ma_nhom_co)&#10;CHECK cùng hàng: Kiểu/NULL/tập trạng thái theo từ điển; không CHECK chéo hàng/bảng.&#10;">
+-          <mxGeometry height="180" width="360" x="96" y="840" as="geometry" />
++        <mxCell id="bang-nhom_co" parent="1" style="shape=table;startSize=36;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=0;fillColor=#ffffff;strokeColor=#222222;fontColor=#111111;fontFamily=Arial;fontSize=14;" value="nhom_co" vertex="1" bang_du_lieu="nhom_co" unique_du_lieu="[[&quot;ma_nhom_co&quot;]]" fk_kep_du_lieu="[]" index_du_lieu="[]" tooltip="Danh mục nhóm cơ dùng lọc và phân loại bài tập.&#10;U1 = (ma_nhom_co)&#10;M061: trang_thai NOT NULL DEFAULT HOAT_DONG COLLATE utf8mb4_nopad_bin; CHECK kiem_tra_b26_01: HOAT_DONG / NGUNG_SU_DUNG.&#10;Quan hệ B29 hiện hữu tới nhóm inactive được giữ/readable; quan hệ mới chỉ dùng nhóm HOAT_DONG.&#10;">
++          <mxGeometry height="204" width="360" x="96" y="840" as="geometry" />
+         </mxCell>
+         <mxCell id="cot-nhom_co-0" parent="bang-nhom_co" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#ffffff;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=1;strokeColor=#222222;" value="" vertex="1" bang_du_lieu="nhom_co" cot_du_lieu="id" kieu_du_lieu="BIGINT UNSIGNED" cho_phep_null="0" khoa_chinh="1" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="BIGINT UNSIGNED; NOT NULL; PK; &#10;Khóa chính tự tăng.">
+           <mxGeometry height="24" width="360" y="36" as="geometry" />
+@@ -423,9 +423,22 @@
+             <mxRectangle height="24" width="318" as="alternateBounds" />
+           </mxGeometry>
+         </mxCell>
+-        <mxCell id="cot-nhom_co-4" parent="bang-nhom_co" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#ffffff;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;strokeColor=#222222;" value="" vertex="1" bang_du_lieu="nhom_co" cot_du_lieu="ngay_tao" kieu_du_lieu="DATETIME(6)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="DATETIME(6); NOT NULL; &#10;Thời điểm tạo, UTC.">
++        <mxCell id="cot-nhom_co-6" parent="bang-nhom_co" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#f3f6fa;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;strokeColor=#222222;" value="" vertex="1" bang_du_lieu="nhom_co" cot_du_lieu="trang_thai" kieu_du_lieu="VARCHAR(30)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="VARCHAR(30); NOT NULL; DEFAULT HOAT_DONG; CHARACTER SET utf8mb4 COLLATE utf8mb4_nopad_bin; CHECK kiem_tra_b26_01: HOAT_DONG / NGUNG_SU_DUNG.">
+           <mxGeometry height="24" width="360" y="132" as="geometry" />
+         </mxCell>
++        <mxCell id="cot-nhom_co-6-khoa" parent="cot-nhom_co-6" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=0;overflow=hidden;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=12;fontColor=#111111;" value="" vertex="1">
++          <mxGeometry height="24" width="42" as="geometry">
++            <mxRectangle height="24" width="42" as="alternateBounds" />
++          </mxGeometry>
++        </mxCell>
++        <mxCell id="cot-nhom_co-6-ten" parent="cot-nhom_co-6" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=0;overflow=hidden;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=13;fontColor=#111111;" value="trang_thai" vertex="1" tooltip="VARCHAR(30); NOT NULL; DEFAULT HOAT_DONG; CHARACTER SET utf8mb4 COLLATE utf8mb4_nopad_bin; CHECK kiem_tra_b26_01: HOAT_DONG / NGUNG_SU_DUNG.">
++          <mxGeometry height="24" width="318" x="42" as="geometry">
++            <mxRectangle height="24" width="318" as="alternateBounds" />
++          </mxGeometry>
++        </mxCell>
++        <mxCell id="cot-nhom_co-4" parent="bang-nhom_co" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#ffffff;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;strokeColor=#222222;" value="" vertex="1" bang_du_lieu="nhom_co" cot_du_lieu="ngay_tao" kieu_du_lieu="DATETIME(6)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="DATETIME(6); NOT NULL; &#10;Thời điểm tạo, UTC.">
++          <mxGeometry height="24" width="360" y="156" as="geometry" />
++        </mxCell>
+         <mxCell id="cot-nhom_co-4-khoa" parent="cot-nhom_co-4" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=0;overflow=hidden;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=12;fontColor=#111111;" value="" vertex="1">
+           <mxGeometry height="24" width="42" as="geometry">
+             <mxRectangle height="24" width="42" as="alternateBounds" />
+@@ -437,7 +450,7 @@
+           </mxGeometry>
+         </mxCell>
+         <mxCell id="cot-nhom_co-5" parent="bang-nhom_co" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#ffffff;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;strokeColor=#222222;" value="" vertex="1" bang_du_lieu="nhom_co" cot_du_lieu="ngay_cap_nhat" kieu_du_lieu="DATETIME(6)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="DATETIME(6); NOT NULL; &#10;Thời điểm cập nhật, UTC.">
+-          <mxGeometry height="24" width="360" y="156" as="geometry" />
++          <mxGeometry height="24" width="360" y="180" as="geometry" />
+         </mxCell>
+         <mxCell id="cot-nhom_co-5-khoa" parent="cot-nhom_co-5" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=0;overflow=hidden;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=12;fontColor=#111111;" value="" vertex="1">
+           <mxGeometry height="24" width="42" as="geometry">
+@@ -13646,8 +13659,8 @@
+             <mxRectangle width="318" height="24" as="alternateBounds" />
+           </mxGeometry>
+         </mxCell>
+-        <mxCell id="bang-nhom_co" value="nhom_co" style="shape=table;startSize=36;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=0;fillColor=#ffffff;strokeColor=#222222;fontColor=#111111;fontFamily=Arial;fontSize=14;" vertex="1" parent="1" bang_du_lieu="nhom_co" unique_du_lieu="[[&quot;ma_nhom_co&quot;]]" fk_kep_du_lieu="[]" index_du_lieu="[]" tooltip="Danh mục nhóm cơ dùng lọc và phân loại bài tập.&#10;U1 = (ma_nhom_co)&#10;CHECK cùng hàng: Kiểu/NULL/tập trạng thái theo từ điển; không CHECK chéo hàng/bảng.&#10;">
+-          <mxGeometry x="96" y="792" width="360" height="180" as="geometry" />
++        <mxCell id="bang-nhom_co" value="nhom_co" style="shape=table;startSize=36;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=0;fillColor=#ffffff;strokeColor=#222222;fontColor=#111111;fontFamily=Arial;fontSize=14;" vertex="1" parent="1" bang_du_lieu="nhom_co" unique_du_lieu="[[&quot;ma_nhom_co&quot;]]" fk_kep_du_lieu="[]" index_du_lieu="[]" tooltip="Danh mục nhóm cơ dùng lọc và phân loại bài tập.&#10;U1 = (ma_nhom_co)&#10;M061: trang_thai NOT NULL DEFAULT HOAT_DONG COLLATE utf8mb4_nopad_bin; CHECK kiem_tra_b26_01: HOAT_DONG / NGUNG_SU_DUNG.&#10;Quan hệ B29 hiện hữu tới nhóm inactive được giữ/readable; quan hệ mới chỉ dùng nhóm HOAT_DONG.&#10;">
++          <mxGeometry x="96" y="792" width="360" height="204" as="geometry" />
+         </mxCell>
+         <mxCell id="cot-nhom_co-0" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#ffffff;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=1;strokeColor=#222222;" vertex="1" parent="bang-nhom_co" bang_du_lieu="nhom_co" cot_du_lieu="id" kieu_du_lieu="BIGINT UNSIGNED" cho_phep_null="0" khoa_chinh="1" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="BIGINT UNSIGNED; NOT NULL; PK; &#10;Khóa chính tự tăng.">
+           <mxGeometry y="36" width="360" height="24" as="geometry" />
+@@ -13701,9 +13714,22 @@
+             <mxRectangle width="318" height="24" as="alternateBounds" />
+           </mxGeometry>
+         </mxCell>
+-        <mxCell id="cot-nhom_co-4" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#ffffff;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;strokeColor=#222222;" vertex="1" parent="bang-nhom_co" bang_du_lieu="nhom_co" cot_du_lieu="ngay_tao" kieu_du_lieu="DATETIME(6)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="DATETIME(6); NOT NULL; &#10;Thời điểm tạo, UTC.">
++        <mxCell id="cot-nhom_co-6" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#f3f6fa;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;strokeColor=#222222;" vertex="1" parent="bang-nhom_co" bang_du_lieu="nhom_co" cot_du_lieu="trang_thai" kieu_du_lieu="VARCHAR(30)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="VARCHAR(30); NOT NULL; DEFAULT HOAT_DONG; CHARACTER SET utf8mb4 COLLATE utf8mb4_nopad_bin; CHECK kiem_tra_b26_01: HOAT_DONG / NGUNG_SU_DUNG.">
+           <mxGeometry y="132" width="360" height="24" as="geometry" />
+         </mxCell>
++        <mxCell id="cot-nhom_co-6-khoa" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=0;overflow=hidden;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=12;fontColor=#111111;" vertex="1" parent="cot-nhom_co-6">
++          <mxGeometry width="42" height="24" as="geometry">
++            <mxRectangle width="42" height="24" as="alternateBounds" />
++          </mxGeometry>
++        </mxCell>
++        <mxCell id="cot-nhom_co-6-ten" value="trang_thai" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=0;overflow=hidden;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=13;fontColor=#111111;" vertex="1" parent="cot-nhom_co-6" tooltip="VARCHAR(30); NOT NULL; DEFAULT HOAT_DONG; CHARACTER SET utf8mb4 COLLATE utf8mb4_nopad_bin; CHECK kiem_tra_b26_01: HOAT_DONG / NGUNG_SU_DUNG.">
++          <mxGeometry x="42" width="318" height="24" as="geometry">
++            <mxRectangle width="318" height="24" as="alternateBounds" />
++          </mxGeometry>
++        </mxCell>
++        <mxCell id="cot-nhom_co-4" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#ffffff;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;strokeColor=#222222;" vertex="1" parent="bang-nhom_co" bang_du_lieu="nhom_co" cot_du_lieu="ngay_tao" kieu_du_lieu="DATETIME(6)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="DATETIME(6); NOT NULL; &#10;Thời điểm tạo, UTC.">
++          <mxGeometry y="156" width="360" height="24" as="geometry" />
++        </mxCell>
+         <mxCell id="cot-nhom_co-4-khoa" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=0;overflow=hidden;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=12;fontColor=#111111;" vertex="1" parent="cot-nhom_co-4">
+           <mxGeometry width="42" height="24" as="geometry">
+             <mxRectangle width="42" height="24" as="alternateBounds" />
+@@ -13715,7 +13741,7 @@
+           </mxGeometry>
+         </mxCell>
+         <mxCell id="cot-nhom_co-5" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=#ffffff;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;strokeColor=#222222;" vertex="1" parent="bang-nhom_co" bang_du_lieu="nhom_co" cot_du_lieu="ngay_cap_nhat" kieu_du_lieu="DATETIME(6)" cho_phep_null="0" khoa_chinh="0" bang_tham_chieu="" cot_sinh="" nhom_unique="[]" tooltip="DATETIME(6); NOT NULL; &#10;Thời điểm cập nhật, UTC.">
+-          <mxGeometry y="156" width="360" height="24" as="geometry" />
++          <mxGeometry y="180" width="360" height="24" as="geometry" />
+         </mxCell>
+         <mxCell id="cot-nhom_co-5-khoa" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=0;overflow=hidden;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=12;fontColor=#111111;" vertex="1" parent="cot-nhom_co-5">
+           <mxGeometry width="42" height="24" as="geometry">

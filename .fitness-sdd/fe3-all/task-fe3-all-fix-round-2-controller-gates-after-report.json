@@ -1,0 +1,14 @@
+﻿{
+    "product_target_count":  36,
+    "product_hash_mismatches":  [
+
+                                ],
+    "product_hash_mismatch_count":  0,
+    "report_changed_after_snapshot":  true,
+    "unexpected_paths":  [
+
+                         ],
+    "unexpected_count":  0,
+    "checked_preservation_paths":  710,
+    "staged_empty":  true
+}

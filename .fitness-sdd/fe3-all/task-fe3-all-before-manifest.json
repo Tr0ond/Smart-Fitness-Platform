@@ -1,0 +1,767 @@
+﻿[
+    {
+        "target":  {
+                       "value":  "FE/src/router/index.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  1
+                   },
+        "state":  "PRESENT",
+        "bytes":  9526,
+        "sha256":  "30C7CCC27E57022F3CF3FB30961ED272C367591CC5877B38723795BE6AAC3EEF",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\index.js"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/router/index.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  2
+                   },
+        "state":  "PRESENT",
+        "bytes":  7807,
+        "sha256":  "5098B80A2740142B2CECF14EF3072A68AA4965FEB02A1B6FEE65854E6A2E5B85",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\index.test.js"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/router/dieu_huong_admin.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  3
+                   },
+        "state":  "PRESENT",
+        "bytes":  5675,
+        "sha256":  "3121A3F9DABD54922E5BCDE9CE3F1938FF614E48B44F315037D0063D46389EDA",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\dieu_huong_admin.js"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/router/dieu_huong_admin.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  4
+                   },
+        "state":  "PRESENT",
+        "bytes":  6478,
+        "sha256":  "76F609D3272A6301A91B23D1995074A2BA78EFE6BEC0E773094E0C1ABB478FAC",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\dieu_huong_admin.test.js"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/stores/xac_thuc.store.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  5
+                   },
+        "state":  "PRESENT",
+        "bytes":  14383,
+        "sha256":  "043F76A302D8BD38C58B1B0F98F165C781EF134C9564C0F2E913DA79D0B99239",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\xac_thuc.store.js"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/stores/xac_thuc.store.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  6
+                   },
+        "state":  "PRESENT",
+        "bytes":  15395,
+        "sha256":  "07789FE5A451243468C539CD2BA76E0A34EA9B54897E2104816DB3C2482D1FED",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\xac_thuc.store.test.js"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/assets/main.css",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  7
+                   },
+        "state":  "PRESENT",
+        "bytes":  59127,
+        "sha256":  "031CD4A4412D605B57DBD35A44DF6B9F8B344C0550221B6784CD26F51F540242",
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\assets\\main.css"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/stores/danh_muc.store.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  8
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\danh_muc.store.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/stores/danh_muc.store.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  9
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\danh_muc.store.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/goi_tap.api.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  10
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\goi_tap.api.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/goi_tap.api.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  11
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\goi_tap.api.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/dung_cu.api.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  12
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\dung_cu.api.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/dung_cu.api.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  13
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\dung_cu.api.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/nhom_co.api.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  14
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\nhom_co.api.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/nhom_co.api.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  15
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\nhom_co.api.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/bai_tap.api.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  16
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\bai_tap.api.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/bai_tap.api.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  17
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\bai_tap.api.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/giao_an_mau.api.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  18
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\giao_an_mau.api.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/services/giao_an_mau.api.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  19
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\giao_an_mau.api.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/components/danh_muc/bo_sua_quyen_loi_goi_tap.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  20
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/components/danh_muc/bo_sua_quyen_loi_goi_tap.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  21
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/components/danh_muc/bo_chon_quan_he_bai_tap.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  22
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/components/danh_muc/bo_chon_quan_he_bai_tap.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  23
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/components/danh_muc/cay_giao_an.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  24
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\cay_giao_an.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/components/danh_muc/cay_giao_an.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  25
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/components/danh_muc/hop_thoai_xung_dot_giao_an.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  26
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/components/danh_muc/hop_thoai_xung_dot_giao_an.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  27
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/goi_tap/goi_tap.index.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  28
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/goi_tap/goi_tap.index.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  29
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/goi_tap/goi_tap.tao_moi.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  30
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/goi_tap/goi_tap.tao_moi.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  31
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/goi_tap/goi_tap.chi_tiet.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  32
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/goi_tap/goi_tap.chi_tiet.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  33
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/dung_cu/dung_cu.index.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  34
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/dung_cu/dung_cu.index.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  35
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/nhom_co/nhom_co.index.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  36
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/nhom_co/nhom_co.index.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  37
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/bai_tap/bai_tap.index.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  38
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/bai_tap/bai_tap.index.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  39
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/bai_tap/bai_tap.tao_moi.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  40
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/bai_tap/bai_tap.tao_moi.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  41
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/bai_tap/bai_tap.chi_tiet.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  42
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/bai_tap/bai_tap.chi_tiet.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  43
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.index.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  44
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.index.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  45
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_moi.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  46
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_moi.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  47
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  48
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  49
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_phien_ban.vue",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  50
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.vue.absent"
+    },
+    {
+        "target":  {
+                       "value":  "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_phien_ban.test.js",
+                       "PSPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-targets.txt",
+                       "PSParentPath":  "E:\\Fitness\\.fitness-sdd\\fe3-all",
+                       "PSChildName":  "task-fe3-all-targets.txt",
+                       "PSDrive":  "E",
+                       "PSProvider":  "Microsoft.PowerShell.Core\\FileSystem",
+                       "ReadCount":  51
+                   },
+        "state":  "ABSENT",
+        "bytes":  0,
+        "sha256":  null,
+        "snapshot":  ".fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js.absent"
+    }
+]

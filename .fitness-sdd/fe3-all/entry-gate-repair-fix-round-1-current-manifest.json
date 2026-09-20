@@ -1,0 +1,26 @@
+﻿[
+    {
+        "target":  "BE\\database\\seeders\\ExerciseDatasetSeeder.php",
+        "sha256":  "A7CA871086B86A708E8C5B642C1C25E10F74FDD9775288E1406FC5158CAF64E8",
+        "changed":  true,
+        "snapshot":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\BE\\database\\seeders\\ExerciseDatasetSeeder.php"
+    },
+    {
+        "target":  "BE\\tests\\Feature\\AdminCatalogApiTest.php",
+        "sha256":  "606AEE17CABC0FBA78E1F989C6847E9C9AB8D91E90E81AA3B7F327B96A12DC64",
+        "changed":  true,
+        "snapshot":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\BE\\tests\\Feature\\AdminCatalogApiTest.php"
+    },
+    {
+        "target":  "docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md",
+        "sha256":  "416C0007C5EDCD27C1C571DF82ACD9B70EB20467984E5A8E60EA17998DFD3530",
+        "changed":  true,
+        "snapshot":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md"
+    },
+    {
+        "target":  ".fitness-sdd\\fe3-all\\entry-gate-repair-report-round-1.md",
+        "sha256":  "D7566D55089451507A350B1DA23378006E329B4A22FC5F2E83617D7ABF0D51DF",
+        "changed":  true,
+        "snapshot":  "E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\.fitness-sdd\\fe3-all\\entry-gate-repair-report-round-1.md"
+    }
+]

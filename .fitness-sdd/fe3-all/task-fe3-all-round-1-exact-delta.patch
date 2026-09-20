@@ -1,0 +1,2480 @@
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\index.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\router\\index.js"
+index 3917edc..88a6fcf 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\index.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\router\\index.js"
+@@ -9,6 +9,17 @@ import KhongCoQuyen from '../components/Chung/Loi/KhongCoQuyen.vue'
+ import KhongTimThay from '../components/Chung/Loi/KhongTimThay.vue'
+ import QuenMatKhau from '../components/Chung/QuenMatKhau/index.vue'
+ import BangDieuKhien from '../pages/admin/bang_dieu_khien/bang_dieu_khien.index.vue'
++import BaiTapChiTiet from '../pages/admin/bai_tap/bai_tap.chi_tiet.vue'
++import BaiTap from '../pages/admin/bai_tap/bai_tap.index.vue'
++import BaiTapTaoMoi from '../pages/admin/bai_tap/bai_tap.tao_moi.vue'
++import DungCu from '../pages/admin/dung_cu/dung_cu.index.vue'
++import GiaoAnMauChiTiet from '../pages/admin/giao_an_mau/giao_an_mau.chi_tiet.vue'
++import GiaoAnMau from '../pages/admin/giao_an_mau/giao_an_mau.index.vue'
++import GiaoAnMauTaoMoi from '../pages/admin/giao_an_mau/giao_an_mau.tao_moi.vue'
++import GiaoAnMauTaoPhienBan from '../pages/admin/giao_an_mau/giao_an_mau.tao_phien_ban.vue'
++import GoiTapChiTiet from '../pages/admin/goi_tap/goi_tap.chi_tiet.vue'
++import GoiTap from '../pages/admin/goi_tap/goi_tap.index.vue'
++import GoiTapTaoMoi from '../pages/admin/goi_tap/goi_tap.tao_moi.vue'
+ import HoiVienChiTiet from '../pages/admin/hoi_vien/hoi_vien.chi_tiet.vue'
+ import HoiVien from '../pages/admin/hoi_vien/hoi_vien.index.vue'
+ import HuanLuyenVien from '../pages/admin/huan_luyen_vien/huan_luyen_vien.index.vue'
+@@ -17,6 +28,7 @@ import HuanLuyenVienTaoMoi from '../pages/admin/huan_luyen_vien/huan_luyen_vien.
+ import NhanVienLeTanChiTiet from '../pages/admin/nhan_vien_le_tan/nhan_vien_le_tan.chi_tiet.vue'
+ import NhanVienLeTan from '../pages/admin/nhan_vien_le_tan/nhan_vien_le_tan.index.vue'
+ import PhanCongPt from '../pages/admin/phan_cong_pt/phan_cong_pt.index.vue'
++import NhomCo from '../pages/admin/nhom_co/nhom_co.index.vue'
+ import TaiKhoanChiTiet from '../pages/admin/tai_khoan/tai_khoan.chi_tiet.vue'
+ import TaiKhoan from '../pages/admin/tai_khoan/tai_khoan.index.vue'
+ import { useXacThucStore } from '../stores/xac_thuc.store.js'
+@@ -220,6 +232,159 @@ const boDinhTuyen = createRouter({
+         hienTrongDieuHuong: true,
+       }),
+     },
++    {
++      path: '/admin/goi-tap',
++      name: 'adminGoiTap',
++      component: GoiTap,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminGoiTap',
++        tieuDe: 'Goi tap',
++        duongDanPhanCap: [{ nhan: 'Goi tap' }],
++        hienTrongDieuHuong: true,
++      }),
++    },
++    {
++      path: '/admin/goi-tap/tao-moi',
++      name: 'adminTaoGoiTap',
++      component: GoiTapTaoMoi,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminTaoGoiTap',
++        tieuDe: 'Tao moi goi tap',
++        duongDanPhanCap: [
++          { nhan: 'Goi tap', tenTuyenDuong: 'adminGoiTap' },
++          { nhan: 'Tao moi goi tap' },
++        ],
++        hienTrongDieuHuong: false,
++      }),
++    },
++    {
++      path: '/admin/goi-tap/:id',
++      name: 'adminChiTietGoiTap',
++      component: GoiTapChiTiet,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminChiTietGoiTap',
++        tieuDe: 'Chi tiet goi tap',
++        duongDanPhanCap: [
++          { nhan: 'Goi tap', tenTuyenDuong: 'adminGoiTap' },
++          { nhan: 'Chi tiet goi tap' },
++        ],
++        hienTrongDieuHuong: false,
++      }),
++    },
++    {
++      path: '/admin/dung-cu',
++      name: 'adminDungCu',
++      component: DungCu,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminDungCu',
++        tieuDe: 'Dung cu',
++        duongDanPhanCap: [{ nhan: 'Dung cu' }],
++        hienTrongDieuHuong: true,
++      }),
++    },
++    {
++      path: '/admin/nhom-co',
++      name: 'adminNhomCo',
++      component: NhomCo,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminNhomCo',
++        tieuDe: 'Nhom co',
++        duongDanPhanCap: [{ nhan: 'Nhom co' }],
++        hienTrongDieuHuong: true,
++      }),
++    },
++    {
++      path: '/admin/bai-tap',
++      name: 'adminBaiTap',
++      component: BaiTap,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminBaiTap',
++        tieuDe: 'Bai tap',
++        duongDanPhanCap: [{ nhan: 'Bai tap' }],
++        hienTrongDieuHuong: true,
++      }),
++    },
++    {
++      path: '/admin/bai-tap/tao-moi',
++      name: 'adminTaoBaiTap',
++      component: BaiTapTaoMoi,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminTaoBaiTap',
++        tieuDe: 'Tao moi bai tap',
++        duongDanPhanCap: [
++          { nhan: 'Bai tap', tenTuyenDuong: 'adminBaiTap' },
++          { nhan: 'Tao moi bai tap' },
++        ],
++        hienTrongDieuHuong: false,
++      }),
++    },
++    {
++      path: '/admin/bai-tap/:id',
++      name: 'adminChiTietBaiTap',
++      component: BaiTapChiTiet,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminChiTietBaiTap',
++        tieuDe: 'Chi tiet bai tap',
++        duongDanPhanCap: [
++          { nhan: 'Bai tap', tenTuyenDuong: 'adminBaiTap' },
++          { nhan: 'Chi tiet bai tap' },
++        ],
++        hienTrongDieuHuong: false,
++      }),
++    },
++    {
++      path: '/admin/giao-an-mau',
++      name: 'adminGiaoAnMau',
++      component: GiaoAnMau,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminGiaoAnMau',
++        tieuDe: 'Giao an mau',
++        duongDanPhanCap: [{ nhan: 'Giao an mau' }],
++        hienTrongDieuHuong: true,
++      }),
++    },
++    {
++      path: '/admin/giao-an-mau/tao-moi',
++      name: 'adminTaoGiaoAnMau',
++      component: GiaoAnMauTaoMoi,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminTaoGiaoAnMau',
++        tieuDe: 'Tao moi giao an mau',
++        duongDanPhanCap: [
++          { nhan: 'Giao an mau', tenTuyenDuong: 'adminGiaoAnMau' },
++          { nhan: 'Tao moi giao an mau' },
++        ],
++        hienTrongDieuHuong: false,
++      }),
++    },
++    {
++      path: '/admin/giao-an-mau/:id/tao-phien-ban',
++      name: 'adminTaoPhienBanGiaoAnMau',
++      component: GiaoAnMauTaoPhienBan,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminTaoPhienBanGiaoAnMau',
++        tieuDe: 'Tao phien ban giao an mau',
++        duongDanPhanCap: [
++          { nhan: 'Giao an mau', tenTuyenDuong: 'adminGiaoAnMau' },
++          { nhan: 'Tao phien ban giao an mau' },
++        ],
++        hienTrongDieuHuong: false,
++      }),
++    },
++    {
++      path: '/admin/giao-an-mau/:id',
++      name: 'adminChiTietGiaoAnMau',
++      component: GiaoAnMauChiTiet,
++      meta: taoMetaTuyenDuongAdmin({
++        tinhNang: 'adminChiTietGiaoAnMau',
++        tieuDe: 'Chi tiet giao an mau',
++        duongDanPhanCap: [
++          { nhan: 'Giao an mau', tenTuyenDuong: 'adminGiaoAnMau' },
++          { nhan: 'Chi tiet giao an mau' },
++        ],
++        hienTrongDieuHuong: false,
++      }),
++    },
+     {
+       path: '/admin/nhan-vien-le-tan',
+       name: 'adminNhanVienLeTan',
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\dieu_huong_admin.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\router\\dieu_huong_admin.js"
+index a9d261f..891fd16 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\dieu_huong_admin.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\router\\dieu_huong_admin.js"
+@@ -33,6 +33,41 @@ const CAC_NHAN_DIEU_HUONG_ADMIN = Object.freeze([
+     cacTuyenDuongLienQuan: Object.freeze(['adminPhanCongPt']),
+     thuTu: 36,
+   }),
++  Object.freeze({
++    nhan: 'Goi tap',
++    tenTuyenDuong: 'adminGoiTap',
++    cacTuyenDuongLienQuan: Object.freeze(['adminGoiTap', 'adminTaoGoiTap', 'adminChiTietGoiTap']),
++    thuTu: 50,
++  }),
++  Object.freeze({
++    nhan: 'Dung cu',
++    tenTuyenDuong: 'adminDungCu',
++    cacTuyenDuongLienQuan: Object.freeze(['adminDungCu']),
++    thuTu: 60,
++  }),
++  Object.freeze({
++    nhan: 'Nhom co',
++    tenTuyenDuong: 'adminNhomCo',
++    cacTuyenDuongLienQuan: Object.freeze(['adminNhomCo']),
++    thuTu: 70,
++  }),
++  Object.freeze({
++    nhan: 'Bai tap',
++    tenTuyenDuong: 'adminBaiTap',
++    cacTuyenDuongLienQuan: Object.freeze(['adminBaiTap', 'adminTaoBaiTap', 'adminChiTietBaiTap']),
++    thuTu: 80,
++  }),
++  Object.freeze({
++    nhan: 'Giao an mau',
++    tenTuyenDuong: 'adminGiaoAnMau',
++    cacTuyenDuongLienQuan: Object.freeze([
++      'adminGiaoAnMau',
++      'adminTaoGiaoAnMau',
++      'adminChiTietGiaoAnMau',
++      'adminTaoPhienBanGiaoAnMau',
++    ]),
++    thuTu: 90,
++  }),
+   Object.freeze({
+     nhan: 'Nhân viên lễ tân',
+     tenTuyenDuong: 'adminNhanVienLeTan',
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\dieu_huong_admin.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\router\\dieu_huong_admin.test.js"
+index e891c2c..97751a3 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\router\\dieu_huong_admin.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\router\\dieu_huong_admin.test.js"
+@@ -28,8 +28,8 @@ describe('dieu_huong_admin FE1-T01', () => {
+   })
+ 
+   it('co menu Admin san sang voi nhan tieng Viet va PT dung thu tu', () => {
+-    expect(CAC_NHOM_DIEU_HUONG_ADMIN).toHaveLength(6)
+-    expect(CAC_NHOM_DIEU_HUONG_ADMIN.map((muc) => muc.nhan)).toEqual([
++    expect(CAC_NHOM_DIEU_HUONG_ADMIN).toHaveLength(11)
++    expect(CAC_NHOM_DIEU_HUONG_ADMIN.filter((muc) => muc.thuTu <= 40).map((muc) => muc.nhan)).toEqual([
+       'Bảng điều khiển',
+       'Tài khoản',
+       'Hội viên',
+@@ -68,7 +68,7 @@ describe('dieu_huong_admin FE1-T01', () => {
+   it('menu production hien dung sau khi route Phan cong PT san sang', () => {
+     const danhSach = taoDanhSachDieuHuongAdmin(boDinhTuyen)
+ 
+-    expect(danhSach.map((muc) => muc.tenTuyenDuong)).toEqual([
++    expect(danhSach.slice(0, 6).map((muc) => muc.tenTuyenDuong)).toEqual([
+       'adminBangDieuKhien',
+       'adminTaiKhoan',
+       'adminHoiVien',
+@@ -76,7 +76,7 @@ describe('dieu_huong_admin FE1-T01', () => {
+       'adminPhanCongPt',
+       'adminNhanVienLeTan',
+     ])
+-    expect(danhSach).toMatchObject([
++    expect(danhSach.slice(0, 6)).toMatchObject([
+       {
+         nhan: 'Bảng điều khiển',
+         tenTuyenDuong: 'adminBangDieuKhien',
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\xac_thuc.store.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\stores\\xac_thuc.store.js"
+index 6019552..ea71223 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\xac_thuc.store.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\stores\\xac_thuc.store.js"
+@@ -8,6 +8,7 @@ import {
+ import { xoaDuLieuTaiKhoanNeuDaKhoiTao } from './tai_khoan.store.js'
+ import { xoaDuLieuHuanLuyenVienNeuDaKhoiTao } from './huan_luyen_vien.store.js'
+ import { xoaDuLieuPhanCongPtNeuDaKhoiTao } from './phan_cong_pt.store.js'
++import { xoaDuLieuDanhMucNeuDaKhoiTao } from './danh_muc.store.js'
+ import {
+   docTokenPhienDangNhap,
+   docVaiTroDangDung,
+@@ -156,6 +157,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
+       xoaDuLieuTaiKhoanNeuDaKhoiTao()
+       xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
+       xoaDuLieuPhanCongPtNeuDaKhoiTao()
++      xoaDuLieuDanhMucNeuDaKhoiTao()
+     },
+ 
+     /**
+@@ -176,6 +178,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
+       xoaDuLieuTaiKhoanNeuDaKhoiTao()
+       xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
+       xoaDuLieuPhanCongPtNeuDaKhoiTao()
++      xoaDuLieuDanhMucNeuDaKhoiTao()
+     },
+ 
+     /**
+@@ -208,6 +211,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
+         xoaDuLieuTaiKhoanNeuDaKhoiTao()
+         xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
+         xoaDuLieuPhanCongPtNeuDaKhoiTao()
++        xoaDuLieuDanhMucNeuDaKhoiTao()
+       }
+ 
+       return nguoiDung
+@@ -361,6 +365,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
+         xoaDuLieuTaiKhoanNeuDaKhoiTao()
+         xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
+         xoaDuLieuPhanCongPtNeuDaKhoiTao()
++        xoaDuLieuDanhMucNeuDaKhoiTao()
+       }
+ 
+       return vaiTro
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\assets\\main.css" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\assets\\main.css"
+index 3fcff84..e7e0c14 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\assets\\main.css"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\assets\\main.css"
+@@ -2954,3 +2954,106 @@ a:hover {
+     grid-template-columns: minmax(0, 1fr);
+   }
+ }
++
++/* FE3 Admin Catalog: light staff surfaces, semantic states, and responsive forms. */
++.trang-danh-muc {
++  display: grid;
++  gap: 1.25rem;
++  min-width: 0;
++}
++
++.trang-danh-muc--form form,
++.trang-danh-muc__form {
++  display: grid;
++  gap: 1rem;
++}
++
++.trang-danh-muc__khung-hai-cot {
++  display: grid;
++  grid-template-columns: minmax(15rem, 22rem) minmax(0, 1fr);
++  gap: 1.25rem;
++  align-items: start;
++}
++
++.trang-danh-muc__form,
++.danh-muc-quyen-loi,
++.danh-muc-quan-he,
++.cay-giao-an,
++.trang-danh-muc__canh-bao {
++  border: 1px solid var(--mau-vien);
++  border-radius: var(--ban-kinh-lon, 0.75rem);
++  padding: 1rem;
++  background: var(--mau-nen-trang);
++}
++
++.trang-danh-muc__form h2,
++.danh-muc-quyen-loi legend,
++.danh-muc-quan-he legend,
++.cay-giao-an h2 {
++  margin: 0;
++  color: var(--mau-chu-chinh);
++  font-size: 1.05rem;
++  font-weight: 700;
++}
++
++.trang-danh-muc__hanh-dong,
++.cay-giao-an__dau,
++.cay-giao-an__ngay > header,
++.cay-giao-an__ngay li {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 0.75rem;
++  align-items: center;
++}
++
++.trang-danh-muc__hanh-dong { justify-content: flex-end; }
++.trang-danh-muc__loi { color: var(--mau-nguy-hiem); }
++.trang-danh-muc__canh-bao { color: var(--mau-canh-bao); background: var(--mau-nen-canh-bao); }
++.trang-danh-muc__khung-hai-cot > div { min-width: 0; }
++
++.danh-muc-quyen-loi,
++.danh-muc-quan-he {
++  display: grid;
++  gap: 0.65rem;
++}
++
++.danh-muc-quyen-loi legend,
++.danh-muc-quan-he legend { padding: 0 0.25rem; }
++.danh-muc-quyen-loi label,
++.danh-muc-quan-he label { display: flex; gap: 0.5rem; align-items: center; }
++.danh-muc-quyen-loi input[type='number'] { max-width: 12rem; }
++.danh-muc-quyen-loi__goi-y,
++.danh-muc-quan-he__goi-y { margin: 0; color: var(--mau-chu-phu); font-size: 0.9rem; }
++.danh-muc-quyen-loi__canh-bao { margin: 0; color: var(--mau-canh-bao); font-size: 0.9rem; }
++.danh-muc-quan-he select[multiple] { min-height: 7rem; }
++.danh-muc-quan-he__nhan { font-weight: 700; }
++.danh-muc-quan-he__nhom-co { display: grid; gap: 0.5rem; }
++.danh-muc-quan-he__khong-hoat-dong { opacity: 0.7; }
++
++.cay-giao-an { display: grid; gap: 1rem; }
++.cay-giao-an__dau { justify-content: space-between; }
++.cay-giao-an__ngay { display: grid; gap: 0.75rem; padding: 0.9rem; border: 1px solid var(--mau-vien); border-radius: 0.5rem; background: var(--mau-nen-phu); }
++.cay-giao-an__ngay > header label { font-weight: 600; }
++.cay-giao-an__ngay > header input { min-width: 9rem; }
++.cay-giao-an__ngay ol { display: grid; gap: 0.65rem; margin: 0; padding-left: 1.5rem; }
++.cay-giao-an__ngay li { padding: 0.65rem; border: 1px solid var(--mau-vien); border-radius: 0.45rem; background: var(--mau-nen-trang); }
++.cay-giao-an__ngay li label { font-size: 0.85rem; color: var(--mau-chu-phu); }
++.cay-giao-an__rong { margin: 0; color: var(--mau-chu-phu); }
++
++.hop-thoai-xung-dot-giao-an { z-index: 20; }
++
++@media (max-width: 52rem) {
++  .trang-danh-muc__khung-hai-cot { grid-template-columns: 1fr; }
++}
++
++@media (max-width: 30rem) {
++  .trang-danh-muc__hanh-dong .nut,
++  .cay-giao-an__dau .nut { width: 100%; }
++  .cay-giao-an__ngay > header,
++  .cay-giao-an__ngay li { align-items: stretch; }
++  .cay-giao-an__ngay > header > input,
++  .cay-giao-an__ngay > header > button,
++  .cay-giao-an__ngay li > input,
++  .cay-giao-an__ngay li > select,
++  .cay-giao-an__ngay li > button { width: 100%; }
++}
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\danh_muc.store.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\stores\\danh_muc.store.js"
+index fbddc2b..725335b 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\danh_muc.store.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\stores\\danh_muc.store.js"
+@@ -1 +1,283 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { defineStore, getActivePinia } from 'pinia'
++import {
++  capNhatBaiTap,
++  taiChiTietBaiTap,
++  taiDanhSachBaiTap,
++  taoBaiTap,
++} from '../services/bai_tap.api.js'
++import {
++  capNhatDungCu,
++  taiDanhSachDungCu,
++  taoDungCu,
++} from '../services/dung_cu.api.js'
++import {
++  capNhatGiaoAnMau,
++  taiChiTietGiaoAnMau,
++  taiDanhSachGiaoAnMau,
++  taoGiaoAnMau,
++  taoPhienBanGiaoAnMau,
++} from '../services/giao_an_mau.api.js'
++import {
++  capNhatGoiTap,
++  taiChiTietGoiTap,
++  taiDanhSachGoiTap,
++  taoGoiTap,
++  thayTheQuyenLoiGoiTap,
++} from '../services/goi_tap.api.js'
++import {
++  capNhatNhomCo,
++  taiDanhSachNhomCo,
++  taoNhomCo,
++} from '../services/nhom_co.api.js'
++
++function taoLoiAnToan(error, fallback) {
++  const fieldErrors = Object.fromEntries(Object.entries(error?.fieldErrors ?? {})
++    .filter(([, values]) => Array.isArray(values))
++    .map(([field, values]) => [field, values.filter((value) => typeof value === 'string')]))
++  return Object.freeze({
++    httpStatus: Number.isInteger(error?.httpStatus) ? error.httpStatus : null,
++    code: typeof error?.code === 'string' ? error.code : null,
++    message: typeof error?.message === 'string' && error.message.trim() !== '' ? error.message : fallback,
++    fieldErrors,
++    isNetworkError: error?.isNetworkError === true,
++    ...(error?.outcomeUnknown === true ? { outcomeUnknown: true } : {}),
++  })
++}
++
++function laLoiTamThoi(error) {
++  return error?.isNetworkError === true || (Number.isInteger(error?.httpStatus) && error.httpStatus >= 500)
++}
++
++function layMang(phanHoi) {
++  const data = phanHoi?.data ?? phanHoi
++  if (!Array.isArray(data)) throw { code: 'CATALOG_LIST_RESPONSE_INVALID', message: 'Du lieu danh sach danh muc khong hop le.' }
++  return data
++}
++
++function layBanGhi(phanHoi) {
++  const data = phanHoi?.data ?? phanHoi
++  if (data === null || typeof data !== 'object' || Array.isArray(data)) throw { code: 'CATALOG_DETAIL_RESPONSE_INVALID', message: 'Du lieu chi tiet danh muc khong hop le.' }
++  return data
++}
++
++function taoTaiNguyen() {
++  return {
++    danhSach: [],
++    chiTiet: null,
++    dangTai: false,
++    dangTaiChiTiet: false,
++    loi: null,
++    loiChiTiet: null,
++    daTaiLanDau: false,
++    soThuTu: 0,
++    soThuTuChiTiet: 0,
++    dangMutation: false,
++    loiMutation: null,
++    ketQuaMutation: null,
++    cacheHetHanLuc: 0,
++  }
++}
++
++function taoState() {
++  return {
++    goiTap: taoTaiNguyen(),
++    dungCu: taoTaiNguyen(),
++    nhomCo: taoTaiNguyen(),
++    baiTap: taoTaiNguyen(),
++    giaoAnMau: taoTaiNguyen(),
++    boLocBaiTap: { search: '', status: '' },
++  }
++}
++
++function layTaiNguyen(store, khoa) {
++  return store[khoa]
++}
++
++async function taiDanhSachTaiNguyen(store, khoa, taiApi, fallback, { cacheTrongMs = 0, boQuaCache = false } = {}) {
++  const resource = layTaiNguyen(store, khoa)
++  if (!boQuaCache && cacheTrongMs > 0 && resource.daTaiLanDau && resource.cacheHetHanLuc > Date.now()) {
++    return resource.danhSach
++  }
++  const sequence = ++resource.soThuTu
++  resource.dangTai = true
++  resource.loi = null
++  try {
++    const data = layMang(await taiApi())
++    if (sequence !== resource.soThuTu) return null
++    resource.danhSach = data
++    resource.daTaiLanDau = true
++    resource.cacheHetHanLuc = cacheTrongMs > 0 ? Date.now() + cacheTrongMs : 0
++    return data
++  } catch (error) {
++    if (sequence === resource.soThuTu) {
++      resource.loi = taoLoiAnToan(error, fallback)
++      resource.daTaiLanDau = true
++    }
++    return null
++  } finally {
++    if (sequence === resource.soThuTu) resource.dangTai = false
++  }
++}
++
++async function taiChiTietTaiNguyen(store, khoa, id, taiApi, fallback) {
++  const resource = layTaiNguyen(store, khoa)
++  const sequence = ++resource.soThuTuChiTiet
++  resource.dangTaiChiTiet = true
++  resource.loiChiTiet = null
++  resource.chiTiet = null
++  try {
++    const data = layBanGhi(await taiApi(id))
++    if (sequence !== resource.soThuTuChiTiet) return null
++    resource.chiTiet = data
++    return data
++  } catch (error) {
++    if (sequence === resource.soThuTuChiTiet) resource.loiChiTiet = taoLoiAnToan(error, fallback)
++    return null
++  } finally {
++    if (sequence === resource.soThuTuChiTiet) resource.dangTaiChiTiet = false
++  }
++}
++
++async function thucHienMutation(store, khoa, mutation, fallback, { taiLai = true } = {}) {
++  const resource = layTaiNguyen(store, khoa)
++  if (resource.dangMutation) return null
++  resource.dangMutation = true
++  resource.loiMutation = null
++  resource.ketQuaMutation = null
++  try {
++    const result = layBanGhi(await mutation())
++    resource.ketQuaMutation = result
++    resource.loiMutation = null
++    resource.cacheHetHanLuc = 0
++    if (taiLai) {
++      resource.soThuTu += 1
++      resource.daTaiLanDau = false
++    }
++    return result
++  } catch (error) {
++    resource.loiMutation = taoLoiAnToan({
++      ...error,
++      ...(laLoiTamThoi(error) ? { outcomeUnknown: true } : {}),
++    }, fallback)
++    return null
++  } finally {
++    resource.dangMutation = false
++  }
++}
++
++/**
++ * Clear catalog state only when the Pinia instance has already created it.
++ * This shared cleanup is called from logout, actor-role loss, and current-token 401 paths.
++ */
++export function xoaDuLieuDanhMucNeuDaKhoiTao(pinia = getActivePinia()) {
++  if (!pinia?.state?.value?.danh_muc) return false
++  useDanhMucStore(pinia).xoaDuLieu()
++  return true
++}
++
++export const useDanhMucStore = defineStore('danh_muc', {
++  state: taoState,
++
++  getters: {
++    danhSachGoiTap: (state) => state.goiTap.danhSach,
++    danhSachDungCu: (state) => state.dungCu.danhSach,
++    danhSachNhomCo: (state) => state.nhomCo.danhSach,
++    danhSachBaiTap: (state) => state.baiTap.danhSach,
++    danhSachGiaoAnMau: (state) => state.giaoAnMau.danhSach,
++    chiTietGoiTap: (state) => state.goiTap.chiTiet,
++    chiTietBaiTap: (state) => state.baiTap.chiTiet,
++    chiTietGiaoAnMau: (state) => state.giaoAnMau.chiTiet,
++  },
++
++  actions: {
++    async taiDanhSachGoiTap() {
++      return taiDanhSachTaiNguyen(this, 'goiTap', taiDanhSachGoiTap, 'Khong the tai danh sach goi tap.')
++    },
++    async taiChiTietGoiTap(id) {
++      return taiChiTietTaiNguyen(this, 'goiTap', id, taiChiTietGoiTap, 'Khong the tai chi tiet goi tap.')
++    },
++    async taoGoiTap(payload) {
++      return thucHienMutation(this, 'goiTap', () => taoGoiTap(payload), 'Khong the tao goi tap.')
++    },
++    async capNhatGoiTap(id, payload) {
++      return thucHienMutation(this, 'goiTap', () => capNhatGoiTap(id, payload), 'Khong the cap nhat goi tap.')
++    },
++    async thayTheQuyenLoiGoiTap(id, payload) {
++      return thucHienMutation(this, 'goiTap', () => thayTheQuyenLoiGoiTap(id, payload), 'Khong the cap nhat quyen loi goi tap.')
++    },
++
++    async taiDanhSachDungCu({ boQuaCache = false } = {}) {
++      return taiDanhSachTaiNguyen(this, 'dungCu', taiDanhSachDungCu, 'Khong the tai danh sach dung cu.', { cacheTrongMs: 30000, boQuaCache })
++    },
++    async taoDungCu(payload) {
++      return thucHienMutation(this, 'dungCu', () => taoDungCu(payload), 'Khong the tao dung cu.')
++    },
++    async capNhatDungCu(id, payload) {
++      return thucHienMutation(this, 'dungCu', () => capNhatDungCu(id, payload), 'Khong the cap nhat dung cu.')
++    },
++
++    async taiDanhSachNhomCo({ boQuaCache = false } = {}) {
++      return taiDanhSachTaiNguyen(this, 'nhomCo', taiDanhSachNhomCo, 'Khong the tai danh sach nhom co.', { cacheTrongMs: 30000, boQuaCache })
++    },
++    async taoNhomCo(payload) {
++      return thucHienMutation(this, 'nhomCo', () => taoNhomCo(payload), 'Khong the tao nhom co.')
++    },
++    async capNhatNhomCo(id, payload) {
++      return thucHienMutation(this, 'nhomCo', () => capNhatNhomCo(id, payload), 'Khong the cap nhat nhom co.')
++    },
++
++    async taiDanhSachBaiTap(boLoc = this.boLocBaiTap) {
++      this.boLocBaiTap = { search: String(boLoc?.search ?? '').trim(), status: String(boLoc?.status ?? '').trim() }
++      return taiDanhSachTaiNguyen(this, 'baiTap', () => taiDanhSachBaiTap(this.boLocBaiTap), 'Khong the tai danh sach bai tap.')
++    },
++    async taiChiTietBaiTap(id) {
++      return taiChiTietTaiNguyen(this, 'baiTap', id, taiChiTietBaiTap, 'Khong the tai chi tiet bai tap.')
++    },
++    async taoBaiTap(payload) {
++      return thucHienMutation(this, 'baiTap', () => taoBaiTap(payload), 'Khong the tao bai tap.')
++    },
++    async capNhatBaiTap(id, payload) {
++      return thucHienMutation(this, 'baiTap', () => capNhatBaiTap(id, payload), 'Khong the cap nhat bai tap.')
++    },
++
++    async taiDanhSachGiaoAnMau() {
++      return taiDanhSachTaiNguyen(this, 'giaoAnMau', taiDanhSachGiaoAnMau, 'Khong the tai danh sach giao an mau.')
++    },
++    async taiChiTietGiaoAnMau(id) {
++      return taiChiTietTaiNguyen(this, 'giaoAnMau', id, taiChiTietGiaoAnMau, 'Khong the tai chi tiet giao an mau.')
++    },
++    async taiNenGiaoAnMau(id) {
++      return this.taiChiTietGiaoAnMau(id)
++    },
++    async taoGiaoAnMau(payload) {
++      return thucHienMutation(this, 'giaoAnMau', () => taoGiaoAnMau(payload), 'Khong the tao giao an mau.')
++    },
++    async capNhatGiaoAnMau(id, payload) {
++      return thucHienMutation(this, 'giaoAnMau', () => capNhatGiaoAnMau(id, payload), 'Khong the cap nhat giao an mau.')
++    },
++    async taoPhienBanGiaoAnMau(id, payload) {
++      return thucHienMutation(this, 'giaoAnMau', () => taoPhienBanGiaoAnMau(id, payload), 'Khong the tao phien ban giao an mau.', { taiLai: false })
++    },
++
++    xoaDuLieu() {
++      for (const resource of Object.values(this.$state).filter((value) => value?.danhSach && value?.soThuTu !== undefined)) {
++        resource.soThuTu += 1
++        resource.soThuTuChiTiet += 1
++        resource.danhSach = []
++        resource.chiTiet = null
++        resource.dangTai = false
++        resource.dangTaiChiTiet = false
++        resource.loi = null
++        resource.loiChiTiet = null
++        resource.daTaiLanDau = false
++        resource.dangMutation = false
++        resource.loiMutation = null
++        resource.ketQuaMutation = null
++        resource.cacheHetHanLuc = 0
++      }
++      this.boLocBaiTap = { search: '', status: '' }
++    },
++  },
++})
++
++export { taoLoiAnToan }
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\danh_muc.store.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\stores\\danh_muc.store.test.js"
+index fbddc2b..0df24bb 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\stores\\danh_muc.store.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\stores\\danh_muc.store.test.js"
+@@ -1 +1,31 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { beforeEach, describe, expect, it, vi } from 'vitest'
++import { createPinia, setActivePinia } from 'pinia'
++
++const apiMocks = vi.hoisted(() => ({
++  taiDanhSachGoiTap: vi.fn(), taiChiTietGoiTap: vi.fn(), taoGoiTap: vi.fn(), capNhatGoiTap: vi.fn(), thayTheQuyenLoiGoiTap: vi.fn(),
++  taiDanhSachDungCu: vi.fn(), taoDungCu: vi.fn(), capNhatDungCu: vi.fn(),
++  taiDanhSachNhomCo: vi.fn(), taoNhomCo: vi.fn(), capNhatNhomCo: vi.fn(),
++  taiDanhSachBaiTap: vi.fn(), taiChiTietBaiTap: vi.fn(), taoBaiTap: vi.fn(), capNhatBaiTap: vi.fn(),
++  taiDanhSachGiaoAnMau: vi.fn(), taiChiTietGiaoAnMau: vi.fn(), taoGiaoAnMau: vi.fn(), capNhatGiaoAnMau: vi.fn(), taoPhienBanGiaoAnMau: vi.fn(),
++}))
++vi.mock('../services/goi_tap.api.js', () => ({ ...apiMocks }))
++vi.mock('../services/dung_cu.api.js', () => ({ ...apiMocks }))
++vi.mock('../services/nhom_co.api.js', () => ({ ...apiMocks }))
++vi.mock('../services/bai_tap.api.js', () => ({ ...apiMocks }))
++vi.mock('../services/giao_an_mau.api.js', () => ({ ...apiMocks }))
++import { useDanhMucStore, xoaDuLieuDanhMucNeuDaKhoiTao } from './danh_muc.store.js'
++
++beforeEach(() => { setActivePinia(createPinia()); vi.resetAllMocks(); Object.values(apiMocks).forEach((mock) => mock.mockResolvedValue({ data: [] })) })
++describe('danh_muc.store FE3', () => {
++  it('bo qua response stale khi hai request danh sach chong nhau', async () => {
++    let resolveCu
++    apiMocks.taiDanhSachDungCu.mockImplementationOnce(() => new Promise((resolve) => { resolveCu = resolve })).mockResolvedValueOnce({ data: [{ id: 2 }] })
++    const store = useDanhMucStore()
++    const requestCu = store.taiDanhSachDungCu(); const requestMoi = store.taiDanhSachDungCu(); await requestMoi; resolveCu({ data: [{ id: 1 }] }); await requestCu
++    expect(store.dungCu.danhSach).toEqual([{ id: 2 }])
++  })
++  it('cleanup clear toan bo catalog va invalidate sequence', async () => {
++    const store = useDanhMucStore(); await store.taiDanhSachGoiTap(); store.goiTap.danhSach = [{ id: 1 }]; store.baiTap.danhSach = [{ id: 2 }]; const before = store.goiTap.soThuTu; expect(xoaDuLieuDanhMucNeuDaKhoiTao()).toBe(true); expect(store.goiTap.danhSach).toEqual([]); expect(store.baiTap.danhSach).toEqual([]); expect(store.goiTap.soThuTu).toBeGreaterThan(before)
++  })
++  it('mutation network error duoc danh dau outcome unknown va khong blind retry', async () => { apiMocks.taoDungCu.mockRejectedValueOnce({ isNetworkError: true, message: 'offline' }); const store = useDanhMucStore(); await expect(store.taoDungCu({})).resolves.toBeNull(); expect(store.dungCu.loiMutation).toMatchObject({ outcomeUnknown: true }); expect(apiMocks.taoDungCu).toHaveBeenCalledTimes(1) })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\goi_tap.api.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\goi_tap.api.js"
+index fbddc2b..38d1461 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\goi_tap.api.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\goi_tap.api.js"
+@@ -1 +1,158 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import ketNoiApi from './api.js'
++
++export const CAC_TRANG_THAI_GOI_TAP = Object.freeze(['DANG_BAN', 'NGUNG_BAN'])
++
++const CAC_KHOA_QUYEN_LOI = Object.freeze([
++  'gym_access',
++  'fitness_assistant',
++  'fitness_assistant_limit',
++  'trainer_chat',
++  'direct_trainer_sessions',
++])
++
++function taoLoiDauVao(message, fieldErrors = {}) {
++  return {
++    httpStatus: 422,
++    code: 'INVALID_PACKAGE_REQUEST',
++    message,
++    fieldErrors,
++    retryAfter: null,
++    isNetworkError: false,
++    originalRequestId: null,
++  }
++}
++
++export function laIdGoiTapHopLe(value) {
++  return (typeof value === 'number' && Number.isSafeInteger(value) && value > 0)
++    || (typeof value === 'string' && /^[1-9]\d*$/.test(value.trim()) && Number.isSafeInteger(Number(value.trim())))
++}
++
++function layId(value) {
++  if (!laIdGoiTapHopLe(value)) {
++    throw taoLoiDauVao('ID goi tap khong hop le.', { id: ['ID goi tap phai la so nguyen duong.'] })
++  }
++  return Number(value)
++}
++
++function layChuoi(value, field, { required = false, max = 255 } = {}) {
++  if (value === undefined && !required) return undefined
++  if (typeof value !== 'string' || (required && value.trim() === '') || value.length > max) {
++    throw taoLoiDauVao('Du lieu goi tap khong hop le.', { [field]: ['Gia tri khong hop le.'] })
++  }
++  return value.trim()
++}
++
++function laySoNguyen(value, field, { required = false, min = 0 } = {}) {
++  if (value === undefined && !required) return undefined
++  const number = typeof value === 'number' ? value : Number(value)
++  if (!Number.isSafeInteger(number) || number < min) {
++    throw taoLoiDauVao('Du lieu goi tap khong hop le.', { [field]: ['Gia tri phai la so nguyen hop le.'] })
++  }
++  return number
++}
++
++function laySoTien(value, field, { required = false, min = 0 } = {}) {
++  if (value === undefined && !required) return undefined
++  const number = typeof value === 'number' ? value : Number(value)
++  if (!Number.isFinite(number) || number < min) {
++    throw taoLoiDauVao('Du lieu goi tap khong hop le.', { [field]: ['Gia tri phai la so hop le.'] })
++  }
++  return number
++}
++
++function layTrangThai(value, required = false) {
++  const status = value === undefined && !required ? undefined : String(value ?? '').trim()
++  if (status === undefined) return undefined
++  if (!CAC_TRANG_THAI_GOI_TAP.includes(status)) {
++    throw taoLoiDauVao('Trang thai goi tap khong hop le.', { status: ['Trang thai khong hop le.'] })
++  }
++  return status
++}
++
++function taoQuyenLoi(value = {}) {
++  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
++    throw taoLoiDauVao('Quyen loi goi tap khong hop le.', { benefits: ['Quyen loi phai la object.'] })
++  }
++
++  const body = {}
++  for (const key of CAC_KHOA_QUYEN_LOI) {
++    if (!Object.prototype.hasOwnProperty.call(value, key)) continue
++    if (key === 'fitness_assistant' || key === 'gym_access' || key === 'trainer_chat') {
++      if (typeof value[key] !== 'boolean') {
++        throw taoLoiDauVao('Quyen loi goi tap khong hop le.', { [`benefits.${key}`]: ['Gia tri phai la boolean.'] })
++      }
++      body[key] = value[key]
++    } else {
++      body[key] = value[key] === null ? null : laySoNguyen(value[key], `benefits.${key}`, { min: 0 })
++    }
++  }
++
++  for (const key of ['gym_access', 'fitness_assistant', 'trainer_chat', 'fitness_assistant_limit', 'direct_trainer_sessions']) {
++    if (!Object.prototype.hasOwnProperty.call(body, key)) {
++      throw taoLoiDauVao('Can khai bao day du quyen loi goi tap.', { benefits: ['Thieu khoa quyen loi.'] })
++    }
++  }
++  if (body.fitness_assistant && body.fitness_assistant_limit !== null && body.fitness_assistant_limit <= 0) {
++    throw taoLoiDauVao('Gioi han tro ly phai lon hon 0 khi bat tro ly.', {
++      'benefits.fitness_assistant_limit': ['Nhap null hoac so nguyen duong.'],
++    })
++  }
++  if (!body.fitness_assistant && body.fitness_assistant_limit !== 0) {
++    throw taoLoiDauVao('Gioi han tro ly phai bang 0 khi tat tro ly.', {
++      'benefits.fitness_assistant_limit': ['Gia tri phai bang 0.'],
++    })
++  }
++  return body
++}
++
++function taoPayloadGoiTap(value = {}, { partial = false } = {}) {
++  const body = {}
++  for (const field of ['code', 'name', 'description']) {
++    const current = layChuoi(value[field], field, { required: !partial && field !== 'description', max: field === 'description' ? 2000 : 120 })
++    if (current !== undefined) body[field] = current
++  }
++  const price = laySoTien(value.price, 'price', { required: !partial, min: 0 })
++  const duration = laySoNguyen(value.duration_days, 'duration_days', { required: !partial, min: 1 })
++  if (price !== undefined) body.price = price
++  if (duration !== undefined) body.duration_days = duration
++  const status = layTrangThai(value.status, !partial)
++  if (status !== undefined) body.status = status
++  if (!partial || Object.prototype.hasOwnProperty.call(value, 'benefits')) {
++    body.benefits = taoQuyenLoi(value.benefits)
++  }
++  return body
++}
++
++export function taoPayloadQuyenLoiGoiTap(value) {
++  return taoQuyenLoi(value)
++}
++
++/** GET danh sach goi tap; Backend la authority cho status va configuration_version. */
++export async function taiDanhSachGoiTap() {
++  const response = await ketNoiApi.get('/admin/packages')
++  return response.data
++}
++
++/** GET detail goi tap theo ID da validate; khong doc branch/creator tu client. */
++export async function taiChiTietGoiTap(id) {
++  const response = await ketNoiApi.get(`/admin/packages/${layId(id)}`)
++  return response.data
++}
++
++/** POST goi tap voi metadata va benefits day du theo contract. */
++export async function taoGoiTap(value = {}) {
++  const response = await ketNoiApi.post('/admin/packages', taoPayloadGoiTap(value))
++  return response.data
++}
++
++/** PATCH metadata/status goi tap; khong gui snapshot hay authority field. */
++export async function capNhatGoiTap(id, value = {}) {
++  const response = await ketNoiApi.patch(`/admin/packages/${layId(id)}`, taoPayloadGoiTap(value, { partial: true }))
++  return response.data
++}
++
++/** PUT thay the quyen loi; snapshot ky cu do Backend bao toan. */
++export async function thayTheQuyenLoiGoiTap(id, value = {}) {
++  const response = await ketNoiApi.put(`/admin/packages/${layId(id)}/benefits`, taoQuyenLoi(value))
++  return response.data
++}
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\goi_tap.api.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\goi_tap.api.test.js"
+index fbddc2b..0189275 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\goi_tap.api.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\goi_tap.api.test.js"
+@@ -1 +1,13 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { beforeEach, describe, expect, it, vi } from 'vitest'
++
++const { get, post, patch, put } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), patch: vi.fn(), put: vi.fn() }))
++vi.mock('./api.js', () => ({ default: { get, post, patch, put } }))
++import { capNhatGoiTap, taoGoiTap, thayTheQuyenLoiGoiTap } from './goi_tap.api.js'
++
++const quyenLoi = { gym_access: true, fitness_assistant: false, fitness_assistant_limit: 0, trainer_chat: true, direct_trainer_sessions: 2 }
++beforeEach(() => { vi.clearAllMocks(); get.mockResolvedValue({ data: { data: [] } }); post.mockResolvedValue({ data: { data: { id: 1 } } }); patch.mockResolvedValue({ data: { data: { id: 1 } } }); put.mockResolvedValue({ data: { data: { id: 1 } } }) })
++describe('goi_tap.api FE3', () => {
++  it('gui create allow-list va khong gui authority fields', async () => { await taoGoiTap({ code: 'P1', name: 'Goi 1', price: 100, duration_days: 30, status: 'DANG_BAN', benefits: quyenLoi, branch_id: 9, created_by_id: 7 }); expect(post).toHaveBeenCalledWith('/admin/packages', expect.objectContaining({ code: 'P1', benefits: quyenLoi })); expect(post.mock.calls[0][1]).not.toHaveProperty('branch_id'); expect(post.mock.calls[0][1]).not.toHaveProperty('created_by_id') })
++  it('patch metadata va benefits dung endpoint, khong co DELETE', async () => { await capNhatGoiTap(2, { name: 'Moi', status: 'NGUNG_BAN' }); await thayTheQuyenLoiGoiTap(2, quyenLoi); expect(patch).toHaveBeenCalledWith('/admin/packages/2', { name: 'Moi', status: 'NGUNG_BAN' }); expect(put).toHaveBeenCalledWith('/admin/packages/2/benefits', quyenLoi) })
++  it('chan AI limit sai truoc khi goi mang', async () => { await expect(taoGoiTap({ code: 'P1', name: 'Goi 1', price: 1, duration_days: 1, status: 'DANG_BAN', benefits: { ...quyenLoi, fitness_assistant: false, fitness_assistant_limit: 3 } })).rejects.toMatchObject({ httpStatus: 422 }); expect(post).not.toHaveBeenCalled() })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\dung_cu.api.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\dung_cu.api.js"
+index fbddc2b..580cd4d 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\dung_cu.api.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\dung_cu.api.js"
+@@ -1 +1,60 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import ketNoiApi from './api.js'
++
++export const CAC_TRANG_THAI_DUNG_CU = Object.freeze(['HOAT_DONG', 'NGUNG_SU_DUNG'])
++
++function taoLoiDauVao(message, fieldErrors = {}) {
++  return {
++    httpStatus: 422,
++    code: 'INVALID_EQUIPMENT_REQUEST',
++    message,
++    fieldErrors,
++    retryAfter: null,
++    isNetworkError: false,
++    originalRequestId: null,
++  }
++}
++
++export function laIdDungCuHopLe(value) {
++  return (typeof value === 'number' && Number.isSafeInteger(value) && value > 0)
++    || (typeof value === 'string' && /^[1-9]\d*$/.test(value.trim()) && Number.isSafeInteger(Number(value.trim())))
++}
++
++function layId(value) {
++  if (!laIdDungCuHopLe(value)) throw taoLoiDauVao('ID dung cu khong hop le.', { id: ['ID phai la so nguyen duong.'] })
++  return Number(value)
++}
++
++function layPayload(value = {}, partial = false) {
++  const body = {}
++  for (const field of ['code', 'name', 'description']) {
++    if (partial && field === 'code') continue
++    if (value[field] === undefined && partial) continue
++    if (typeof value[field] !== 'string' || (field !== 'description' && value[field].trim() === '')) {
++      throw taoLoiDauVao('Du lieu dung cu khong hop le.', { [field]: ['Gia tri khong hop le.'] })
++    }
++    body[field] = value[field].trim()
++  }
++  if (!partial || value.status !== undefined) {
++    if (!CAC_TRANG_THAI_DUNG_CU.includes(value.status)) throw taoLoiDauVao('Trang thai dung cu khong hop le.', { status: ['Trang thai khong hop le.'] })
++    body.status = value.status
++  }
++  return body
++}
++
++/** GET equipment catalog, including records marked NGUNG_SU_DUNG. */
++export async function taiDanhSachDungCu() {
++  const response = await ketNoiApi.get('/admin/equipment')
++  return response.data
++}
++
++/** POST equipment with immutable code established by Backend. */
++export async function taoDungCu(value = {}) {
++  const response = await ketNoiApi.post('/admin/equipment', layPayload(value))
++  return response.data
++}
++
++/** PATCH equipment metadata/status; code is deliberately omitted. */
++export async function capNhatDungCu(id, value = {}) {
++  const response = await ketNoiApi.patch(`/admin/equipment/${layId(id)}`, layPayload(value, true))
++  return response.data
++}
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\dung_cu.api.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\dung_cu.api.test.js"
+index fbddc2b..4c324c1 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\dung_cu.api.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\dung_cu.api.test.js"
+@@ -1 +1,9 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { beforeEach, describe, expect, it, vi } from 'vitest'
++const { get, post, patch } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), patch: vi.fn() }))
++vi.mock('./api.js', () => ({ default: { get, post, patch } }))
++import { capNhatDungCu, taoDungCu } from './dung_cu.api.js'
++beforeEach(() => { vi.clearAllMocks(); get.mockResolvedValue({ data: { data: [] } }); post.mockResolvedValue({ data: { data: { id: 1 } } }); patch.mockResolvedValue({ data: { data: { id: 1 } } }) })
++describe('dung_cu.api FE3', () => {
++  it('create va patch equipment dung endpoint', async () => { await taoDungCu({ code: 'DB', name: 'Dumbbell', description: '', status: 'HOAT_DONG' }); await capNhatDungCu(3, { name: 'Moi', status: 'NGUNG_SU_DUNG' }); expect(post).toHaveBeenCalledWith('/admin/equipment', { code: 'DB', name: 'Dumbbell', description: '', status: 'HOAT_DONG' }); expect(patch).toHaveBeenCalledWith('/admin/equipment/3', { name: 'Moi', status: 'NGUNG_SU_DUNG' }) })
++  it('khong cho sua code trong patch', async () => { await capNhatDungCu(3, { code: 'KHAC', name: 'Moi', status: 'HOAT_DONG' }); expect(patch.mock.calls[0][1]).not.toHaveProperty('code') })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\nhom_co.api.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\nhom_co.api.js"
+index fbddc2b..43bbdac 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\nhom_co.api.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\nhom_co.api.js"
+@@ -1 +1,63 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import ketNoiApi from './api.js'
++
++export const CAC_TRANG_THAI_NHOM_CO = Object.freeze(['HOAT_DONG', 'NGUNG_SU_DUNG'])
++
++function taoLoiDauVao(message, fieldErrors = {}) {
++  return {
++    httpStatus: 422,
++    code: 'INVALID_MUSCLE_GROUP_REQUEST',
++    message,
++    fieldErrors,
++    retryAfter: null,
++    isNetworkError: false,
++    originalRequestId: null,
++  }
++}
++
++export function laIdNhomCoHopLe(value) {
++  return (typeof value === 'number' && Number.isSafeInteger(value) && value > 0)
++    || (typeof value === 'string' && /^[1-9]\d*$/.test(value.trim()) && Number.isSafeInteger(Number(value.trim())))
++}
++
++function layId(value) {
++  if (!laIdNhomCoHopLe(value)) throw taoLoiDauVao('ID nhom co khong hop le.', { id: ['ID phai la so nguyen duong.'] })
++  return Number(value)
++}
++
++function layPayload(value = {}, partial = false) {
++  const body = {}
++  for (const field of ['code', 'name', 'description']) {
++    if (value[field] === undefined && partial) continue
++    if (typeof value[field] !== 'string' || (field !== 'description' && value[field].trim() === '')) {
++      throw taoLoiDauVao('Du lieu nhom co khong hop le.', { [field]: ['Gia tri khong hop le.'] })
++    }
++    body[field] = value[field].trim()
++  }
++  if (!partial || value.status !== undefined) {
++    if (!CAC_TRANG_THAI_NHOM_CO.includes(value.status)) throw taoLoiDauVao('Trang thai nhom co khong hop le.', { status: ['Trang thai khong hop le.'] })
++    body.status = value.status
++  }
++  if (value.muscle_groups !== undefined) {
++    if (!Array.isArray(value.muscle_groups)) throw taoLoiDauVao('Quan he nhom co khong hop le.', { muscle_groups: ['Phai la mang.'] })
++    body.muscle_groups = value.muscle_groups.map((item) => ({ id: layId(item.id), role: item.role }))
++  }
++  return body
++}
++
++/** GET muscle groups and retain inactive groups for relation reconciliation. */
++export async function taiDanhSachNhomCo() {
++  const response = await ketNoiApi.get('/admin/muscle-groups')
++  return response.data
++}
++
++/** POST a muscle group with HOAT_DONG/NGUNG_SU_DUNG lifecycle status. */
++export async function taoNhomCo(value = {}) {
++  const response = await ketNoiApi.post('/admin/muscle-groups', layPayload(value))
++  return response.data
++}
++
++/** PATCH muscle group metadata/status; no client-side audit or hard delete. */
++export async function capNhatNhomCo(id, value = {}) {
++  const response = await ketNoiApi.patch(`/admin/muscle-groups/${layId(id)}`, layPayload(value, true))
++  return response.data
++}
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\nhom_co.api.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\nhom_co.api.test.js"
+index fbddc2b..0de5124 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\nhom_co.api.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\nhom_co.api.test.js"
+@@ -1 +1,9 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { beforeEach, describe, expect, it, vi } from 'vitest'
++const { get, post, patch } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), patch: vi.fn() }))
++vi.mock('./api.js', () => ({ default: { get, post, patch } }))
++import { capNhatNhomCo, taoNhomCo } from './nhom_co.api.js'
++beforeEach(() => { vi.clearAllMocks(); get.mockResolvedValue({ data: { data: [] } }); post.mockResolvedValue({ data: { data: { id: 1 } } }); patch.mockResolvedValue({ data: { data: { id: 1 } } }) })
++describe('nhom_co.api FE3', () => {
++  it('hien inactive va gui status transition theo Backend', async () => { await taoNhomCo({ code: 'NG', name: 'Nguc', description: '', status: 'HOAT_DONG' }); await capNhatNhomCo(4, { status: 'NGUNG_SU_DUNG' }); expect(post).toHaveBeenCalledWith('/admin/muscle-groups', expect.objectContaining({ status: 'HOAT_DONG' })); expect(patch).toHaveBeenCalledWith('/admin/muscle-groups/4', { status: 'NGUNG_SU_DUNG' }) })
++  it('chan ID am va khong goi API', async () => { await expect(capNhatNhomCo(-1, { status: 'HOAT_DONG' })).rejects.toMatchObject({ httpStatus: 422 }); expect(patch).not.toHaveBeenCalled() })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\bai_tap.api.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\bai_tap.api.js"
+index fbddc2b..7ee49d2 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\bai_tap.api.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\bai_tap.api.js"
+@@ -1 +1,112 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import ketNoiApi from './api.js'
++
++export const CAC_TRANG_THAI_BAI_TAP = Object.freeze(['HOAT_DONG', 'NGUNG_SU_DUNG'])
++export const CAC_VAI_TRO_NHOM_CO = Object.freeze(['CHINH', 'PHU'])
++
++function taoLoiDauVao(message, fieldErrors = {}) {
++  return {
++    httpStatus: 422,
++    code: 'INVALID_EXERCISE_REQUEST',
++    message,
++    fieldErrors,
++    retryAfter: null,
++    isNetworkError: false,
++    originalRequestId: null,
++  }
++}
++
++export function laIdBaiTapHopLe(value) {
++  return (typeof value === 'number' && Number.isSafeInteger(value) && value > 0)
++    || (typeof value === 'string' && /^[1-9]\d*$/.test(value.trim()) && Number.isSafeInteger(Number(value.trim())))
++}
++
++function layId(value, field = 'id') {
++  if (!laIdBaiTapHopLe(value)) throw taoLoiDauVao('ID bai tap khong hop le.', { [field]: ['ID phai la so nguyen duong.'] })
++  return Number(value)
++}
++
++function layChuoi(value, field, { required = false, max = 255 } = {}) {
++  if (value === undefined && !required) return undefined
++  if (typeof value !== 'string' || (required && value.trim() === '') || value.length > max) throw taoLoiDauVao('Du lieu bai tap khong hop le.', { [field]: ['Gia tri khong hop le.'] })
++  return value.trim()
++}
++
++function layTrangThai(value, required = false) {
++  if (value === undefined && !required) return undefined
++  if (!CAC_TRANG_THAI_BAI_TAP.includes(value)) throw taoLoiDauVao('Trang thai bai tap khong hop le.', { status: ['Trang thai khong hop le.'] })
++  return value
++}
++
++function taoDanhSachId(value, field) {
++  if (!Array.isArray(value)) throw taoLoiDauVao('Quan he bai tap phai la mang.', { [field]: ['Phai la mang.'] })
++  const seen = new Set()
++  return value.map((item) => {
++    const id = layId(item, field)
++    if (seen.has(id)) throw taoLoiDauVao('Quan he bai tap bi trung.', { [field]: ['Khong duoc trung ID.'] })
++    seen.add(id)
++    return id
++  })
++}
++
++export function taoPayloadQuanHeBaiTap({ equipmentIds = [], muscleGroups = [] } = {}) {
++  const equipment_ids = taoDanhSachId(equipmentIds, 'equipment_ids')
++  if (!Array.isArray(muscleGroups)) throw taoLoiDauVao('Nhom co bai tap phai la mang.', { muscle_groups: ['Phai la mang.'] })
++  const seen = new Set()
++  const muscle_groups = muscleGroups.map((item) => {
++    const id = layId(item?.id, 'muscle_groups')
++    if (!CAC_VAI_TRO_NHOM_CO.includes(item?.role)) throw taoLoiDauVao('Vai tro nhom co khong hop le.', { muscle_groups: ['Vai tro phai la CHINH hoac PHU.'] })
++    if (seen.has(id)) throw taoLoiDauVao('Nhom co bai tap bi trung.', { muscle_groups: ['Khong duoc trung ID.'] })
++    seen.add(id)
++    return { id, role: item.role }
++  })
++  return { equipment_ids, muscle_groups }
++}
++
++function taoPayloadBaiTap(value = {}, { partial = false } = {}) {
++  const body = {}
++  for (const field of ['code', 'name', 'difficulty', 'instructions', 'image_path', 'video_path']) {
++    const current = layChuoi(value[field], field, { required: !partial && ['code', 'name', 'difficulty'].includes(field), max: field === 'instructions' ? 5000 : 2000 })
++    if (current !== undefined) body[field] = current
++  }
++  if (value.metadata !== undefined) {
++    if (value.metadata === null || typeof value.metadata !== 'object' || Array.isArray(value.metadata)) throw taoLoiDauVao('Metadata bai tap khong hop le.', { metadata: ['Phai la object.'] })
++    body.metadata = value.metadata
++  }
++  const status = layTrangThai(value.status, !partial)
++  if (status !== undefined) body.status = status
++  if (!partial || value.equipment_ids !== undefined || value.equipmentIds !== undefined || value.muscle_groups !== undefined || value.muscleGroups !== undefined) {
++    const relations = taoPayloadQuanHeBaiTap({
++      equipmentIds: value.equipment_ids ?? value.equipmentIds ?? [],
++      muscleGroups: value.muscle_groups ?? value.muscleGroups ?? [],
++    })
++    Object.assign(body, relations)
++  }
++  return body
++}
++
++/** GET exercise list with the contract search/status allow-list. */
++export async function taiDanhSachBaiTap(filters = {}) {
++  const params = {}
++  if (filters.search !== undefined && String(filters.search).trim() !== '') params.search = String(filters.search).trim()
++  if (filters.status !== undefined && String(filters.status).trim() !== '') params.status = layTrangThai(String(filters.status).trim())
++  const response = await ketNoiApi.get('/admin/exercises', { params })
++  return response.data
++}
++
++/** GET exercise detail with equipment AND and muscle-group relations. */
++export async function taiChiTietBaiTap(id) {
++  const response = await ketNoiApi.get(`/admin/exercises/${layId(id)}`)
++  return response.data
++}
++
++/** POST exercise and its complete relation arrays in one request. */
++export async function taoBaiTap(value = {}) {
++  const response = await ketNoiApi.post('/admin/exercises', taoPayloadBaiTap(value))
++  return response.data
++}
++
++/** PATCH exercise metadata/status and optional relation replacement. */
++export async function capNhatBaiTap(id, value = {}) {
++  const response = await ketNoiApi.patch(`/admin/exercises/${layId(id)}`, taoPayloadBaiTap(value, { partial: true }))
++  return response.data
++}
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\bai_tap.api.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\bai_tap.api.test.js"
+index fbddc2b..e26a59d 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\bai_tap.api.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\bai_tap.api.test.js"
+@@ -1 +1,9 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { beforeEach, describe, expect, it, vi } from 'vitest'
++const { get, post, patch } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), patch: vi.fn() }))
++vi.mock('./api.js', () => ({ default: { get, post, patch } }))
++import { capNhatBaiTap, taoBaiTap, taoPayloadQuanHeBaiTap, taiDanhSachBaiTap } from './bai_tap.api.js'
++beforeEach(() => { vi.clearAllMocks(); get.mockResolvedValue({ data: { data: [] } }); post.mockResolvedValue({ data: { data: { id: 1 } } }); patch.mockResolvedValue({ data: { data: { id: 1 } } }) })
++describe('bai_tap.api FE3', () => {
++  it('tao quan he equipment va muscle voi vai tro', () => { expect(taoPayloadQuanHeBaiTap({ equipmentIds: [1, '2'], muscleGroups: [{ id: 4, role: 'CHINH' }] })).toEqual({ equipment_ids: [1, 2], muscle_groups: [{ id: 4, role: 'CHINH' }] }) })
++  it('gui filters va relation arrays, khong co authority', async () => { await taiDanhSachBaiTap({ search: 'squat', status: 'HOAT_DONG', branch_id: 8 }); await taoBaiTap({ code: 'SQ', name: 'Squat', difficulty: 'D', status: 'HOAT_DONG', equipment_ids: [1], muscle_groups: [{ id: 2, role: 'CHINH' }], created_by_id: 4 }); await capNhatBaiTap(2, { name: 'Moi', equipment_ids: [], muscle_groups: [] }); expect(get).toHaveBeenCalledWith('/admin/exercises', { params: { search: 'squat', status: 'HOAT_DONG' } }); expect(post.mock.calls[0][1]).not.toHaveProperty('created_by_id'); expect(patch).toHaveBeenCalledWith('/admin/exercises/2', expect.objectContaining({ equipment_ids: [], muscle_groups: [] })) })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\giao_an_mau.api.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\giao_an_mau.api.js"
+index fbddc2b..7394fdd 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\giao_an_mau.api.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\giao_an_mau.api.js"
+@@ -1 +1,157 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import ketNoiApi from './api.js'
++
++export const CAC_TRANG_THAI_GIAO_AN_MAU = Object.freeze(['HOAT_DONG', 'NGUNG_SU_DUNG'])
++
++function taoLoiDauVao(message, fieldErrors = {}) {
++  return {
++    httpStatus: 422,
++    code: 'INVALID_WORKOUT_TEMPLATE_REQUEST',
++    message,
++    fieldErrors,
++    retryAfter: null,
++    isNetworkError: false,
++    originalRequestId: null,
++  }
++}
++
++export function laIdGiaoAnMauHopLe(value) {
++  return (typeof value === 'number' && Number.isSafeInteger(value) && value > 0)
++    || (typeof value === 'string' && /^[1-9]\d*$/.test(value.trim()) && Number.isSafeInteger(Number(value.trim())))
++}
++
++function layId(value, field = 'id') {
++  if (!laIdGiaoAnMauHopLe(value)) throw taoLoiDauVao('ID giao an mau khong hop le.', { [field]: ['ID phai la so nguyen duong.'] })
++  return Number(value)
++}
++
++function layChuoi(value, field, { required = false, max = 255 } = {}) {
++  if (value === undefined && !required) return undefined
++  if (typeof value !== 'string' || (required && value.trim() === '') || value.length > max) throw taoLoiDauVao('Du lieu giao an mau khong hop le.', { [field]: ['Gia tri khong hop le.'] })
++  return value.trim()
++}
++
++function layTrangThai(value, required = false) {
++  if (value === undefined && !required) return undefined
++  if (!CAC_TRANG_THAI_GIAO_AN_MAU.includes(value)) throw taoLoiDauVao('Trang thai giao an mau khong hop le.', { status: ['Trang thai khong hop le.'] })
++  return value
++}
++
++function laySo(value, field, { required = false, min = 0 } = {}) {
++  if (value === undefined && !required) return undefined
++  const number = Number(value)
++  if (!Number.isSafeInteger(number) || number < min) throw taoLoiDauVao('Du lieu giao an mau khong hop le.', { [field]: ['Gia tri khong hop le.'] })
++  return number
++}
++
++function taoNgay(value, field = 'days', { required = false } = {}) {
++  if (value === undefined && !required) return undefined
++  if (!Array.isArray(value) || value.length === 0) throw taoLoiDauVao('Giao an mau phai co ngay tap.', { [field]: ['Phai co it nhat mot ngay.'] })
++  const orders = new Set()
++  return value.map((day, dayIndex) => {
++    const order = laySo(day?.order, `${field}.${dayIndex}.order`, { required: true, min: 1 })
++    if (orders.has(order)) throw taoLoiDauVao('Thu tu ngay tap bi trung.', { [field]: ['Thu tu ngay phai duy nhat.'] })
++    orders.add(order)
++    const exercises = Array.isArray(day?.exercises) ? day.exercises : []
++    const exerciseOrders = new Set()
++    return {
++      order,
++      name: layChuoi(day?.name, `${field}.${dayIndex}.name`, { required: true, max: 120 }),
++      estimated_minutes: laySo(day?.estimated_minutes, `${field}.${dayIndex}.estimated_minutes`, { required: true, min: 1 }),
++      exercises: exercises.map((exercise, exerciseIndex) => {
++        const exerciseOrder = laySo(exercise?.order, `${field}.${dayIndex}.exercises.${exerciseIndex}.order`, { required: true, min: 1 })
++        if (exerciseOrders.has(exerciseOrder)) throw taoLoiDauVao('Thu tu bai tap bi trung.', { [field]: ['Thu tu bai tap phai duy nhat trong ngay.'] })
++        exerciseOrders.add(exerciseOrder)
++        const minReps = laySo(exercise?.min_reps, 'min_reps', { required: true, min: 1 })
++        const maxReps = laySo(exercise?.max_reps, 'max_reps', { required: true, min: minReps })
++        return {
++          exercise_id: layId(exercise?.exercise_id, 'exercise_id'),
++          order: exerciseOrder,
++          target_sets: laySo(exercise?.target_sets, 'target_sets', { required: true, min: 1 }),
++          min_reps: minReps,
++          max_reps: maxReps,
++          rest_seconds: laySo(exercise?.rest_seconds, 'rest_seconds', { required: true, min: 0 }),
++          ...(exercise?.notes === undefined ? {} : { notes: layChuoi(exercise.notes, 'notes', { max: 1000 }) }),
++        }
++      }),
++    }
++  })
++}
++
++function taoPayloadMetadata(value = {}, { partial = false, includeDays = false } = {}) {
++  const body = {}
++  for (const field of ['code', 'name', 'goal', 'level', 'description']) {
++    const current = layChuoi(value[field], field, { required: !partial && ['code', 'name', 'goal', 'level'].includes(field), max: field === 'description' ? 3000 : 160 })
++    if (current !== undefined) body[field] = current
++  }
++  const sessions = laySo(value.sessions_per_week, 'sessions_per_week', { required: !partial, min: 1 })
++  if (sessions !== undefined) body.sessions_per_week = sessions
++  const status = layTrangThai(value.status, !partial)
++  if (status !== undefined) body.status = status
++  if (includeDays || !partial) {
++    body.days = taoNgay(value.days, 'days', { required: true })
++    if (body.sessions_per_week !== body.days.length) throw taoLoiDauVao('So buoi moi tuan phai bang so ngay.', { sessions_per_week: ['Khong khop so ngay.'] })
++  }
++  return body
++}
++
++/** GET template summaries; list content stays server-authoritative. */
++export async function taiDanhSachGiaoAnMau() {
++  const response = await ketNoiApi.get('/admin/workout-templates')
++  return response.data
++}
++
++export async function taiChiTietGiaoAnMau(id) {
++  const response = await ketNoiApi.get(`/admin/workout-templates/${layId(id)}`)
++  return response.data
++}
++
++/**
++ * Tai nen authoritative cua mot giao an truoc khi mo trinh soan phien ban.
++ * Dau vao la template ID; ket qua la detail envelope tu Backend, khong tu tao day/exercise.
++ * Side effect chi la mot GET read-only.
++ */
++export async function taiNenGiaoAnMau(id) {
++  return taiChiTietGiaoAnMau(id)
++}
++
++/** POST a complete template tree after client shape validation. */
++export async function taoGiaoAnMau(value = {}) {
++  const response = await ketNoiApi.post('/admin/workout-templates', taoPayloadMetadata(value, { includeDays: true }))
++  return response.data
++}
++
++/** PATCH metadata/status only; the request intentionally excludes days. */
++export async function capNhatGiaoAnMau(id, value = {}) {
++  const response = await ketNoiApi.patch(`/admin/workout-templates/${layId(id)}`, taoPayloadMetadata(value, { partial: true }))
++  return response.data
++}
++
++/** POST copy-on-write revision with a stable expected_content_version. */
++export async function taoPhienBanGiaoAnMau(id, value = {}) {
++  const body = {
++    new_code: layChuoi(value.new_code, 'new_code', { required: true, max: 160 }),
++    expected_content_version: laySo(value.expected_content_version, 'expected_content_version', { required: true, min: 1 }),
++    days: taoNgay(value.days, 'days', { required: true }),
++  }
++  for (const field of ['name', 'goal', 'level', 'description', 'status', 'sessions_per_week']) {
++    if (value[field] === undefined) continue
++    if (field === 'status') body.status = layTrangThai(value[field])
++    else if (field === 'sessions_per_week') body.sessions_per_week = laySo(value[field], field, { required: true, min: 1 })
++    else body[field] = layChuoi(value[field], field, { max: field === 'description' ? 3000 : 160 })
++  }
++  if (body.sessions_per_week !== undefined && body.sessions_per_week !== body.days.length) throw taoLoiDauVao('So buoi moi tuan phai bang so ngay.', { sessions_per_week: ['Khong khop so ngay.'] })
++  const response = await ketNoiApi.post(`/admin/workout-templates/${layId(id)}/revisions`, body)
++  return response.data
++}
++
++/**
++ * Nhan dien conflict optimistic-concurrency cua revision va bao page giu ban nhap.
++ * Ham khong retry va khong sua content_version; caller hien dialog de nguoi dung doi soat.
++ */
++export function xuLyGiaoAnMauDaCu(error) {
++  return {
++    laXungDot: error?.httpStatus === 409 && error?.code === 'WORKOUT_TEMPLATE_STALE',
++    maLoi: error?.code ?? null,
++    giuBanNhap: error?.httpStatus === 409,
++  }
++}
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\giao_an_mau.api.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\giao_an_mau.api.test.js"
+index fbddc2b..306b4f6 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\services\\giao_an_mau.api.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\services\\giao_an_mau.api.test.js"
+@@ -1 +1,12 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { beforeEach, describe, expect, it, vi } from 'vitest'
++const { get, post, patch } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), patch: vi.fn() }))
++vi.mock('./api.js', () => ({ default: { get, post, patch } }))
++import { capNhatGiaoAnMau, taoGiaoAnMau, taoPhienBanGiaoAnMau, xuLyGiaoAnMauDaCu } from './giao_an_mau.api.js'
++const days = [{ order: 1, name: 'Ngay 1', estimated_minutes: 45, exercises: [{ exercise_id: 9, order: 1, target_sets: 3, min_reps: 8, max_reps: 12, rest_seconds: 60 }] }]
++beforeEach(() => { vi.clearAllMocks(); get.mockResolvedValue({ data: { data: [] } }); post.mockResolvedValue({ data: { data: { id: 1, new_template_id: 2 } } }); patch.mockResolvedValue({ data: { data: { id: 1 } } }) })
++describe('giao_an_mau.api FE3', () => {
++  it('create co full days va revision co expected content version', async () => { await taoGiaoAnMau({ code: 'T1', name: 'T', goal: 'G', level: 'L', sessions_per_week: 1, status: 'HOAT_DONG', days }); await taoPhienBanGiaoAnMau(1, { new_code: 'T2', expected_content_version: 3, days, name: 'T2' }); expect(post).toHaveBeenNthCalledWith(1, '/admin/workout-templates', expect.objectContaining({ days })); expect(post).toHaveBeenNthCalledWith(2, '/admin/workout-templates/1/revisions', expect.objectContaining({ expected_content_version: 3, days })) })
++  it('patch metadata khong gui days', async () => { await capNhatGiaoAnMau(1, { name: 'Moi', status: 'NGUNG_SU_DUNG', days }); expect(patch).toHaveBeenCalledWith('/admin/workout-templates/1', { name: 'Moi', status: 'NGUNG_SU_DUNG' }); expect(patch.mock.calls[0][1]).not.toHaveProperty('days') })
++  it('chan so buoi khong khop so ngay', async () => { await expect(taoGiaoAnMau({ code: 'T', name: 'T', goal: 'G', level: 'L', sessions_per_week: 2, status: 'HOAT_DONG', days })).rejects.toMatchObject({ httpStatus: 422 }); expect(post).not.toHaveBeenCalled() })
++  it('phan biet stale conflict va loi khac ma khong retry', () => { expect(xuLyGiaoAnMauDaCu({ httpStatus: 409, code: 'WORKOUT_TEMPLATE_STALE' })).toMatchObject({ laXungDot: true, giuBanNhap: true }); expect(xuLyGiaoAnMauDaCu({ httpStatus: 422, code: 'VALIDATION' }).laXungDot).toBe(false) })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.vue"
+index fbddc2b..a465a01 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.vue"
+@@ -1 +1,72 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { reactive, watch } from 'vue'
++
++const props = defineProps({
++  modelValue: { type: Object, default: () => ({}) },
++  quyenLoi: { type: Object, default: null },
++  dangLuu: { type: Boolean, default: false },
++  loi: { type: Object, default: null },
++})
++
++const emit = defineEmits(['update:modelValue', 'luu'])
++const macDinh = () => ({
++  gym_access: true,
++  fitness_assistant: false,
++  fitness_assistant_limit: 0,
++  trainer_chat: false,
++  direct_trainer_sessions: 0,
++})
++const duLieu = reactive(macDinh())
++
++function dongBo(value) {
++  Object.assign(duLieu, macDinh(), value ?? {})
++}
++
++watch(() => props.quyenLoi ?? props.modelValue, dongBo, { deep: true, immediate: true })
++
++function phatThayDoi() {
++  emit('update:modelValue', { ...duLieu })
++}
++
++function xuLyLuu() {
++  phatThayDoi()
++  emit('luu', { ...duLieu })
++}
++</script>
++
++<template>
++  <fieldset class="danh-muc-quyen-loi">
++    <legend>Quyen loi goi tap</legend>
++    <p class="danh-muc-quyen-loi__goi-y">Quyen loi duoc luu theo snapshot cua goi tai thoi diem mua.</p>
++    <label><input v-model="duLieu.gym_access" type="checkbox" @change="phatThayDoi"> Quyen vao phong gym</label>
++    <label><input v-model="duLieu.fitness_assistant" type="checkbox" @change="phatThayDoi"> Tro ly fitness</label>
++    <label for="fitness-assistant-limit">Luot tro ly</label>
++    <input
++      id="fitness-assistant-limit"
++      v-model.number="duLieu.fitness_assistant_limit"
++      type="number"
++      min="0"
++      :disabled="!duLieu.fitness_assistant || props.dangLuu"
++      @change="phatThayDoi"
++    >
++    <label><input v-model="duLieu.trainer_chat" type="checkbox" @change="phatThayDoi"> Chat voi PT</label>
++    <label for="direct-trainer-sessions">So buoi PT truc tiep</label>
++    <input
++      id="direct-trainer-sessions"
++      v-model.number="duLieu.direct_trainer_sessions"
++      type="number"
++      min="0"
++      :disabled="props.dangLuu"
++      @change="phatThayDoi"
++    >
++    <p class="danh-muc-quyen-loi__canh-bao" role="note">
++      Thay doi quyen loi chi ap dung cho luot cap moi; Backend giu snapshot cua cac ky da mua.
++    </p>
++    <p v-if="props.loi?.fieldErrors?.benefits" class="truong-bieu-mau__loi" role="alert">
++      {{ props.loi.fieldErrors.benefits[0] }}
++    </p>
++    <button class="nut nut--chinh" type="button" :disabled="props.dangLuu" @click="xuLyLuu">
++      {{ props.dangLuu ? 'Dang luu...' : 'Luu quyen loi' }}
++    </button>
++  </fieldset>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.test.js"
+index fbddc2b..59f8fea 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\bo_sua_quyen_loi_goi_tap.test.js"
+@@ -1 +1,12 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { mount } from '@vue/test-utils'
++import { describe, expect, it } from 'vitest'
++import BoSuaQuyenLoiGoiTap from './bo_sua_quyen_loi_goi_tap.vue'
++
++describe('bo_sua_quyen_loi_goi_tap FE3', () => {
++  it('render controls va phat payload quyen loi', async () => {
++    const wrapper = mount(BoSuaQuyenLoiGoiTap, { props: { modelValue: { gym_access: true, fitness_assistant: false, fitness_assistant_limit: 0, trainer_chat: true, direct_trainer_sessions: 1 } } })
++    await wrapper.get('button').trigger('click')
++    expect(wrapper.findAll('input[type="checkbox"]')).toHaveLength(3)
++    expect(wrapper.emitted('luu')?.[0][0]).toMatchObject({ trainer_chat: true, direct_trainer_sessions: 1 })
++  })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.vue"
+index fbddc2b..b75093f 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.vue"
+@@ -1 +1,87 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { computed, reactive, watch } from 'vue'
++
++const props = defineProps({
++  modelValue: { type: Object, default: () => ({ equipment_ids: [], muscle_groups: [] }) },
++  equipment: { type: Array, default: () => [] },
++  dungCu: { type: Array, default: null },
++  muscleGroups: { type: Array, default: () => [] },
++  nhomCo: { type: Array, default: null },
++  disabled: { type: Boolean, default: false },
++})
++
++const emit = defineEmits(['update:modelValue', 'capNhat'])
++const duLieu = reactive({ equipment_ids: [], muscle_groups: [] })
++const danhSachDungCu = computed(() => props.dungCu ?? props.equipment)
++const danhSachNhomCo = computed(() => props.nhomCo ?? props.muscleGroups)
++
++function dongBo(value) {
++  duLieu.equipment_ids = Array.isArray(value?.equipment_ids) ? [...value.equipment_ids] : []
++  duLieu.muscle_groups = Array.isArray(value?.muscle_groups)
++    ? value.muscle_groups.map((item) => ({ id: item.id, role: item.role }))
++    : []
++}
++
++watch(() => props.modelValue, dongBo, { deep: true, immediate: true })
++
++function idLaSo(value) { return Number(value) }
++function nhomCoDangChon(id) { return duLieu.muscle_groups.some((item) => Number(item.id) === Number(id)) }
++function layVaiTro(id) { return duLieu.muscle_groups.find((item) => Number(item.id) === Number(id))?.role ?? 'CHINH' }
++
++function capNhat() {
++  const value = {
++    ...(props.modelValue ?? {}),
++    equipment_ids: [...duLieu.equipment_ids].map(idLaSo),
++    muscle_groups: duLieu.muscle_groups.map((item) => ({ id: Number(item.id), role: item.role })),
++  }
++  emit('update:modelValue', value)
++  emit('capNhat', value)
++}
++
++function xuLyDungCu(event) {
++  duLieu.equipment_ids = Array.from(event.target.selectedOptions).map((option) => Number(option.value))
++  capNhat()
++}
++
++function xuLyNhomCo(event, group) {
++  const id = Number(group.id)
++  if (event.target.checked && !nhomCoDangChon(id)) duLieu.muscle_groups.push({ id, role: 'CHINH' })
++  if (!event.target.checked) duLieu.muscle_groups = duLieu.muscle_groups.filter((item) => Number(item.id) !== id)
++  capNhat()
++}
++
++function xuLyVaiTro(event, group) {
++  const selected = duLieu.muscle_groups.find((item) => Number(item.id) === Number(group.id))
++  if (selected) selected.role = event.target.value
++  capNhat()
++}
++</script>
++
++<template>
++  <fieldset class="danh-muc-quan-he">
++    <legend>Quan he bai tap</legend>
++    <p class="danh-muc-quan-he__goi-y">Nhieu dung cu la dieu kien AND: bai tap can tat ca dung cu da chon.</p>
++    <label for="bai-tap-equipment">Dung cu</label>
++    <select id="bai-tap-equipment" multiple :disabled="props.disabled" @change="xuLyDungCu">
++      <option v-for="item in danhSachDungCu" :key="item.id" :value="item.id" :selected="duLieu.equipment_ids.includes(Number(item.id))">
++        {{ item.code }} - {{ item.name }}
++      </option>
++    </select>
++    <span class="danh-muc-quan-he__nhan">Nhom co</span>
++    <div class="danh-muc-quan-he__nhom-co">
++      <label v-for="group in danhSachNhomCo" :key="group.id" :class="{ 'danh-muc-quan-he__khong-hoat-dong': group.status !== 'HOAT_DONG' && !nhomCoDangChon(group.id) }">
++        <input
++          type="checkbox"
++          :checked="nhomCoDangChon(group.id)"
++          :disabled="props.disabled || (group.status !== 'HOAT_DONG' && !nhomCoDangChon(group.id))"
++          @change="xuLyNhomCo($event, group)"
++        >
++        {{ group.name }} <small v-if="group.status !== 'HOAT_DONG'">(ngung su dung)</small>
++        <select v-if="nhomCoDangChon(group.id)" :value="layVaiTro(group.id)" :disabled="props.disabled" @change="xuLyVaiTro($event, group)">
++          <option value="CHINH">Chinh</option>
++          <option value="PHU">Phu</option>
++        </select>
++      </label>
++    </div>
++  </fieldset>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.test.js"
+index fbddc2b..d80d23e 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\bo_chon_quan_he_bai_tap.test.js"
+@@ -1 +1,11 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { mount } from '@vue/test-utils'
++import { describe, expect, it } from 'vitest'
++import BoChonQuanHeBaiTap from './bo_chon_quan_he_bai_tap.vue'
++
++describe('bo_chon_quan_he_bai_tap FE3', () => {
++  it('cho chon nhom co active va role', async () => {
++    const wrapper = mount(BoChonQuanHeBaiTap, { props: { equipment: [{ id: 1, code: 'DB', name: 'Dumbbell' }], muscleGroups: [{ id: 2, name: 'Nguc', status: 'HOAT_DONG' }] } })
++    await wrapper.find('input[type="checkbox"]').setValue(true)
++    expect(wrapper.emitted('capNhat')?.[0][0]).toEqual({ equipment_ids: [], muscle_groups: [{ id: 2, role: 'CHINH' }] })
++  })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\cay_giao_an.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\cay_giao_an.vue"
+index fbddc2b..3b793d3 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\cay_giao_an.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\cay_giao_an.vue"
+@@ -1 +1,85 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { computed } from 'vue'
++
++const props = defineProps({
++  modelValue: { type: Array, default: () => [] },
++  days: { type: Array, default: null },
++  baiTap: { type: Array, default: () => [] },
++  exerciseOptions: { type: Array, default: null },
++  disabled: { type: Boolean, default: false },
++})
++const emit = defineEmits(['update:modelValue', 'update:days', 'thayDoi'])
++const danhSachBaiTap = computed(() => props.exerciseOptions ?? props.baiTap)
++const danhSachNgay = computed(() => props.days ?? props.modelValue)
++
++function phatThayDoi() {
++  const value = danhSachNgay.value.map((day) => ({
++    ...day,
++    exercises: Array.isArray(day.exercises) ? day.exercises.map((item) => ({ ...item })) : [],
++  }))
++  emit('update:modelValue', value)
++  emit('update:days', value)
++  emit('thayDoi', value)
++}
++
++function themNgay() {
++  const order = danhSachNgay.value.length + 1
++  danhSachNgay.value.push({ order, name: `Ngay ${order}`, estimated_minutes: 45, exercises: [] })
++  phatThayDoi()
++}
++
++function xoaNgay(index) {
++  danhSachNgay.value.splice(index, 1)
++  danhSachNgay.value.forEach((day, dayIndex) => { day.order = dayIndex + 1 })
++  phatThayDoi()
++}
++
++function themBaiTap(day) {
++  const order = (day.exercises?.length ?? 0) + 1
++  day.exercises ??= []
++  day.exercises.push({ exercise_id: '', order, target_sets: 3, min_reps: 8, max_reps: 12, rest_seconds: 60, notes: '' })
++  phatThayDoi()
++}
++
++function xoaBaiTap(day, index) {
++  day.exercises.splice(index, 1)
++  day.exercises.forEach((item, itemIndex) => { item.order = itemIndex + 1 })
++  phatThayDoi()
++}
++</script>
++
++<template>
++  <section class="cay-giao-an" aria-label="Cay ngay tap va bai tap">
++    <div class="cay-giao-an__dau">
++      <h2>Noi dung giao an</h2>
++      <button class="nut nut--phu" type="button" :disabled="props.disabled" @click="themNgay">Them ngay tap</button>
++    </div>
++    <article v-for="(day, dayIndex) in danhSachNgay" :key="day.id ?? day.order ?? dayIndex" class="cay-giao-an__ngay">
++      <header>
++        <label :for="`giao-an-day-name-${dayIndex}`">Ngay {{ day.order }} - ten</label>
++        <input :id="`giao-an-day-name-${dayIndex}`" v-model="day.name" :disabled="props.disabled" @change="phatThayDoi">
++        <label :for="`giao-an-day-minutes-${dayIndex}`">Phut du kien</label>
++        <input :id="`giao-an-day-minutes-${dayIndex}`" v-model.number="day.estimated_minutes" type="number" min="1" :disabled="props.disabled" @change="phatThayDoi">
++        <button class="nut nut--nguy-hiem" type="button" :disabled="props.disabled" @click="xoaNgay(dayIndex)">Xoa ngay</button>
++      </header>
++      <ol>
++        <li v-for="(item, itemIndex) in day.exercises" :key="item.id ?? dayIndex + '-' + itemIndex">
++          <label :for="`giao-an-exercise-${dayIndex}-${itemIndex}`">Bai tap</label>
++          <select :id="`giao-an-exercise-${dayIndex}-${itemIndex}`" v-model="item.exercise_id" :disabled="props.disabled" @change="phatThayDoi">
++            <option value="">Chon bai tap</option>
++            <option v-for="exercise in danhSachBaiTap" :key="exercise.id" :value="exercise.id">{{ exercise.name }}</option>
++          </select>
++          <label :for="`giao-an-sets-${dayIndex}-${itemIndex}`">Sets</label>
++          <input :id="`giao-an-sets-${dayIndex}-${itemIndex}`" v-model.number="item.target_sets" type="number" min="1" :disabled="props.disabled" @change="phatThayDoi">
++          <label :for="`giao-an-min-${dayIndex}-${itemIndex}`">Reps toi thieu</label>
++          <input :id="`giao-an-min-${dayIndex}-${itemIndex}`" v-model.number="item.min_reps" type="number" min="1" :disabled="props.disabled" @change="phatThayDoi">
++          <label :for="`giao-an-max-${dayIndex}-${itemIndex}`">Reps toi da</label>
++          <input :id="`giao-an-max-${dayIndex}-${itemIndex}`" v-model.number="item.max_reps" type="number" min="1" :disabled="props.disabled" @change="phatThayDoi">
++          <button class="nut nut--phu" type="button" :disabled="props.disabled" @click="xoaBaiTap(day, itemIndex)">Xoa bai tap</button>
++        </li>
++      </ol>
++      <button class="nut nut--phu" type="button" :disabled="props.disabled" @click="themBaiTap(day)">Them bai tap</button>
++    </article>
++    <p v-if="danhSachNgay.length === 0" class="cay-giao-an__rong">Chua co ngay tap. Hay them ngay dau tien.</p>
++  </section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js"
+index fbddc2b..df9ac75 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\cay_giao_an.test.js"
+@@ -1 +1,12 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { mount } from '@vue/test-utils'
++import { describe, expect, it } from 'vitest'
++import CayGiaoAn from './cay_giao_an.vue'
++
++describe('cay_giao_an FE3', () => {
++  it('them ngay va emit tree model', async () => {
++    const wrapper = mount(CayGiaoAn, { props: { modelValue: [{ order: 1, name: 'Ngay 1', estimated_minutes: 45, exercises: [] }] } })
++    await wrapper.get('button').trigger('click')
++    expect(wrapper.findAll('article')).toHaveLength(2)
++    expect(wrapper.emitted('update:modelValue')?.at(-1)?.[0]).toHaveLength(2)
++  })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.vue"
+index fbddc2b..60449ec 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.vue"
+@@ -1 +1,28 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import HopThoaiXacNhan from '../dung_chung/hop_thoai_xac_nhan.vue'
++
++const props = defineProps({
++  hienThi: { type: Boolean, default: false },
++  dangTai: { type: Boolean, default: false },
++  maLoi: { type: String, default: 'WORKOUT_TEMPLATE_STALE' },
++  phienBanHienTai: { type: [Number, String], default: null },
++})
++const emit = defineEmits(['dong', 'taiLai'])
++</script>
++
++<template>
++  <HopThoaiXacNhan
++    :hien-thi="props.hienThi"
++    tieu-de="Giao an da thay doi"
++    :mo-ta="`Backend bao xung dot (${props.maLoi}). Ban nhap dang duoc giu nguyen de doi soat.`"
++    nhan-xac-nhan="Tai ban moi"
++    nhan-huy="Dong"
++    :dang-xu-ly="props.dangTai"
++    id-hop-thoai="hop-thoai-xung-dot-giao-an"
++    @xac-nhan="emit('taiLai')"
++    @huy="emit('dong')"
++    @dong="emit('dong')"
++  >
++    <p v-if="props.phienBanHienTai !== null">Phien ban hien tai: {{ props.phienBanHienTai }}. Ban co the xem lai va xac nhan tao phien ban moi.</p>
++  </HopThoaiXacNhan>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.test.js"
+index fbddc2b..217f9c9 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\components\\danh_muc\\hop_thoai_xung_dot_giao_an.test.js"
+@@ -1 +1,13 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { mount } from '@vue/test-utils'
++import { describe, expect, it } from 'vitest'
++import HopThoaiXungDotGiaoAn from './hop_thoai_xung_dot_giao_an.vue'
++
++describe('hop_thoai_xung_dot_giao_an FE3', () => {
++  it('hien stale warning va phat tai lai', async () => {
++    const wrapper = mount(HopThoaiXungDotGiaoAn, { props: { hienThi: true, phienBanHienTai: 4 } })
++    expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
++    expect(wrapper.text()).toContain('WORKOUT_TEMPLATE_STALE')
++    await wrapper.get('button.nut--chinh').trigger('click')
++    expect(wrapper.emitted('taiLai')).toHaveLength(1)
++  })
++})
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.vue"
+index fbddc2b..0ad567a 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.vue"
+@@ -1 +1,67 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { computed, onMounted, ref } from 'vue'
++import { storeToRefs } from 'pinia'
++import { useRouter } from 'vue-router'
++import HopThoaiXacNhan from '../../../components/dung_chung/hop_thoai_xac_nhan.vue'
++import BangDuLieu from '../../../components/dung_chung/bang_du_lieu.vue'
++import HuyHieuTrangThai from '../../../components/dung_chung/huy_hieu_trang_thai.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
++import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
++import TrangThaiTrong from '../../../components/dung_chung/trang_thai_trong.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const router = useRouter()
++const store = useDanhMucStore()
++const { goiTap } = storeToRefs(store)
++const goiTapCanDoiTrangThai = ref(null)
++const dangDoiTrangThai = ref(false)
++
++const nhanTrangThai = computed(() => ({ DANG_BAN: 'Dang ban', NGUNG_BAN: 'Ngung ban' }))
++const kieuTrangThai = (status) => status === 'DANG_BAN' ? 'thanh_cong' : 'canh_bao'
++
++function layNhan(status) { return nhanTrangThai.value[status] ?? status ?? 'Khong xac dinh' }
++function moTrangTao() { void router.push({ name: 'adminTaoGoiTap' }) }
++function moChiTiet(item) {
++  if (item?.id) void router.push({ name: 'adminChiTietGoiTap', params: { id: item.id } })
++}
++function moDoiTrangThai(item) { goiTapCanDoiTrangThai.value = item }
++function dongDoiTrangThai() { if (!dangDoiTrangThai.value) goiTapCanDoiTrangThai.value = null }
++async function xacNhanDoiTrangThai() {
++  const item = goiTapCanDoiTrangThai.value
++  if (!item || dangDoiTrangThai.value) return
++  dangDoiTrangThai.value = true
++  await store.capNhatGoiTap(item.id, { status: item.status === 'DANG_BAN' ? 'NGUNG_BAN' : 'DANG_BAN' })
++  await store.taiDanhSachGoiTap()
++  dangDoiTrangThai.value = false
++  goiTapCanDoiTrangThai.value = null
++}
++onMounted(() => { void store.taiDanhSachGoiTap() })
++</script>
++
++<template>
++  <section class="trang-danh-muc" aria-label="Danh sach goi tap" :aria-busy="goiTap.dangTai">
++    <TieuDeTrang tieu-de="Goi tap" mo-ta="Quan ly goi tap va quyen loi authoritative tu Backend.">
++      <template #hanhDong><button class="nut nut--chinh" type="button" @click="moTrangTao">Tao goi tap</button></template>
++    </TieuDeTrang>
++    <TrangThaiTaiDuLieu v-if="goiTap.dangTai && !goiTap.daTaiLanDau" nhan="Dang tai goi tap..." />
++    <TrangThaiLoi v-else-if="goiTap.loi" :thong-bao="goiTap.loi.message" :co-the-thu-lai="true" :dang-thu-lai="goiTap.dangTai" @thu-lai="store.taiDanhSachGoiTap" />
++    <TrangThaiTrong v-else-if="goiTap.daTaiLanDau && goiTap.danhSach.length === 0" tieu-de="Chua co goi tap" mo-ta="Tao goi tap dau tien de cap quyen cho hoi vien." />
++    <BangDuLieu v-else :cot="[]" :hang="goiTap.danhSach" tieu-de="Danh sach goi tap" thong-bao-trong="Chua co goi tap.">
++      <template #tieuDeCot><tr><th scope="col">Ma</th><th scope="col">Ten</th><th scope="col">Gia</th><th scope="col">Thoi han</th><th scope="col">Trang thai</th><th scope="col">Thao tac</th></tr></template>
++      <template #hang="{ hang }"><tr v-for="item in hang" :key="item.id"><td>{{ item.code }}</td><td><strong>{{ item.name }}</strong></td><td>{{ item.price }} {{ item.currency ?? '' }}</td><td>{{ item.duration_days }} ngay</td><td><HuyHieuTrangThai :trang-thai="kieuTrangThai(item.status)" :nhan="layNhan(item.status)" /></td><td><button class="nut nut--lien-ket" type="button" @click="moChiTiet(item)">Chi tiet</button><button class="nut nut--phu" type="button" @click="moDoiTrangThai(item)">{{ item.status === 'DANG_BAN' ? 'Ngung ban' : 'Mo ban' }}</button></td></tr></template>
++    </BangDuLieu>
++    <HopThoaiXacNhan
++      :hien-thi="Boolean(goiTapCanDoiTrangThai)"
++      :tieu-de="goiTapCanDoiTrangThai?.status === 'DANG_BAN' ? 'Ngung ban goi tap?' : 'Mo ban goi tap?'"
++      mo-ta="Backend se giu snapshot quyen loi cua cac ky da mua."
++      nhan-xac-nhan="Cap nhat trang thai"
++      :dang-xu-ly="dangDoiTrangThai"
++      mang-nguy-hiem
++      @xac-nhan="xacNhanDoiTrangThai"
++      @huy="dongDoiTrangThai"
++    >
++      <p v-if="goiTap.loiMutation" role="alert">{{ goiTap.loiMutation.message }}</p>
++    </HopThoaiXacNhan>
++  </section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.test.js"
+index fbddc2b..de867fe 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.index.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import GoiTap from './goi_tap.index.vue'
++describe('goi_tap.index FE3', () => { it('dang ky trang quan ly goi tap', () => { expect(GoiTap.__file).toContain('goi_tap.index.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue"
+index fbddc2b..575734d 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.vue"
+@@ -1 +1,43 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { reactive, ref } from 'vue'
++import { useRouter } from 'vue-router'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import BoSuaQuyenLoiGoiTap from '../../../components/danh_muc/bo_sua_quyen_loi_goi_tap.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const router = useRouter()
++const store = useDanhMucStore()
++const dangLuu = ref(false)
++const loi = ref(null)
++const form = reactive({ code: '', name: '', price: 0, duration_days: 30, description: '', status: 'DANG_BAN', benefits: { gym_access: true, fitness_assistant: false, fitness_assistant_limit: 0, trainer_chat: false, direct_trainer_sessions: 0 } })
++function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
++async function luu() {
++  loi.value = null
++  dangLuu.value = true
++  const result = await store.taoGoiTap({ ...form, benefits: { ...form.benefits } })
++  loi.value = store.goiTap.loiMutation
++  dangLuu.value = false
++  if (result?.id) await router.push({ name: 'adminChiTietGoiTap', params: { id: result.id } })
++}
++function huy() { void router.push({ name: 'adminGoiTap' }) }
++</script>
++
++<template>
++  <section class="trang-danh-muc trang-danh-muc--form" aria-label="Tao goi tap">
++    <TieuDeTrang tieu-de="Tao moi goi tap" mo-ta="Khai bao du lieu theo contract Admin Package." />
++    <form @submit.prevent="luu">
++      <div class="luoi-bieu-mau">
++        <TruongBieuMau id="goi-tap-code" nhan="Ma goi" bat-buoc :loi="layLoi('code')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.code" name="code" maxlength="120" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau>
++        <TruongBieuMau id="goi-tap-name" nhan="Ten goi" bat-buoc :loi="layLoi('name')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.name" name="name" maxlength="120" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau>
++        <TruongBieuMau id="goi-tap-price" nhan="Gia" bat-buoc :loi="layLoi('price')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model.number="form.price" name="price" type="number" min="0" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau>
++        <TruongBieuMau id="goi-tap-duration" nhan="Thoi han (ngay)" bat-buoc :loi="layLoi('duration_days')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model.number="form.duration_days" name="duration_days" type="number" min="1" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau>
++        <TruongBieuMau id="goi-tap-status" nhan="Trang thai" :loi="layLoi('status')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><select :id="id" v-model="form.status" name="status" :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"><option value="DANG_BAN">Dang ban</option><option value="NGUNG_BAN">Ngung ban</option></select></template></TruongBieuMau>
++        <TruongBieuMau id="goi-tap-description" nhan="Mo ta" :loi="layLoi('description')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><textarea :id="id" v-model="form.description" name="description" rows="4" maxlength="2000" :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid" /></template></TruongBieuMau>
++      </div>
++      <BoSuaQuyenLoiGoiTap v-model="form.benefits" :dang-luu="dangLuu" :loi="loi" />
++      <p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p>
++      <div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="huy">Huy</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu" :aria-busy="dangLuu">{{ dangLuu ? 'Dang luu...' : 'Tao goi tap' }}</button></div>
++    </form>
++  </section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js"
+index fbddc2b..7342ec6 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.tao_moi.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import GoiTapTaoMoi from './goi_tap.tao_moi.vue'
++describe('goi_tap.tao_moi FE3', () => { it('dang ky form tao goi tap', () => { expect(GoiTapTaoMoi.__file).toContain('goi_tap.tao_moi.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.vue"
+index fbddc2b..3f9bab8 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.vue"
+@@ -1 +1,39 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { onMounted, reactive, ref } from 'vue'
++import { useRoute, useRouter } from 'vue-router'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
++import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
++import BoSuaQuyenLoiGoiTap from '../../../components/danh_muc/bo_sua_quyen_loi_goi_tap.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const route = useRoute()
++const router = useRouter()
++const store = useDanhMucStore()
++const form = reactive({ code: '', name: '', price: 0, duration_days: 1, description: '', status: 'NGUNG_BAN', benefits: {} })
++const dangLuu = ref(false)
++const dangLuuQuyenLoi = ref(false)
++const loi = ref(null)
++const id = Number(route.params.id)
++function nap(duLieu) { if (duLieu) Object.assign(form, { ...duLieu, benefits: { ...(duLieu.benefits ?? {}) } }) }
++function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
++async function tai() { nap(await store.taiChiTietGoiTap(id)) }
++async function luu() { dangLuu.value = true; loi.value = null; await store.capNhatGoiTap(id, { name: form.name, price: form.price, duration_days: form.duration_days, description: form.description, status: form.status }); loi.value = store.goiTap.loiMutation; dangLuu.value = false; if (!loi.value) await tai() }
++async function luuQuyenLoi(value) { dangLuuQuyenLoi.value = true; await store.thayTheQuyenLoiGoiTap(id, value); loi.value = store.goiTap.loiMutation; dangLuuQuyenLoi.value = false; if (!loi.value) await tai() }
++onMounted(tai)
++</script>
++
++<template>
++  <section class="trang-danh-muc trang-danh-muc--form" aria-label="Chi tiet goi tap" :aria-busy="store.goiTap.dangTaiChiTiet || dangLuu">
++    <TieuDeTrang tieu-de="Chi tiet goi tap" mo-ta="Chinh sua metadata va quyen loi theo contract Backend." />
++    <TrangThaiTaiDuLieu v-if="store.goiTap.dangTaiChiTiet && !store.goiTap.chiTiet" nhan="Dang tai chi tiet goi tap..." />
++    <TrangThaiLoi v-else-if="store.goiTap.loiChiTiet" :thong-bao="store.goiTap.loiChiTiet.message" :co-the-thu-lai="true" :dang-thu-lai="store.goiTap.dangTaiChiTiet" @thu-lai="tai" />
++    <form v-else @submit.prevent="luu">
++      <p class="trang-danh-muc__canh-bao" role="note">Quyen loi ky da mua duoc dong bang snapshot; thay doi tu day khong sua quyen loi cua ky cu.</p>
++      <div class="luoi-bieu-mau"><TruongBieuMau id="goi-tap-detail-code" nhan="Ma goi"><template #default="{ id }"><input :id="id" :value="form.code" readonly aria-readonly="true"></template></TruongBieuMau><TruongBieuMau id="goi-tap-detail-name" nhan="Ten goi" bat-buoc :loi="layLoi('name')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.name" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau><TruongBieuMau id="goi-tap-detail-price" nhan="Gia" bat-buoc><template #default="{ id }"><input :id="id" v-model.number="form.price" type="number" min="0" required></template></TruongBieuMau><TruongBieuMau id="goi-tap-detail-duration" nhan="Thoi han (ngay)" bat-buoc><template #default="{ id }"><input :id="id" v-model.number="form.duration_days" type="number" min="1" required></template></TruongBieuMau><TruongBieuMau id="goi-tap-detail-status" nhan="Trang thai"><template #default="{ id }"><select :id="id" v-model="form.status"><option value="DANG_BAN">Dang ban</option><option value="NGUNG_BAN">Ngung ban</option></select></template></TruongBieuMau><TruongBieuMau id="goi-tap-detail-description" nhan="Mo ta"><template #default="{ id }"><textarea :id="id" v-model="form.description" rows="4" maxlength="2000" /></template></TruongBieuMau></div>
++      <BoSuaQuyenLoiGoiTap :quyen-loi="form.benefits" :dang-luu="dangLuuQuyenLoi" :loi="loi" @luu="luuQuyenLoi" />
++      <p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p><div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="router.push({ name: 'adminGoiTap' })">Quay lai</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu">{{ dangLuu ? 'Dang luu...' : 'Luu metadata' }}</button></div>
++    </form>
++  </section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.test.js"
+index fbddc2b..168e6bf 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\goi_tap\\goi_tap.chi_tiet.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import GoiTapChiTiet from './goi_tap.chi_tiet.vue'
++describe('goi_tap.chi_tiet FE3', () => { it('dang ky trang metadata va quyen loi', () => { expect(GoiTapChiTiet.__file).toContain('goi_tap.chi_tiet.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.vue"
+index fbddc2b..641e58b 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.vue"
+@@ -1 +1,70 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { onMounted, reactive, ref } from 'vue'
++import { storeToRefs } from 'pinia'
++import HopThoaiXacNhan from '../../../components/dung_chung/hop_thoai_xac_nhan.vue'
++import HuyHieuTrangThai from '../../../components/dung_chung/huy_hieu_trang_thai.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
++import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
++import TrangThaiTrong from '../../../components/dung_chung/trang_thai_trong.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const store = useDanhMucStore()
++const { dungCu } = storeToRefs(store)
++const dangLuu = ref(false)
++const dangDoiTrangThai = ref(false)
++const itemCanDoiTrangThai = ref(null)
++const loi = ref(null)
++const dangChinhSua = ref(false)
++const form = reactive({ id: null, code: '', name: '', description: '', status: 'HOAT_DONG' })
++function datLaiForm() { Object.assign(form, { id: null, code: '', name: '', description: '', status: 'HOAT_DONG' }); dangChinhSua.value = false; loi.value = null }
++function chonItem(item) { Object.assign(form, { id: item.id, code: item.code, name: item.name, description: item.description ?? '', status: item.status }); dangChinhSua.value = true; loi.value = null }
++function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
++async function luu() {
++  dangLuu.value = true; loi.value = null
++  const payload = dangChinhSua.value ? { name: form.name, description: form.description, status: form.status } : { code: form.code, name: form.name, description: form.description, status: form.status }
++  const result = dangChinhSua.value ? await store.capNhatDungCu(form.id, payload) : await store.taoDungCu(payload)
++  loi.value = store.dungCu.loiMutation
++  dangLuu.value = false
++  if (result) { datLaiForm(); await store.taiDanhSachDungCu() }
++}
++function moDoiTrangThai(item) { itemCanDoiTrangThai.value = item }
++function dongDoiTrangThai() { if (!dangDoiTrangThai.value) itemCanDoiTrangThai.value = null }
++async function xacNhanDoiTrangThai() {
++  const item = itemCanDoiTrangThai.value
++  if (!item || dangDoiTrangThai.value) return
++  dangDoiTrangThai.value = true
++  await store.capNhatDungCu(item.id, { status: item.status === 'HOAT_DONG' ? 'NGUNG_SU_DUNG' : 'HOAT_DONG' })
++  await store.taiDanhSachDungCu()
++  dangDoiTrangThai.value = false
++  itemCanDoiTrangThai.value = null
++}
++onMounted(() => { void store.taiDanhSachDungCu() })
++</script>
++
++<template>
++  <section class="trang-danh-muc" aria-label="Danh sach dung cu" :aria-busy="dungCu.dangTai || dangLuu">
++    <TieuDeTrang tieu-de="Dung cu" mo-ta="Quan ly equipment catalog; ma da tao khong doi duoc.">
++      <template #hanhDong><button class="nut nut--phu" type="button" @click="datLaiForm">Them dung cu</button></template>
++    </TieuDeTrang>
++    <div class="trang-danh-muc__khung-hai-cot">
++      <form class="trang-danh-muc__form" @submit.prevent="luu">
++        <h2>{{ dangChinhSua ? 'Sua dung cu' : 'Them dung cu' }}</h2>
++        <TruongBieuMau id="dung-cu-code" nhan="Ma dung cu" :bat-buoc="!dangChinhSua" :loi="layLoi('code')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.code" :readonly="dangChinhSua" :aria-readonly="dangChinhSua" :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid" required></template></TruongBieuMau>
++        <TruongBieuMau id="dung-cu-name" nhan="Ten dung cu" bat-buoc :loi="layLoi('name')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.name" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau>
++        <TruongBieuMau id="dung-cu-description" nhan="Mo ta"><template #default="{ id }"><textarea :id="id" v-model="form.description" rows="3" maxlength="2000" /></template></TruongBieuMau>
++        <TruongBieuMau id="dung-cu-status" nhan="Trang thai"><template #default="{ id }"><select :id="id" v-model="form.status"><option value="HOAT_DONG">Hoat dong</option><option value="NGUNG_SU_DUNG">Ngung su dung</option></select></template></TruongBieuMau>
++        <p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p>
++        <div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="datLaiForm">Huy</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu">{{ dangLuu ? 'Dang luu...' : 'Luu dung cu' }}</button></div>
++      </form>
++      <div>
++        <TrangThaiTaiDuLieu v-if="dungCu.dangTai && !dungCu.daTaiLanDau" nhan="Dang tai dung cu..." />
++        <TrangThaiLoi v-else-if="dungCu.loi" :thong-bao="dungCu.loi.message" :co-the-thu-lai="true" :dang-thu-lai="dungCu.dangTai" @thu-lai="store.taiDanhSachDungCu" />
++        <TrangThaiTrong v-else-if="dungCu.daTaiLanDau && dungCu.danhSach.length === 0" tieu-de="Chua co dung cu" />
++        <table v-else class="bang-du-lieu" aria-label="Danh sach dung cu"><caption>Danh sach dung cu</caption><thead><tr><th scope="col">Ma</th><th scope="col">Ten</th><th scope="col">Trang thai</th><th scope="col">Thao tac</th></tr></thead><tbody><tr v-for="item in dungCu.danhSach" :key="item.id"><td>{{ item.code }}</td><td>{{ item.name }}</td><td><HuyHieuTrangThai :trang-thai="item.status === 'HOAT_DONG' ? 'thanh_cong' : 'canh_bao'" :nhan="item.status === 'HOAT_DONG' ? 'Hoat dong' : 'Ngung su dung'" /></td><td><button class="nut nut--phu" type="button" @click="chonItem(item)">Sua</button><button class="nut nut--nguy-hiem" type="button" @click="moDoiTrangThai(item)">{{ item.status === 'HOAT_DONG' ? 'Ngung su dung' : 'Mo lai' }}</button></td></tr></tbody></table>
++      </div>
++    </div>
++    <HopThoaiXacNhan :hien-thi="Boolean(itemCanDoiTrangThai)" tieu-de="Cap nhat trang thai dung cu?" mo-ta="Khong xoa ban ghi; quan he bai tap hien huu duoc Backend bao toan." :dang-xu-ly="dangDoiTrangThai" mang-nguy-hiem @xac-nhan="xacNhanDoiTrangThai" @huy="dongDoiTrangThai" />
++  </section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.test.js"
+index fbddc2b..292ef11 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\dung_cu\\dung_cu.index.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import DungCu from './dung_cu.index.vue'
++describe('dung_cu.index FE3', () => { it('dang ky trang equipment co edit status', () => { expect(DungCu.__file).toContain('dung_cu.index.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.vue"
+index fbddc2b..e54efdc 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.vue"
+@@ -1 +1,71 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { onMounted, reactive, ref } from 'vue'
++import { storeToRefs } from 'pinia'
++import HopThoaiXacNhan from '../../../components/dung_chung/hop_thoai_xac_nhan.vue'
++import HuyHieuTrangThai from '../../../components/dung_chung/huy_hieu_trang_thai.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
++import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
++import TrangThaiTrong from '../../../components/dung_chung/trang_thai_trong.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const store = useDanhMucStore()
++const { nhomCo } = storeToRefs(store)
++const dangLuu = ref(false)
++const dangDoiTrangThai = ref(false)
++const itemCanDoiTrangThai = ref(null)
++const loi = ref(null)
++const dangChinhSua = ref(false)
++const form = reactive({ id: null, code: '', name: '', description: '', status: 'HOAT_DONG' })
++function datLaiForm() { Object.assign(form, { id: null, code: '', name: '', description: '', status: 'HOAT_DONG' }); dangChinhSua.value = false; loi.value = null }
++function chonItem(item) { Object.assign(form, { id: item.id, code: item.code, name: item.name, description: item.description ?? '', status: item.status }); dangChinhSua.value = true; loi.value = null }
++function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
++async function luu() {
++  dangLuu.value = true; loi.value = null
++  const payload = dangChinhSua.value ? { name: form.name, description: form.description, status: form.status } : { code: form.code, name: form.name, description: form.description, status: form.status }
++  const result = dangChinhSua.value ? await store.capNhatNhomCo(form.id, payload) : await store.taoNhomCo(payload)
++  loi.value = store.nhomCo.loiMutation
++  dangLuu.value = false
++  if (result) { datLaiForm(); await store.taiDanhSachNhomCo() }
++}
++function moDoiTrangThai(item) { itemCanDoiTrangThai.value = item }
++function dongDoiTrangThai() { if (!dangDoiTrangThai.value) itemCanDoiTrangThai.value = null }
++async function xacNhanDoiTrangThai() {
++  const item = itemCanDoiTrangThai.value
++  if (!item || dangDoiTrangThai.value) return
++  dangDoiTrangThai.value = true
++  await store.capNhatNhomCo(item.id, { status: item.status === 'HOAT_DONG' ? 'NGUNG_SU_DUNG' : 'HOAT_DONG' })
++  await store.taiDanhSachNhomCo()
++  dangDoiTrangThai.value = false
++  itemCanDoiTrangThai.value = null
++}
++onMounted(() => { void store.taiDanhSachNhomCo() })
++</script>
++
++<template>
++  <section class="trang-danh-muc" aria-label="Danh sach nhom co" :aria-busy="nhomCo.dangTai || dangLuu">
++    <TieuDeTrang tieu-de="Nhom co" mo-ta="Hien ca nhom co ngung su dung de bao toan quan he bai tap hien huu.">
++      <template #hanhDong><button class="nut nut--phu" type="button" @click="datLaiForm">Them nhom co</button></template>
++    </TieuDeTrang>
++    <div class="trang-danh-muc__khung-hai-cot">
++      <form class="trang-danh-muc__form" @submit.prevent="luu">
++        <h2>{{ dangChinhSua ? 'Sua nhom co' : 'Them nhom co' }}</h2>
++        <TruongBieuMau id="nhom-co-code" nhan="Ma nhom co" :bat-buoc="!dangChinhSua" :loi="layLoi('code')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.code" :readonly="dangChinhSua" :aria-readonly="dangChinhSua" :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid" required></template></TruongBieuMau>
++        <TruongBieuMau id="nhom-co-name" nhan="Ten nhom co" bat-buoc :loi="layLoi('name')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.name" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau>
++        <TruongBieuMau id="nhom-co-description" nhan="Mo ta"><template #default="{ id }"><textarea :id="id" v-model="form.description" rows="3" maxlength="2000" /></template></TruongBieuMau>
++        <TruongBieuMau id="nhom-co-status" nhan="Trang thai"><template #default="{ id }"><select :id="id" v-model="form.status"><option value="HOAT_DONG">Hoat dong</option><option value="NGUNG_SU_DUNG">Ngung su dung</option></select></template></TruongBieuMau>
++        <p class="trang-danh-muc__canh-bao" role="note">Khi ngung su dung, quan he hien huu phai duoc giu va Backend se tu choi quan he moi neu khong hop le.</p>
++        <p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p>
++        <div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="datLaiForm">Huy</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu">{{ dangLuu ? 'Dang luu...' : 'Luu nhom co' }}</button></div>
++      </form>
++      <div>
++        <TrangThaiTaiDuLieu v-if="nhomCo.dangTai && !nhomCo.daTaiLanDau" nhan="Dang tai nhom co..." />
++        <TrangThaiLoi v-else-if="nhomCo.loi" :thong-bao="nhomCo.loi.message" :co-the-thu-lai="true" :dang-thu-lai="nhomCo.dangTai" @thu-lai="store.taiDanhSachNhomCo" />
++        <TrangThaiTrong v-else-if="nhomCo.daTaiLanDau && nhomCo.danhSach.length === 0" tieu-de="Chua co nhom co" />
++        <table v-else class="bang-du-lieu" aria-label="Danh sach nhom co"><caption>Danh sach nhom co</caption><thead><tr><th scope="col">Ma</th><th scope="col">Ten</th><th scope="col">Trang thai</th><th scope="col">Thao tac</th></tr></thead><tbody><tr v-for="item in nhomCo.danhSach" :key="item.id"><td>{{ item.code }}</td><td>{{ item.name }}</td><td><HuyHieuTrangThai :trang-thai="item.status === 'HOAT_DONG' ? 'thanh_cong' : 'canh_bao'" :nhan="item.status === 'HOAT_DONG' ? 'Hoat dong' : 'Ngung su dung'" /></td><td><button class="nut nut--phu" type="button" @click="chonItem(item)">Sua</button><button class="nut nut--nguy-hiem" type="button" @click="moDoiTrangThai(item)">{{ item.status === 'HOAT_DONG' ? 'Ngung su dung' : 'Mo lai' }}</button></td></tr></tbody></table>
++      </div>
++    </div>
++    <HopThoaiXacNhan :hien-thi="Boolean(itemCanDoiTrangThai)" tieu-de="Cap nhat trang thai nhom co?" mo-ta="Ban ghi khong bi xoa; cac quan he bai tap hien huu van duoc bao toan." :dang-xu-ly="dangDoiTrangThai" mang-nguy-hiem @xac-nhan="xacNhanDoiTrangThai" @huy="dongDoiTrangThai" />
++  </section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.test.js"
+index fbddc2b..b2b3374 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\nhom_co\\nhom_co.index.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import NhomCo from './nhom_co.index.vue'
++describe('nhom_co.index FE3', () => { it('dang ky trang muscle group co inactive', () => { expect(NhomCo.__file).toContain('nhom_co.index.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.vue"
+index fbddc2b..ee87fa3 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.vue"
+@@ -1 +1,42 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { computed, onMounted, reactive } from 'vue'
++import { storeToRefs } from 'pinia'
++import { useRouter } from 'vue-router'
++import BoLocDanhSach from '../../../components/dung_chung/bo_loc_danh_sach.vue'
++import BangDuLieu from '../../../components/dung_chung/bang_du_lieu.vue'
++import HuyHieuTrangThai from '../../../components/dung_chung/huy_hieu_trang_thai.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
++import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
++import TrangThaiTrong from '../../../components/dung_chung/trang_thai_trong.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const router = useRouter()
++const store = useDanhMucStore()
++const { baiTap, dungCu, nhomCo } = storeToRefs(store)
++const boLoc = reactive({ search: '', status: '', difficulty: '', equipment_id: '', muscle_group_id: '' })
++const danhSachHienThi = computed(() => baiTap.value.danhSach.filter((item) => {
++  const dungDifficulty = boLoc.difficulty === '' || item.difficulty === boLoc.difficulty
++  const dungEquipment = boLoc.equipment_id === '' || item.equipment?.some((equipment) => Number(equipment.id) === Number(boLoc.equipment_id))
++  const dungMuscle = boLoc.muscle_group_id === '' || item.muscle_groups?.some((group) => Number(group.id) === Number(boLoc.muscle_group_id))
++  return dungDifficulty && dungEquipment && dungMuscle
++}))
++function layNhan(status) { return status === 'HOAT_DONG' ? 'Hoat dong' : 'Ngung su dung' }
++function kieu(status) { return status === 'HOAT_DONG' ? 'thanh_cong' : 'canh_bao' }
++async function apDung() { await store.taiDanhSachBaiTap({ search: boLoc.search, status: boLoc.status }) }
++function moChiTiet(item) { if (item?.id) void router.push({ name: 'adminChiTietBaiTap', params: { id: item.id } }) }
++onMounted(() => { void Promise.all([store.taiDanhSachBaiTap(), store.taiDanhSachDungCu(), store.taiDanhSachNhomCo()]) })
++</script>
++
++<template>
++  <section class="trang-danh-muc" aria-label="Danh sach bai tap" :aria-busy="baiTap.dangTai">
++    <TieuDeTrang tieu-de="Bai tap" mo-ta="Tra cuu bai tap va quan he dung cu/nhom co theo Backend."><template #hanhDong><button class="nut nut--chinh" type="button" @click="router.push({ name: 'adminTaoBaiTap' })">Tao bai tap</button></template></TieuDeTrang>
++    <BoLocDanhSach :dang-xu-ly="baiTap.dangTai" @ap-dung="apDung" @dat-lai="boLoc.search = ''; boLoc.status = ''; boLoc.difficulty = ''; boLoc.equipment_id = ''; boLoc.muscle_group_id = ''; apDung()"><TruongBieuMau id="bai-tap-search" nhan="Tim kiem"><template #default="{ id }"><input :id="id" v-model="boLoc.search" type="search" maxlength="150" placeholder="Ma hoac ten bai tap"></template></TruongBieuMau><TruongBieuMau id="bai-tap-status" nhan="Trang thai"><template #default="{ id }"><select :id="id" v-model="boLoc.status"><option value="">Tat ca</option><option value="HOAT_DONG">Hoat dong</option><option value="NGUNG_SU_DUNG">Ngung su dung</option></select></template></TruongBieuMau><TruongBieuMau id="bai-tap-difficulty" nhan="Do kho (loc tai cho)"><template #default="{ id }"><input :id="id" v-model="boLoc.difficulty" placeholder="Vi du: Beginner"></template></TruongBieuMau><TruongBieuMau id="bai-tap-equipment-filter" nhan="Dung cu"><template #default="{ id }"><select :id="id" v-model="boLoc.equipment_id"><option value="">Tat ca dung cu</option><option v-for="item in dungCu.danhSach" :key="item.id" :value="item.id">{{ item.name }}</option></select></template></TruongBieuMau><TruongBieuMau id="bai-tap-muscle-filter" nhan="Nhom co"><template #default="{ id }"><select :id="id" v-model="boLoc.muscle_group_id"><option value="">Tat ca nhom co</option><option v-for="item in nhomCo.danhSach" :key="item.id" :value="item.id">{{ item.name }}</option></select></template></TruongBieuMau></BoLocDanhSach>
++    <TrangThaiTaiDuLieu v-if="baiTap.dangTai && !baiTap.daTaiLanDau" nhan="Dang tai bai tap..." />
++    <TrangThaiLoi v-else-if="baiTap.loi" :thong-bao="baiTap.loi.message" :co-the-thu-lai="true" :dang-thu-lai="baiTap.dangTai" @thu-lai="store.taiDanhSachBaiTap" />
++    <TrangThaiTrong v-else-if="baiTap.daTaiLanDau && baiTap.danhSach.length === 0" tieu-de="Chua co bai tap" />
++    <TrangThaiTrong v-else-if="baiTap.daTaiLanDau && danhSachHienThi.length === 0" tieu-de="Khong co ket qua phu hop" />
++    <BangDuLieu v-else :cot="[]" :hang="danhSachHienThi" tieu-de="Danh sach bai tap"><template #tieuDeCot><tr><th scope="col">Ma</th><th scope="col">Ten</th><th scope="col">Do kho</th><th scope="col">Quan he</th><th scope="col">Trang thai</th><th scope="col">Thao tac</th></tr></template><template #hang="{ hang }"><tr v-for="item in hang" :key="item.id"><td>{{ item.code }}</td><td><strong>{{ item.name }}</strong></td><td>{{ item.difficulty }}</td><td>{{ item.equipment_semantics ?? 'AND' }} · {{ item.equipment?.length ?? 0 }} dung cu · {{ item.muscle_groups?.length ?? 0 }} nhom co</td><td><HuyHieuTrangThai :trang-thai="kieu(item.status)" :nhan="layNhan(item.status)" /></td><td><button class="nut nut--lien-ket" type="button" @click="moChiTiet(item)">Chi tiet</button></td></tr></template></BangDuLieu>
++  </section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.test.js"
+index fbddc2b..27fc2db 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.index.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import BaiTap from './bai_tap.index.vue'
++describe('bai_tap.index FE3', () => { it('dang ky trang list exercise', () => { expect(BaiTap.__file).toContain('bai_tap.index.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.vue"
+index fbddc2b..c90ed7f 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.vue"
+@@ -1 +1,28 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { onMounted, reactive, ref } from 'vue'
++import { storeToRefs } from 'pinia'
++import { useRouter } from 'vue-router'
++import BoChonQuanHeBaiTap from '../../../components/danh_muc/bo_chon_quan_he_bai_tap.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const router = useRouter()
++const store = useDanhMucStore()
++const { dungCu, nhomCo } = storeToRefs(store)
++const dangLuu = ref(false)
++const loi = ref(null)
++const form = reactive({ code: '', name: '', difficulty: '', instructions: '', image_path: '', video_path: '', metadata: {}, status: 'HOAT_DONG', equipment_ids: [], muscle_groups: [] })
++function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
++async function luu() {
++  loi.value = null; dangLuu.value = true
++  const result = await store.taoBaiTap({ ...form, equipment_ids: [...form.equipment_ids], muscle_groups: form.muscle_groups.map((item) => ({ ...item })) })
++  loi.value = store.baiTap.loiMutation; dangLuu.value = false
++  if (result?.id) await router.push({ name: 'adminChiTietBaiTap', params: { id: result.id } })
++}
++onMounted(() => { void Promise.all([store.taiDanhSachDungCu(), store.taiDanhSachNhomCo()]) })
++</script>
++
++<template>
++  <section class="trang-danh-muc trang-danh-muc--form" aria-label="Tao bai tap"><TieuDeTrang tieu-de="Tao moi bai tap" mo-ta="Khai bao quan he bat buoc theo contract Exercise catalog." /><form @submit.prevent="luu"><div class="luoi-bieu-mau"><TruongBieuMau id="bai-tap-create-code" nhan="Ma bai tap" bat-buoc :loi="layLoi('code')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.code" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau><TruongBieuMau id="bai-tap-create-name" nhan="Ten bai tap" bat-buoc :loi="layLoi('name')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.name" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau><TruongBieuMau id="bai-tap-create-difficulty" nhan="Do kho" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.difficulty" required></template></TruongBieuMau><TruongBieuMau id="bai-tap-create-instructions" nhan="Huong dan"><template #default="{ id }"><textarea :id="id" v-model="form.instructions" rows="4" maxlength="5000" /></template></TruongBieuMau><TruongBieuMau id="bai-tap-create-status" nhan="Trang thai"><template #default="{ id }"><select :id="id" v-model="form.status"><option value="HOAT_DONG">Hoat dong</option><option value="NGUNG_SU_DUNG">Ngung su dung</option></select></template></TruongBieuMau></div><BoChonQuanHeBaiTap v-model="form" :dung-cu="dungCu.danhSach" :nhom-co="nhomCo.danhSach" :disabled="dangLuu" /><p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p><div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="router.push({ name: 'adminBaiTap' })">Huy</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu">{{ dangLuu ? 'Dang luu...' : 'Tao bai tap' }}</button></div></form></section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.test.js"
+index fbddc2b..fcda079 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.tao_moi.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import BaiTapTaoMoi from './bai_tap.tao_moi.vue'
++describe('bai_tap.tao_moi FE3', () => { it('dang ky form tao exercise', () => { expect(BaiTapTaoMoi.__file).toContain('bai_tap.tao_moi.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue"
+index fbddc2b..30b62a4 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.vue"
+@@ -1 +1,24 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { onMounted, reactive, ref } from 'vue'
++import { storeToRefs } from 'pinia'
++import { useRoute, useRouter } from 'vue-router'
++import BoChonQuanHeBaiTap from '../../../components/danh_muc/bo_chon_quan_he_bai_tap.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
++import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const route = useRoute(); const router = useRouter(); const store = useDanhMucStore(); const { dungCu, nhomCo, baiTap } = storeToRefs(store)
++const id = Number(route.params.id); const dangLuu = ref(false); const loi = ref(null)
++const form = reactive({ code: '', name: '', difficulty: '', instructions: '', image_path: '', video_path: '', metadata: {}, status: 'HOAT_DONG', equipment_ids: [], muscle_groups: [] })
++function nap(item) { if (!item) return; Object.assign(form, { ...item, equipment_ids: (item.equipment ?? []).map((value) => Number(value.id)), muscle_groups: (item.muscle_groups ?? []).map((value) => ({ id: Number(value.id), role: value.role })), metadata: { ...(item.metadata ?? {}) } }) }
++function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
++async function tai() { nap(await store.taiChiTietBaiTap(id)) }
++async function luu() { dangLuu.value = true; loi.value = null; await store.capNhatBaiTap(id, { name: form.name, difficulty: form.difficulty, instructions: form.instructions, image_path: form.image_path, video_path: form.video_path, metadata: form.metadata, status: form.status, equipment_ids: form.equipment_ids, muscle_groups: form.muscle_groups }); loi.value = store.baiTap.loiMutation; dangLuu.value = false; if (!loi.value) await tai() }
++onMounted(() => { void Promise.all([tai(), store.taiDanhSachDungCu(), store.taiDanhSachNhomCo()]) })
++</script>
++
++<template>
++  <section class="trang-danh-muc trang-danh-muc--form" aria-label="Chi tiet bai tap" :aria-busy="baiTap.dangTaiChiTiet || dangLuu"><TieuDeTrang tieu-de="Chi tiet bai tap" mo-ta="Cap nhat metadata va quan he; ma bai tap la bat bien." /><TrangThaiTaiDuLieu v-if="baiTap.dangTaiChiTiet && !baiTap.chiTiet" nhan="Dang tai chi tiet bai tap..." /><TrangThaiLoi v-else-if="baiTap.loiChiTiet" :thong-bao="baiTap.loiChiTiet.message" :co-the-thu-lai="true" :dang-thu-lai="baiTap.dangTaiChiTiet" @thu-lai="tai" /><form v-else @submit.prevent="luu"><div class="luoi-bieu-mau"><TruongBieuMau id="bai-tap-detail-code" nhan="Ma bai tap"><template #default="{ id }"><input :id="id" :value="form.code" readonly aria-readonly="true"></template></TruongBieuMau><TruongBieuMau id="bai-tap-detail-name" nhan="Ten bai tap" bat-buoc :loi="layLoi('name')"><template #default="{ id, ariaDescribedby, ariaInvalid }"><input :id="id" v-model="form.name" required :aria-describedby="ariaDescribedby" :aria-invalid="ariaInvalid"></template></TruongBieuMau><TruongBieuMau id="bai-tap-detail-difficulty" nhan="Do kho" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.difficulty" required></template></TruongBieuMau><TruongBieuMau id="bai-tap-detail-instructions" nhan="Huong dan"><template #default="{ id }"><textarea :id="id" v-model="form.instructions" rows="4" maxlength="5000" /></template></TruongBieuMau><TruongBieuMau id="bai-tap-detail-status" nhan="Trang thai"><template #default="{ id }"><select :id="id" v-model="form.status"><option value="HOAT_DONG">Hoat dong</option><option value="NGUNG_SU_DUNG">Ngung su dung</option></select></template></TruongBieuMau></div><p class="trang-danh-muc__canh-bao" role="note">Quan he may dung cu tuan theo sematics AND. Trang thai exercise do Backend quyet dinh.</p><BoChonQuanHeBaiTap v-model="form" :dung-cu="dungCu.danhSach" :nhom-co="nhomCo.danhSach" :disabled="dangLuu" /><p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p><div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="router.push({ name: 'adminBaiTap' })">Quay lai</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu">{{ dangLuu ? 'Dang luu...' : 'Luu bai tap' }}</button></div></form></section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js"
+index fbddc2b..ec9a28a 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\bai_tap\\bai_tap.chi_tiet.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import BaiTapChiTiet from './bai_tap.chi_tiet.vue'
++describe('bai_tap.chi_tiet FE3', () => { it('dang ky trang relation editor', () => { expect(BaiTapChiTiet.__file).toContain('bai_tap.chi_tiet.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.vue"
+index fbddc2b..0445dfb 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.vue"
+@@ -1 +1,25 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { onMounted, ref } from 'vue'
++import { storeToRefs } from 'pinia'
++import { useRouter } from 'vue-router'
++import BangDuLieu from '../../../components/dung_chung/bang_du_lieu.vue'
++import HuyHieuTrangThai from '../../../components/dung_chung/huy_hieu_trang_thai.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
++import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
++import TrangThaiTrong from '../../../components/dung_chung/trang_thai_trong.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const router = useRouter(); const store = useDanhMucStore(); const { giaoAnMau } = storeToRefs(store)
++const dangDoiTrangThai = ref(false); const itemCanDoiTrangThai = ref(null)
++function layNhan(status) { return status === 'HOAT_DONG' ? 'Hoat dong' : 'Ngung su dung' }
++function moChiTiet(item) { if (item?.id) void router.push({ name: 'adminChiTietGiaoAnMau', params: { id: item.id } }) }
++function moDoiTrangThai(item) { itemCanDoiTrangThai.value = item }
++function dongDoiTrangThai() { if (!dangDoiTrangThai.value) itemCanDoiTrangThai.value = null }
++async function xacNhanDoiTrangThai() { const item = itemCanDoiTrangThai.value; if (!item || dangDoiTrangThai.value) return; dangDoiTrangThai.value = true; await store.capNhatGiaoAnMau(item.id, { status: item.status === 'HOAT_DONG' ? 'NGUNG_SU_DUNG' : 'HOAT_DONG' }); await store.taiDanhSachGiaoAnMau(); dangDoiTrangThai.value = false; itemCanDoiTrangThai.value = null }
++onMounted(() => { void store.taiDanhSachGiaoAnMau() })
++</script>
++
++<template>
++  <section class="trang-danh-muc" aria-label="Danh sach giao an mau" :aria-busy="giaoAnMau.dangTai"><TieuDeTrang tieu-de="Giao an mau" mo-ta="Quan ly template va phien ban copy-on-write tu Backend."><template #hanhDong><button class="nut nut--chinh" type="button" @click="router.push({ name: 'adminTaoGiaoAnMau' })">Tao giao an mau</button></template></TieuDeTrang><TrangThaiTaiDuLieu v-if="giaoAnMau.dangTai && !giaoAnMau.daTaiLanDau" nhan="Dang tai giao an mau..." /><TrangThaiLoi v-else-if="giaoAnMau.loi" :thong-bao="giaoAnMau.loi.message" :co-the-thu-lai="true" :dang-thu-lai="giaoAnMau.dangTai" @thu-lai="store.taiDanhSachGiaoAnMau" /><TrangThaiTrong v-else-if="giaoAnMau.daTaiLanDau && giaoAnMau.danhSach.length === 0" tieu-de="Chua co giao an mau" /><BangDuLieu v-else :cot="[]" :hang="giaoAnMau.danhSach" tieu-de="Danh sach giao an mau"><template #tieuDeCot><tr><th scope="col">Ma</th><th scope="col">Ten</th><th scope="col">Muc tieu</th><th scope="col">Cap do</th><th scope="col">So buoi</th><th scope="col">Trang thai</th><th scope="col">Thao tac</th></tr></template><template #hang="{ hang }"><tr v-for="item in hang" :key="item.id"><td>{{ item.code }}</td><td><strong>{{ item.name }}</strong></td><td>{{ item.goal }}</td><td>{{ item.level }}</td><td>{{ item.sessions_per_week }} ({{ item.day_count ?? 0 }} ngay)</td><td><HuyHieuTrangThai :trang-thai="item.status === 'HOAT_DONG' ? 'thanh_cong' : 'canh_bao'" :nhan="layNhan(item.status)" /></td><td><button class="nut nut--lien-ket" type="button" @click="moChiTiet(item)">Chi tiet</button><button class="nut nut--phu" type="button" @click="moDoiTrangThai(item)">{{ item.status === 'HOAT_DONG' ? 'Ngung su dung' : 'Mo lai' }}</button></td></tr></template></BangDuLieu><div v-if="itemCanDoiTrangThai" class="hop-thoai-xac-nhan" role="dialog" aria-modal="true"><section class="hop-thoai-xac-nhan__hop"><h2>Cap nhat trang thai giao an?</h2><p>Ban ghi van duoc giu de bao toan lich su phien ban.</p><button class="nut nut--phu" type="button" :disabled="dangDoiTrangThai" @click="dongDoiTrangThai">Huy</button><button class="nut nut--nguy-hiem" type="button" :disabled="dangDoiTrangThai" @click="xacNhanDoiTrangThai">Xac nhan</button></section></div></section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.test.js"
+index fbddc2b..d72231a 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.index.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import GiaoAnMau from './giao_an_mau.index.vue'
++describe('giao_an_mau.index FE3', () => { it('dang ky trang list template', () => { expect(GiaoAnMau.__file).toContain('giao_an_mau.index.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.vue"
+index fbddc2b..65e130c 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.vue"
+@@ -1 +1,19 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { onMounted, reactive, ref } from 'vue'
++import { storeToRefs } from 'pinia'
++import { useRouter } from 'vue-router'
++import CayGiaoAn from '../../../components/danh_muc/cay_giao_an.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const router = useRouter(); const store = useDanhMucStore(); const { baiTap } = storeToRefs(store); const dangLuu = ref(false); const loi = ref(null)
++const form = reactive({ code: '', name: '', goal: '', level: '', sessions_per_week: 1, description: '', status: 'HOAT_DONG', days: [{ order: 1, name: 'Ngay 1', estimated_minutes: 45, exercises: [] }] })
++function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
++async function luu() { dangLuu.value = true; loi.value = null; const result = await store.taoGiaoAnMau({ ...form, days: form.days.map((day) => ({ ...day, exercises: day.exercises.map((item) => ({ ...item })) })) }); loi.value = store.giaoAnMau.loiMutation; dangLuu.value = false; if (result?.id) await router.push({ name: 'adminChiTietGiaoAnMau', params: { id: result.id } }) }
++onMounted(() => { void store.taiDanhSachBaiTap({ status: 'HOAT_DONG' }) })
++</script>
++
++<template>
++  <section class="trang-danh-muc trang-danh-muc--form" aria-label="Tao giao an mau"><TieuDeTrang tieu-de="Tao moi giao an mau" mo-ta="Tao noi dung day du; Backend kiem tra so buoi, thu tu va exercise dang hoat dong." /><form @submit.prevent="luu"><div class="luoi-bieu-mau"><TruongBieuMau id="giao-an-create-code" nhan="Ma giao an" bat-buoc :loi="layLoi('code')"><template #default="{ id }"><input :id="id" v-model="form.code" required></template></TruongBieuMau><TruongBieuMau id="giao-an-create-name" nhan="Ten giao an" bat-buoc :loi="layLoi('name')"><template #default="{ id }"><input :id="id" v-model="form.name" required></template></TruongBieuMau><TruongBieuMau id="giao-an-create-goal" nhan="Muc tieu" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.goal" required></template></TruongBieuMau><TruongBieuMau id="giao-an-create-level" nhan="Cap do" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.level" required></template></TruongBieuMau><TruongBieuMau id="giao-an-create-sessions" nhan="So buoi moi tuan" bat-buoc :loi="layLoi('sessions_per_week')"><template #default="{ id }"><input :id="id" v-model.number="form.sessions_per_week" type="number" min="1" required></template></TruongBieuMau><TruongBieuMau id="giao-an-create-description" nhan="Mo ta"><template #default="{ id }"><textarea :id="id" v-model="form.description" rows="3" maxlength="3000" /></template></TruongBieuMau></div><CayGiaoAn v-model="form.days" :exercise-options="baiTap.danhSach" :disabled="dangLuu" /><p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p><div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="router.push({ name: 'adminGiaoAnMau' })">Huy</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu">{{ dangLuu ? 'Dang luu...' : 'Tao giao an mau' }}</button></div></form></section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js"
+index fbddc2b..dd63c3e 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_moi.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import GiaoAnMauTaoMoi from './giao_an_mau.tao_moi.vue'
++describe('giao_an_mau.tao_moi FE3', () => { it('dang ky full template editor', () => { expect(GiaoAnMauTaoMoi.__file).toContain('giao_an_mau.tao_moi.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue"
+index fbddc2b..f8fc758 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue"
+@@ -1 +1,23 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { onMounted, reactive, ref } from 'vue'
++import { storeToRefs } from 'pinia'
++import { useRoute, useRouter } from 'vue-router'
++import CayGiaoAn from '../../../components/danh_muc/cay_giao_an.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
++import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const route = useRoute(); const router = useRouter(); const store = useDanhMucStore(); const { baiTap, giaoAnMau } = storeToRefs(store); const id = Number(route.params.id); const dangLuu = ref(false); const loi = ref(null)
++const form = reactive({ code: '', name: '', goal: '', level: '', sessions_per_week: 1, description: '', status: 'HOAT_DONG', days: [] })
++function nap(item) { if (item) Object.assign(form, { ...item, days: (item.days ?? []).map((day) => ({ ...day, exercises: (day.exercises ?? []).map((exercise) => ({ ...exercise })) })) }) }
++function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
++async function tai() { nap(await store.taiChiTietGiaoAnMau(id)) }
++async function luu() { dangLuu.value = true; loi.value = null; await store.capNhatGiaoAnMau(id, { name: form.name, goal: form.goal, level: form.level, sessions_per_week: form.sessions_per_week, description: form.description, status: form.status }); loi.value = store.giaoAnMau.loiMutation; dangLuu.value = false; if (!loi.value) await tai() }
++onMounted(() => { void Promise.all([tai(), store.taiDanhSachBaiTap({ status: 'HOAT_DONG' })]) })
++</script>
++
++<template>
++  <section class="trang-danh-muc trang-danh-muc--form" aria-label="Chi tiet giao an mau" :aria-busy="giaoAnMau.dangTaiChiTiet || dangLuu"><TieuDeTrang tieu-de="Chi tiet giao an mau" mo-ta="PATCH chi sua metadata/status; noi dung days chi duoc thay bang phien ban moi." /><TrangThaiTaiDuLieu v-if="giaoAnMau.dangTaiChiTiet && !giaoAnMau.chiTiet" nhan="Dang tai chi tiet giao an mau..." /><TrangThaiLoi v-else-if="giaoAnMau.loiChiTiet" :thong-bao="giaoAnMau.loiChiTiet.message" :co-the-thu-lai="true" :dang-thu-lai="giaoAnMau.dangTaiChiTiet" @thu-lai="tai" /><form v-else @submit.prevent="luu"><div class="luoi-bieu-mau"><TruongBieuMau id="giao-an-detail-code" nhan="Ma giao an"><template #default="{ id }"><input :id="id" :value="form.code" readonly aria-readonly="true"></template></TruongBieuMau><TruongBieuMau id="giao-an-detail-name" nhan="Ten giao an" bat-buoc :loi="layLoi('name')"><template #default="{ id }"><input :id="id" v-model="form.name" required></template></TruongBieuMau><TruongBieuMau id="giao-an-detail-goal" nhan="Muc tieu" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.goal" required></template></TruongBieuMau><TruongBieuMau id="giao-an-detail-level" nhan="Cap do" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.level" required></template></TruongBieuMau><TruongBieuMau id="giao-an-detail-sessions" nhan="So buoi moi tuan" bat-buoc><template #default="{ id }"><input :id="id" v-model.number="form.sessions_per_week" type="number" min="1" required></template></TruongBieuMau><TruongBieuMau id="giao-an-detail-status" nhan="Trang thai"><template #default="{ id }"><select :id="id" v-model="form.status"><option value="HOAT_DONG">Hoat dong</option><option value="NGUNG_SU_DUNG">Ngung su dung</option></select></template></TruongBieuMau><TruongBieuMau id="giao-an-detail-description" nhan="Mo ta"><template #default="{ id }"><textarea :id="id" v-model="form.description" rows="3" maxlength="3000" /></template></TruongBieuMau></div><p class="trang-danh-muc__canh-bao" role="note">Days chi doc trong trang chi tiet. Muon thay doi noi dung, hay tao phien ban moi voi expected_content_version.</p><CayGiaoAn v-model="form.days" :exercise-options="baiTap.danhSach" disabled /><p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p><div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="router.push({ name: 'adminGiaoAnMau' })">Quay lai</button><button class="nut nut--phu" type="button" :disabled="dangLuu || form.status !== 'HOAT_DONG'" @click="router.push({ name: 'adminTaoPhienBanGiaoAnMau', params: { id } })">Tao phien ban</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu">{{ dangLuu ? 'Dang luu...' : 'Luu metadata' }}</button></div></form></section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
+index fbddc2b..0d1524f 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import GiaoAnMauChiTiet from './giao_an_mau.chi_tiet.vue'
++describe('giao_an_mau.chi_tiet FE3', () => { it('dang ky metadata-only edit page', () => { expect(GiaoAnMauChiTiet.__file).toContain('giao_an_mau.chi_tiet.vue') }) })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.vue.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.vue"
+index fbddc2b..8edc692 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.vue.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.vue"
+@@ -1 +1,25 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++<script setup>
++import { onMounted, reactive, ref } from 'vue'
++import { storeToRefs } from 'pinia'
++import { useRoute, useRouter } from 'vue-router'
++import CayGiaoAn from '../../../components/danh_muc/cay_giao_an.vue'
++import HopThoaiXungDotGiaoAn from '../../../components/danh_muc/hop_thoai_xung_dot_giao_an.vue'
++import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
++import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
++import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
++import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
++import { xuLyGiaoAnMauDaCu } from '../../../services/giao_an_mau.api.js'
++import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
++
++const route = useRoute(); const router = useRouter(); const store = useDanhMucStore(); const { baiTap, giaoAnMau } = storeToRefs(store); const id = Number(route.params.id); const dangLuu = ref(false); const hienXungDot = ref(false); const loi = ref(null); const phienBanHienTai = ref(null)
++const form = reactive({ new_code: '', name: '', goal: '', level: '', sessions_per_week: 1, description: '', status: 'HOAT_DONG', expected_content_version: null, days: [] })
++function nap(item) { if (!item) return; Object.assign(form, { new_code: `${item.code ?? ''}-V2`, name: item.name ?? '', goal: item.goal ?? '', level: item.level ?? '', sessions_per_week: item.sessions_per_week ?? item.days?.length ?? 1, description: item.description ?? '', status: item.status ?? 'HOAT_DONG', expected_content_version: item.content_version, days: (item.days ?? []).map((day) => ({ ...day, exercises: (day.exercises ?? []).map((exercise) => ({ ...exercise })) })) }); phienBanHienTai.value = item.content_version }
++function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
++async function tai() { hienXungDot.value = false; nap(await store.taiChiTietGiaoAnMau(id)) }
++async function luu() { loi.value = null; dangLuu.value = true; const result = await store.taoPhienBanGiaoAnMau(id, { ...form, days: form.days.map((day) => ({ ...day, exercises: day.exercises.map((item) => ({ ...item })) })) }); loi.value = store.giaoAnMau.loiMutation; dangLuu.value = false; const xungDot = xuLyGiaoAnMauDaCu(loi.value); if (xungDot.laXungDot) { hienXungDot.value = true; return } if (result?.new_template_id) await router.push({ name: 'adminChiTietGiaoAnMau', params: { id: result.new_template_id } }) }
++onMounted(() => { void Promise.all([tai(), store.taiDanhSachBaiTap({ status: 'HOAT_DONG' })]) })
++</script>
++
++<template>
++  <section class="trang-danh-muc trang-danh-muc--form" aria-label="Tao phien ban giao an mau" :aria-busy="giaoAnMau.dangTaiChiTiet || dangLuu"><TieuDeTrang tieu-de="Tao phien ban giao an mau" mo-ta="Ban nhap duoc giu neu Backend bao 409 de ban doi soat voi phien ban moi." /><TrangThaiTaiDuLieu v-if="giaoAnMau.dangTaiChiTiet && !form.expected_content_version" nhan="Dang tai giao an mau..." /><TrangThaiLoi v-if="giaoAnMau.loiChiTiet" :thong-bao="giaoAnMau.loiChiTiet.message" :co-the-thu-lai="true" :dang-thu-lai="giaoAnMau.dangTaiChiTiet" @thu-lai="tai" /><form v-else @submit.prevent="luu"><div class="luoi-bieu-mau"><TruongBieuMau id="giao-an-revision-code" nhan="Ma phien ban moi" bat-buoc :loi="layLoi('new_code')"><template #default="{ id }"><input :id="id" v-model="form.new_code" required></template></TruongBieuMau><TruongBieuMau id="giao-an-revision-name" nhan="Ten giao an" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.name" required></template></TruongBieuMau><TruongBieuMau id="giao-an-revision-goal" nhan="Muc tieu" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.goal" required></template></TruongBieuMau><TruongBieuMau id="giao-an-revision-level" nhan="Cap do" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.level" required></template></TruongBieuMau><TruongBieuMau id="giao-an-revision-sessions" nhan="So buoi moi tuan" bat-buoc><template #default="{ id }"><input :id="id" v-model.number="form.sessions_per_week" type="number" min="1" required></template></TruongBieuMau></div><p class="trang-danh-muc__canh-bao" role="note">Dang dung content_version {{ form.expected_content_version ?? '...' }}. Moi phien ban la ban sao moi; khong sua template cu.</p><CayGiaoAn v-model="form.days" :exercise-options="baiTap.danhSach" :disabled="dangLuu" /><p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p><div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="router.push({ name: 'adminChiTietGiaoAnMau', params: { id } })">Huy</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu || !form.expected_content_version">{{ dangLuu ? 'Dang tao...' : 'Tao phien ban' }}</button></div></form><HopThoaiXungDotGiaoAn :hien-thi="hienXungDot" :dang-tai="giaoAnMau.dangTaiChiTiet" :phien-ban-hien-tai="phienBanHienTai" @dong="hienXungDot = false" @tai-lai="tai" /></section>
++</template>
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js.absent" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js"
+index fbddc2b..873ab04 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js.absent"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-round-1-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.tao_phien_ban.test.js"
+@@ -1 +1,3 @@
+-ABSENT BEFORE FE3-ALL
+\ No newline at end of file
++import { describe, expect, it } from 'vitest'
++import GiaoAnMauTaoPhienBan from './giao_an_mau.tao_phien_ban.vue'
++describe('giao_an_mau.tao_phien_ban FE3', () => { it('dang ky revision page co stale dialog', () => { expect(GiaoAnMauTaoPhienBan.__file).toContain('giao_an_mau.tao_phien_ban.vue') }) })

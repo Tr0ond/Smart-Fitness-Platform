@@ -1,0 +1,25 @@
+<script setup>
+import { onMounted, reactive, ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useRoute, useRouter } from 'vue-router'
+import CayGiaoAn from '../../../components/danh_muc/cay_giao_an.vue'
+import HopThoaiXungDotGiaoAn from '../../../components/danh_muc/hop_thoai_xung_dot_giao_an.vue'
+import TieuDeTrang from '../../../components/dung_chung/tieu_de_trang.vue'
+import TruongBieuMau from '../../../components/dung_chung/truong_bieu_mau.vue'
+import TrangThaiLoi from '../../../components/dung_chung/trang_thai_loi.vue'
+import TrangThaiTaiDuLieu from '../../../components/dung_chung/trang_thai_tai_du_lieu.vue'
+import { xuLyGiaoAnMauDaCu } from '../../../services/giao_an_mau.api.js'
+import { useDanhMucStore } from '../../../stores/danh_muc.store.js'
+
+const route = useRoute(); const router = useRouter(); const store = useDanhMucStore(); const { baiTap, giaoAnMau } = storeToRefs(store); const id = Number(route.params.id); const dangLuu = ref(false); const hienXungDot = ref(false); const loi = ref(null); const phienBanHienTai = ref(null)
+const form = reactive({ new_code: '', name: '', goal: '', level: '', sessions_per_week: 1, description: '', status: 'HOAT_DONG', expected_content_version: null, days: [] })
+function nap(item) { if (!item) return; Object.assign(form, { new_code: `${item.code ?? ''}-V2`, name: item.name ?? '', goal: item.goal ?? '', level: item.level ?? '', sessions_per_week: item.sessions_per_week ?? item.days?.length ?? 1, description: item.description ?? '', status: item.status ?? 'HOAT_DONG', expected_content_version: item.content_version, days: (item.days ?? []).map((day) => ({ ...day, exercises: (day.exercises ?? []).map((exercise) => ({ ...exercise })) })) }); phienBanHienTai.value = item.content_version }
+function layLoi(field) { return loi.value?.fieldErrors?.[field]?.[0] ?? '' }
+async function tai() { hienXungDot.value = false; nap(await store.taiChiTietGiaoAnMau(id)) }
+async function luu() { loi.value = null; dangLuu.value = true; const result = await store.taoPhienBanGiaoAnMau(id, { ...form, days: form.days.map((day) => ({ ...day, exercises: day.exercises.map((item) => ({ ...item })) })) }); loi.value = store.giaoAnMau.loiMutation; dangLuu.value = false; const xungDot = xuLyGiaoAnMauDaCu(loi.value); if (xungDot.laXungDot) { hienXungDot.value = true; return } if (result?.new_template_id) await router.push({ name: 'adminChiTietGiaoAnMau', params: { id: result.new_template_id } }) }
+onMounted(() => { void Promise.all([tai(), store.taiDanhSachBaiTap({ status: 'HOAT_DONG' })]) })
+</script>
+
+<template>
+  <section class="trang-danh-muc trang-danh-muc--form" aria-label="Tao phien ban giao an mau" :aria-busy="giaoAnMau.dangTaiChiTiet || dangLuu"><TieuDeTrang tieu-de="Tao phien ban giao an mau" mo-ta="Ban nhap duoc giu neu Backend bao 409 de ban doi soat voi phien ban moi." /><TrangThaiTaiDuLieu v-if="giaoAnMau.dangTaiChiTiet && !form.expected_content_version" nhan="Dang tai giao an mau..." /><TrangThaiLoi v-if="giaoAnMau.loiChiTiet" :thong-bao="giaoAnMau.loiChiTiet.message" :co-the-thu-lai="true" :dang-thu-lai="giaoAnMau.dangTaiChiTiet" @thu-lai="tai" /><form v-else @submit.prevent="luu"><div class="luoi-bieu-mau"><TruongBieuMau id="giao-an-revision-code" nhan="Ma phien ban moi" bat-buoc :loi="layLoi('new_code')"><template #default="{ id }"><input :id="id" v-model="form.new_code" required></template></TruongBieuMau><TruongBieuMau id="giao-an-revision-name" nhan="Ten giao an" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.name" required></template></TruongBieuMau><TruongBieuMau id="giao-an-revision-goal" nhan="Muc tieu" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.goal" required></template></TruongBieuMau><TruongBieuMau id="giao-an-revision-level" nhan="Cap do" bat-buoc><template #default="{ id }"><input :id="id" v-model="form.level" required></template></TruongBieuMau><TruongBieuMau id="giao-an-revision-sessions" nhan="So buoi moi tuan" bat-buoc><template #default="{ id }"><input :id="id" v-model.number="form.sessions_per_week" type="number" min="1" required></template></TruongBieuMau></div><p class="trang-danh-muc__canh-bao" role="note">Dang dung content_version {{ form.expected_content_version ?? '...' }}. Moi phien ban la ban sao moi; khong sua template cu.</p><CayGiaoAn v-model="form.days" :exercise-options="baiTap.danhSach" :disabled="dangLuu" /><p v-if="loi?.message" class="trang-danh-muc__loi" role="alert">{{ loi.message }}</p><div class="trang-danh-muc__hanh-dong"><button class="nut nut--phu" type="button" :disabled="dangLuu" @click="router.push({ name: 'adminChiTietGiaoAnMau', params: { id } })">Huy</button><button class="nut nut--chinh" type="submit" :disabled="dangLuu || !form.expected_content_version">{{ dangLuu ? 'Dang tao...' : 'Tao phien ban' }}</button></div></form><HopThoaiXungDotGiaoAn :hien-thi="hienXungDot" :dang-tai="giaoAnMau.dangTaiChiTiet" :phien-ban-hien-tai="phienBanHienTai" @dong="hienXungDot = false" @tai-lai="tai" /></section>
+</template>

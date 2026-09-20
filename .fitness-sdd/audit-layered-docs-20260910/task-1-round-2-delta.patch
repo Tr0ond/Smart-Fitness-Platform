@@ -1,0 +1,83 @@
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-before/FE4_CONTEXT.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-after/FE4_CONTEXT.md
+index aa53953..76c9236 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-before/FE4_CONTEXT.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-after/FE4_CONTEXT.md
+@@ -75,13 +75,13 @@
+ ## 5. Trạng thái Backend & STOP Conditions
+ 
+ - **Backend APIs:** Read basics ở trạng thái `READY`. Reconciliation ở trạng thái `BACKEND_FIX_IN_PROGRESS` (BE-FOLLOWUP-01A/01B).
+-- **STOP Conditions / entry gate:** Chỉ dispatch `FE4-ALL` sau khi `FE-1 PASS` và BE-FOLLOWUP-01A/01B có contract cùng test evidence `READY`. Nếu chưa đủ, không tạo writer cho reconciliation, không đánh phase complete và không dùng client join để bù event bị Backend loại.
++- **STOP Conditions / entry gate:** Chỉ dispatch `FE4-ALL` sau khi `FE-1 PASS`; capability/contract của BE-FOLLOWUP-01A/01B có thể ở trạng thái `READY`, nhưng phải có evidence `PASS` cho các Backend regression/authorization/resource-scope tests về (1) unlinked Payment-event visibility, (2) Payment thành công kèm abnormal event xuất hiện đúng trong bộ lọc reconciliation, (3) Admin authorization, (4) branch/resource-scope isolation, và (5) Safe DTO/redaction không lộ raw payload/signature. Nếu chưa đủ, không tạo writer cho reconciliation, không đánh phase complete và không dùng client join để bù event bị Backend loại.
+ 
+ ---
+ 
+ ## 6. Tiêu chí Nghiệm thu của Task `FE4-ALL`
+ 
+-- [ ] Entry gate xác nhận `FE-1 PASS` và BE-FOLLOWUP-01A/01B đã READY bằng contract và test evidence trước khi bắt đầu `FE4-ALL`.
++- [ ] Entry gate xác nhận `FE-1 PASS`; capability/contract BE-FOLLOWUP-01A/01B có thể `READY`, nhưng trước khi bắt đầu `FE4-ALL` phải có evidence `PASS` cho unlinked Payment-event visibility, abnormal event của Payment thành công trong bộ lọc reconciliation, Admin authorization, branch/resource-scope isolation, và Safe DTO/redaction không lộ raw payload/signature.
+ - [ ] Hiển thị đầy đủ danh sách thanh toán, bộ lọc, phân trang hoạt động chính xác qua Safe DTO.
+ - [ ] Reconciliation list hiển thị đúng unlinked payment events và abnormal events.
+ - [ ] Tuyệt đối không có bất kỳ nút mutation (sửa/xóa/hoàn tiền/kích hoạt) nào trên giao diện.
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-before/FE5_CONTEXT.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-after/FE5_CONTEXT.md
+index 7c06125..34a4c02 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-before/FE5_CONTEXT.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-after/FE5_CONTEXT.md
+@@ -69,7 +69,7 @@
+ 2. **RULE GYM 13 & 15 (Bất biến Lịch sử):** RULE GYM 15 quy định nghiêm ngặt: **PT không được sửa Workout Session đã hoàn thành**. Tuyệt đối không hiển thị bất kỳ nút chỉnh sửa (edit button) nào trên màn hình lịch sử buổi tập đã hoàn thành.
+ 3. **Notes No-Side-Effect (Plan V2 Section 17 & Section 31: FE-5):** Thêm ghi chú huấn luyện là hành động bổ sung nhận xét chuyên môn (append-only), không làm biến đổi kế hoạch tập hoặc kết quả phiên tập cũ.
+ 4. **Xử lý Blocker Backend trung thực (BLOCKER-03, 04, 05):** Trước entry gate, dừng dispatch vì thiếu contract/test evidence; sau gate chỉ dùng endpoint PT-scoped chính thức, cấm gọi chéo route `/api/profile/member` hay `/api/workout/*` của Member token.
+-5. **STOP Conditions (Section 31: FE-5):** Chỉ dispatch `FE5-ALL` sau khi `FE-0 PASS` và cả ba contract cùng Backend tests đã READY. Khi đã dispatch, một writer triển khai đủ cả bảy màn hình; không chấp nhận `TinhNangChuaSanSang`, zero-request blocker page hoặc `PARTIALLY_READY` như tiêu chí hoàn tất.
++5. **STOP Conditions (Section 31: FE-5):** Chỉ dispatch `FE5-ALL` sau khi `FE-0 PASS`; capability/contract của cả ba BLOCKER-03/04/05 có thể ở trạng thái `READY`, nhưng Backend authorization/resource-scope regression tests cho từng blocker phải có evidence `PASS`. Khi đã dispatch, một writer triển khai đủ cả bảy màn hình; không chấp nhận `TinhNangChuaSanSang`, zero-request blocker page hoặc `PARTIALLY_READY` như tiêu chí hoàn tất.
+ 
+ ---
+ 
+@@ -86,7 +86,7 @@
+ 
+ ### Entry gate của phase
+ 
+-- Controller phải cung cấp evidence cho `FE-0 PASS`, BLOCKER-03, BLOCKER-04 và BLOCKER-05: contract PT-scoped chính thức, Backend tests đã pass, và phạm vi exact-assignment đã được xác nhận.
++- Controller phải cung cấp evidence cho `FE-0 PASS`, BLOCKER-03, BLOCKER-04 và BLOCKER-05: contract PT-scoped chính thức/capability có thể `READY`, nhưng Backend authentication/authorization và exact-current-assignment resource-scope regression tests của từng blocker phải có evidence `PASS`; evidence âm tính phải bao gồm từ chối hoặc che giấu PT cũ/foreign/unassigned tùy trường hợp, và phạm vi exact-assignment đã được xác nhận.
+ - Khi thiếu bất kỳ evidence nào, trạng thái là WAITING_DEPENDENCY và không tiêu thụ writer/reviewer. Không coi một subset màn hình READY là quyền dispatch.
+ 
+ ---
+@@ -100,5 +100,5 @@
+ - [ ] Lịch sử buổi tập hoàn thành không có nút chỉnh sửa (RULE GYM 13, 15).
+ - [ ] Sau entry gate, ba màn hình Chi tiết, Kế hoạch, Lịch sử gọi đúng contract PT-scoped; không có request trái quyền hoặc placeholder runtime.
+ - [ ] Khi phân công bị kết thúc (403/404): Store tự động xóa dữ liệu học viên đã chọn và chuyển hướng.
+-- [ ] `FE5-ALL` được nghiệm thu như một task tổng hợp duy nhất sau khi `FE-0 PASS`, cả ba dependency contracts và Backend tests đã READY.
++- [ ] `FE5-ALL` được nghiệm thu như một task tổng hợp duy nhất sau khi `FE-0 PASS`; cả ba dependency contracts/capabilities có thể `READY`, nhưng các Backend authorization/resource-scope regressions bắt buộc của BLOCKER-03/04/05 phải có evidence `PASS`.
+ - [ ] Toàn bộ test của FE-5, lint (`npm run lint`), build sạch sẽ (`npm run build`).
+diff --git a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-before/FE8_CONTEXT.md b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-after/FE8_CONTEXT.md
+index d969b68..e24a497 100644
+--- a/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-before/FE8_CONTEXT.md
++++ b/.fitness-sdd/audit-layered-docs-20260910/task-1-round-2-after/FE8_CONTEXT.md
+@@ -9,11 +9,11 @@
+ ## 1. Danh sách Màn hình & Routes Triển khai (3 Màn hình)
+ 
+ 1. **Tra cứu Hội viên (`/le-tan/tra-cuu-hoi-vien` — route name: `leTanTraCuuHoiVien`):**
+-   - Tìm kiếm hội viên theo mã hội viên, tên, hoặc số điện thoại trong allow-list của contract Receptionist; Backend phải áp dụng branch/resource scope, và contract cùng Backend tests của `BLOCKER-06` phải READY trước entry gate.
++   - Tìm kiếm hội viên theo mã hội viên, tên, hoặc số điện thoại trong allow-list của contract Receptionist; capability/contract `BLOCKER-06` có thể `READY`, nhưng Backend tests phải có evidence `PASS` cho RECEPTIONIST authorization, branch/resource-scope isolation, safe allow-listed results, và denial của cross-role/out-of-scope access trước entry gate.
+    - Không có contract thì không dispatch writer và không dùng Account Admin route làm workaround; không biến blocker placeholder thành writer acceptance.
+ 2. **Trạng thái Gói & Quyền Vào phòng (`/le-tan/hoi-vien/:id/trang-thai-hoi-vien` — route name: `leTanTrangThaiHoiVien`):**
+    - Xem tình trạng Membership của hội viên do Backend trả về (`DANG_HOAT_DONG`, `HET_HAN`, `CHO_KICH_HOAT`).
+-   - Contract và Backend tests của `BLOCKER-07` phải READY trước entry gate. Tuyệt đối cấm Client tự tính toán trạng thái dựa trên ngày tháng hoặc lịch sử thanh toán; không gọi `/api/membership` của Member token.
++   - Capability/contract `BLOCKER-07` có thể `READY`, nhưng Backend tests phải có evidence `PASS` cho RECEPTIONIST authorization, branch/member resource scope, và eligibility/status do Backend làm nguồn quyết định trước entry gate. Tuyệt đối cấm Client tự tính toán trạng thái dựa trên ngày tháng hoặc lịch sử thanh toán; không gọi `/api/membership` của Member token.
+ 3. **Quét Mã Vào Phòng Tập (`/le-tan/quet-ma-vao-phong` — route name: `leTanQuetMaVaoPhong`):**
+    - Màn hình tiếp đón chính: Cho phép nhập mã QR thủ công (bằng máy quét mã vạch USB / bàn phím) hoặc quét qua Camera thiết bị nếu trình duyệt hỗ trợ. `READY`.
+    - Gửi `qr_token` đến `POST /api/gym/check-in`. Hiển thị kết quả an toàn do Backend xác nhận: hợp lệ chào mừng, mã hết hạn, gói chờ kích hoạt, gói đã hết hạn, hoặc mã đã sử dụng.
+@@ -55,7 +55,7 @@
+    - Tính năng quét bằng Camera chỉ là adapter phụ trợ khi trình duyệt cấp quyền (`navigator.mediaDevices`). Nếu không có camera hoặc người dùng từ chối cấp quyền, ô nhập mã thủ công vẫn luôn hoạt động bình thường, không làm gián đoạn nghiệp vụ tại quầy.
+ 4. **Cô lập Quyền Lễ tân & Blocker Handling (BLOCKER-06, 07):**
+    - Tuyệt đối không gọi API của Admin (xem doanh thu, sửa gói) hay API Member-self làm giải pháp tạm thời.
+-   - **STOP Conditions (Section 31: FE-8):** Chỉ dispatch `FE8-ALL` sau khi `FE-0 PASS` và cả `BLOCKER-06` cùng `BLOCKER-07` có contract chính thức cùng Backend test evidence READY. Trước gate, thiếu API là lý do không dispatch; sau gate một writer triển khai đủ cả ba màn hình và shell.
++   - **STOP Conditions (Section 31: FE-8):** Chỉ dispatch `FE8-ALL` sau khi `FE-0 PASS`; capability/contract của `BLOCKER-06` và `BLOCKER-07` có thể `READY`, nhưng toàn bộ Backend regression/authorization/resource-scope tests bắt buộc phải có evidence `PASS`. Trước gate, thiếu API hoặc thiếu evidence PASS là lý do không dispatch; sau gate một writer triển khai đủ cả ba màn hình và shell.
+ 
+ ---
+ 
+@@ -79,5 +79,5 @@
+ - [ ] Render kết quả check-in an toàn theo thẩm quyền xác thực của Backend; không hardcode logic 90s trên client.
+ - [ ] Cô lập hoàn toàn quyền Lễ tân, không gọi API Admin hay Member-self làm workaround.
+ - [ ] Hai màn hình Tra cứu và Trạng thái gọi đúng contract Lễ tân sau entry gate; không có placeholder runtime hoặc workaround Admin/Member-self.
+-- [ ] `FE8-ALL` được nghiệm thu như một task tổng hợp duy nhất sau khi `FE-0 PASS`, cả hai contract và Backend tests đã READY.
++- [ ] `FE8-ALL` được nghiệm thu như một task tổng hợp duy nhất sau khi `FE-0 PASS`; cả hai contracts/capabilities có thể `READY`, nhưng các Backend regression/authorization/resource-scope tests bắt buộc của BLOCKER-06/07 phải có evidence `PASS`.
+ - [ ] Toàn bộ test của FE-8, lint (`npm run lint`), build sạch sẽ (`npm run build`).

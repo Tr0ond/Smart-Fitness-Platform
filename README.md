@@ -2,7 +2,7 @@
 
 Repository hiện tại là gốc dự án (`E:\Fitness` trên máy khởi tạo); không có thư mục `Smart_Fitness` lồng bên trong.
 
-**Trạng thái Backend:** core REST API đã triển khai trên schema 52 bảng/M001–M060, gồm Auth/Role, catalog, Profile, Membership, payOS, QR check-in, PT, Realtime Chat, Workout, Progress, Dashboard và Gemini AI Proposal/Apply. Đọc toàn bộ [PROJECT_RULES.md](PROJECT_RULES.md) trước khi thay đổi source. FE và Mobile vẫn là skeleton tích hợp, chưa triển khai màn hình nghiệp vụ.
+**Trạng thái Backend:** core REST API đã triển khai trên schema 52 bảng/M001–M060, gồm Auth/Role, catalog, Profile, Membership, payOS, QR check-in, PT, Realtime Chat, Workout, Progress, Dashboard và Gemini AI Proposal/Apply. Tra cứu quy tắc phát triển qua [AGENTS.md](AGENTS.md) và [.fitness-rules/RULE_INDEX.md](.fitness-rules/RULE_INDEX.md). FE và Mobile vẫn là skeleton tích hợp, chưa triển khai màn hình nghiệp vụ.
 
 Tài liệu vận hành chính:
 

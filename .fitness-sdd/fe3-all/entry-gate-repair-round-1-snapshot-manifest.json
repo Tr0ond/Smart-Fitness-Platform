@@ -1,0 +1,114 @@
+[
+  {
+    "target": "BE\\database\\migrations\\2026_09_10_000061_m061_them_trang_thai_nhom_co.php",
+    "state": "ABSENT",
+    "bytes": null,
+    "sha256": null,
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\BE\\database\\migrations\\2026_09_10_000061_m061_them_trang_thai_nhom_co.php.absent"
+  },
+  {
+    "target": "BE\\app\\Models\\NhomCo.php",
+    "state": "PRESENT",
+    "bytes": 865,
+    "sha256": "787B69B6765EB9667657D7D5069ADC6F971E409287D24C741F5AB418A3E75629",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\BE\\app\\Models\\NhomCo.php"
+  },
+  {
+    "target": "BE\\app\\Http\\Requests\\Admin\\Catalog\\CreateMuscleGroupRequest.php",
+    "state": "PRESENT",
+    "bytes": 895,
+    "sha256": "1C72399E57B196D06C683C45412D44DC9196A2ECF59C414A4AD58B90361F4C17",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\BE\\app\\Http\\Requests\\Admin\\Catalog\\CreateMuscleGroupRequest.php"
+  },
+  {
+    "target": "BE\\app\\Http\\Requests\\Admin\\Catalog\\UpdateMuscleGroupRequest.php",
+    "state": "PRESENT",
+    "bytes": 660,
+    "sha256": "CAF3B82586E2EDC575317D5A609C94258C4DB7C618F7BAC0077260CC040D9D36",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\BE\\app\\Http\\Requests\\Admin\\Catalog\\UpdateMuscleGroupRequest.php"
+  },
+  {
+    "target": "BE\\app\\Services\\Admin\\ExerciseCatalogAdminService.php",
+    "state": "PRESENT",
+    "bytes": 15776,
+    "sha256": "F0A161E539779666D99A1491E2D1A962A918BC64894204CE1D3C3580E92F97F9",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\BE\\app\\Services\\Admin\\ExerciseCatalogAdminService.php"
+  },
+  {
+    "target": "BE\\tests\\Feature\\AdminCatalogApiTest.php",
+    "state": "PRESENT",
+    "bytes": 21299,
+    "sha256": "C3F90E6D52BE0C79FCCEDEB35FAC0471B7DB021FDF46835BC3F93DAB2830A61B",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\BE\\tests\\Feature\\AdminCatalogApiTest.php"
+  },
+  {
+    "target": "BE\\tests\\Feature\\AdminCatalogConcurrencyTest.php",
+    "state": "PRESENT",
+    "bytes": 13659,
+    "sha256": "ECFA94C2C0BC1D96E5F4674A8EA52F457F28C76F7B72512B523037CC821946B8",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\BE\\tests\\Feature\\AdminCatalogConcurrencyTest.php"
+  },
+  {
+    "target": "BE\\tests\\Support\\run_admin_catalog_action.php",
+    "state": "PRESENT",
+    "bytes": 2154,
+    "sha256": "F0531F9C11B2FBBBB3DFA9E37C8DAD44AA50A01CFB735F5791ECC6DADA49A0F0",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\BE\\tests\\Support\\run_admin_catalog_action.php"
+  },
+  {
+    "target": "PROJECT_RULES.md",
+    "state": "PRESENT",
+    "bytes": 91032,
+    "sha256": "00C41AA86AB797424B4A867F443F07C9A4D5721C0F91B91D7CF969827CB3D071",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\PROJECT_RULES.md"
+  },
+  {
+    "target": "docs\\BACKEND_API_CONTRACT.md",
+    "state": "PRESENT",
+    "bytes": 11951,
+    "sha256": "6B86BC12A51B972B5D29D68B567A2D349033EB5BF66433B127BE92CF6414A39D",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\docs\\BACKEND_API_CONTRACT.md"
+  },
+  {
+    "target": "docs\\thiet_ke_co_so_du_lieu\\TU_DIEN_DU_LIEU.md",
+    "state": "PRESENT",
+    "bytes": 160063,
+    "sha256": "19E15D46E2370480465AF3071428176C01A05BA70B12EF55E6A53FE8EC93CDA2",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\docs\\thiet_ke_co_so_du_lieu\\TU_DIEN_DU_LIEU.md"
+  },
+  {
+    "target": "docs\\thiet_ke_co_so_du_lieu\\THIET_KE_DATABASE.md",
+    "state": "PRESENT",
+    "bytes": 67363,
+    "sha256": "CC48AA230087393DBAF3019A08107EF3EC3B740221539F060E665D3DD32D14DD",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\docs\\thiet_ke_co_so_du_lieu\\THIET_KE_DATABASE.md"
+  },
+  {
+    "target": "docs\\thiet_ke_co_so_du_lieu\\MIGRATION_PLAN.md",
+    "state": "PRESENT",
+    "bytes": 199855,
+    "sha256": "4D3125C281BA9DED4AD78E657C8D470AFED1B04CD996E264F3D303FA29D5CA02",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\docs\\thiet_ke_co_so_du_lieu\\MIGRATION_PLAN.md"
+  },
+  {
+    "target": "docs\\thiet_ke_co_so_du_lieu\\smart_fitness_erd.drawio",
+    "state": "PRESENT",
+    "bytes": 700684,
+    "sha256": "2ADBEA2C20A498C3578137E32C2D23D5D124D3AC4C38CB383E4B6A03D3A85B4B",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\docs\\thiet_ke_co_so_du_lieu\\smart_fitness_erd.drawio"
+  },
+  {
+    "target": "docs\\thiet_ke_co_so_du_lieu\\smart_fitness_erd_theo_mau.drawio",
+    "state": "PRESENT",
+    "bytes": 2448802,
+    "sha256": "305DBDE87026BC3982057C4EE8A34F81D79FD8CA565AE21773F27354668B44D4",
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\docs\\thiet_ke_co_so_du_lieu\\smart_fitness_erd_theo_mau.drawio"
+  },
+  {
+    "target": "docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md",
+    "state": "ABSENT",
+    "bytes": null,
+    "sha256": null,
+    "snapshot": ".fitness-sdd\\fe3-all\\entry-gate-repair-round-1-before\\docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md.absent"
+  }
+]

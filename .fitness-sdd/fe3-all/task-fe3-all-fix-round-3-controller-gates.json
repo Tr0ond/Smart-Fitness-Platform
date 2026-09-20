@@ -1,0 +1,29 @@
+﻿{
+    "unexpected_paths":  [
+
+                         ],
+    "unexpected_count":  0,
+    "staged_empty":  true,
+    "checked_preservation_paths":  710,
+    "product_target_count":  14,
+    "changed_product_targets":  [
+                                    "FE/src/services/goi_tap.api.test.js",
+                                    "FE/src/services/bai_tap.api.js",
+                                    "FE/src/services/bai_tap.api.test.js",
+                                    "FE/src/services/giao_an_mau.api.js",
+                                    "FE/src/pages/admin/goi_tap/goi_tap.tao_moi.test.js",
+                                    "FE/src/pages/admin/goi_tap/goi_tap.chi_tiet.vue",
+                                    "FE/src/pages/admin/goi_tap/goi_tap.chi_tiet.test.js",
+                                    "FE/src/pages/admin/bai_tap/bai_tap.tao_moi.test.js",
+                                    "FE/src/pages/admin/bai_tap/bai_tap.chi_tiet.vue",
+                                    "FE/src/pages/admin/bai_tap/bai_tap.chi_tiet.test.js",
+                                    "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_moi.test.js",
+                                    "FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.vue",
+                                    "FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.test.js",
+                                    "FE/src/pages/admin/giao_an_mau/giao_an_mau.tao_phien_ban.test.js"
+                                ],
+    "unchanged_product_targets":  [
+
+                                  ],
+    "report_changed":  true
+}

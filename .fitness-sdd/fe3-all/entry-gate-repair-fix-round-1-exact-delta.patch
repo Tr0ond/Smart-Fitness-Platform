@@ -1,0 +1,265 @@
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-before\\BE\\database\\seeders\\ExerciseDatasetSeeder.php" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\BE\\database\\seeders\\ExerciseDatasetSeeder.php"
+index 9dc2d8b..46adcbf 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-before\\BE\\database\\seeders\\ExerciseDatasetSeeder.php"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\BE\\database\\seeders\\ExerciseDatasetSeeder.php"
+@@ -212,8 +212,23 @@ class ExerciseDatasetSeeder extends Seeder
+                 if (! isset($muscleMap[$lookup])) {
+                     continue;
+                 }
++                $nhomCoId = $muscleMap[$lookup];
++                $existingRelation = BaiTapNhomCo::query()
++                    ->where('bai_tap_id', $exercise->id)
++                    ->where('nhom_co_id', $nhomCoId)
++                    ->exists();
++                if ($existingRelation) {
++                    continue;
++                }
++
++                // Khoa lai nhom co truoc khi quyet dinh tao quan he moi de serialize voi viec ngung su dung.
++                $nhomCo = NhomCo::query()->whereKey($nhomCoId)->lockForUpdate()->first();
++                if (! $nhomCo instanceof NhomCo || (string) $nhomCo->trang_thai !== 'HOAT_DONG') {
++                    continue;
++                }
++
+                 BaiTapNhomCo::query()->firstOrCreate(
+-                    ['bai_tap_id' => $exercise->id, 'nhom_co_id' => $muscleMap[$lookup]],
++                    ['bai_tap_id' => $exercise->id, 'nhom_co_id' => $nhomCoId],
+                     ['vai_tro_nhom_co' => $this->normalizeForLookup($muscle) === $this->normalizeForLookup($primary) ? 'CHINH' : 'PHU'],
+                 );
+             }
+@@ -245,7 +260,9 @@ class ExerciseDatasetSeeder extends Seeder
+         $muscle = NhomCo::query()->firstOrNew(['ma_nhom_co' => $this->catalogCode('NC', $name)]);
+         $muscle->ten_nhom_co = $name;
+         $muscle->mo_ta = 'Nhom co duoc chuan hoa tu truong muscle/target cua Exercise Dataset.';
+-        $muscle->save();
++        if (! $muscle->exists || $muscle->isDirty()) {
++            $muscle->save();
++        }
+ 
+         return (int) $muscle->id;
+     }
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-before\\BE\\tests\\Feature\\AdminCatalogApiTest.php" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\BE\\tests\\Feature\\AdminCatalogApiTest.php"
+index 1a45b35..7feaaa8 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-before\\BE\\tests\\Feature\\AdminCatalogApiTest.php"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\BE\\tests\\Feature\\AdminCatalogApiTest.php"
+@@ -3,15 +3,20 @@
+ namespace Tests\Feature;
+ 
+ use App\Models\GoiTap;
++use App\Models\NhatKyHeThong;
+ use App\Models\NhomCo;
++use App\Services\Admin\ExerciseCatalogAdminService;
+ use App\Services\Workout\WorkoutPlanService;
+ use App\Services\Workout\WorkoutScheduleService;
+ use App\Services\Workout\WorkoutSessionService;
+ use Carbon\CarbonImmutable;
++use Database\Seeders\ExerciseDatasetSeeder;
+ use Illuminate\Database\QueryException;
+ use Illuminate\Support\Facades\Artisan;
+ use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Event;
+ use Illuminate\Support\Str;
++use RuntimeException;
+ use Tests\Concerns\CreatesWorkoutFixtures;
+ use Tests\TestCase;
+ 
+@@ -376,6 +381,101 @@ class AdminCatalogApiTest extends TestCase
+         $this->assertSame('HOAT_DONG', DB::table('nhom_co')->where('id', $groupId)->value('trang_thai'));
+     }
+ 
++    public function test_dataset_seeder_skips_missing_relation_for_inactive_seeded_group_and_preserves_history(): void
++    {
++        [, $headers] = $this->admin();
++        $groupId = (int) DB::table('bai_tap_nhom_co')
++            ->join('nhom_co', 'nhom_co.id', '=', 'bai_tap_nhom_co.nhom_co_id')
++            ->where('nhom_co.trang_thai', 'HOAT_DONG')
++            ->select('bai_tap_nhom_co.nhom_co_id')
++            ->groupBy('nhom_co_id')
++            ->havingRaw('COUNT(*) >= 2')
++            ->orderBy('nhom_co_id')
++            ->value('nhom_co_id');
++        $this->assertGreaterThan(0, $groupId, 'The dataset must provide a group with at least two relations.');
++
++        $relationRows = DB::table('bai_tap_nhom_co')
++            ->where('nhom_co_id', $groupId)
++            ->orderBy('bai_tap_id')
++            ->orderBy('id')
++            ->limit(2)
++            ->get();
++        $this->assertCount(2, $relationRows);
++        $preservedRelation = (array) $relationRows[0];
++        $missingRelation = (array) $relationRows[1];
++
++        $this->patchJson('/api/admin/muscle-groups/'.$groupId, ['status' => 'NGUNG_SU_DUNG'], $headers)
++            ->assertOk()->assertJsonPath('data.status', 'NGUNG_SU_DUNG');
++        $groupBeforeRerun = DB::table('nhom_co')->where('id', $groupId)->sole();
++        DB::table('bai_tap_nhom_co')->where('id', $missingRelation['id'])->delete();
++        $this->assertDatabaseMissing('bai_tap_nhom_co', [
++            'bai_tap_id' => $missingRelation['bai_tap_id'],
++            'nhom_co_id' => $missingRelation['nhom_co_id'],
++        ]);
++
++        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-08-31 09:02:00.000000', 'UTC'));
++        $this->assertSame(0, Artisan::call('db:seed', [
++            '--class' => ExerciseDatasetSeeder::class,
++            '--force' => true,
++        ]));
++
++        $this->assertDatabaseMissing('bai_tap_nhom_co', [
++            'bai_tap_id' => $missingRelation['bai_tap_id'],
++            'nhom_co_id' => $missingRelation['nhom_co_id'],
++        ]);
++        $this->assertEquals(
++            $preservedRelation,
++            (array) DB::table('bai_tap_nhom_co')->where('id', $preservedRelation['id'])->sole(),
++        );
++        $groupAfterRerun = DB::table('nhom_co')->where('id', $groupId)->sole();
++        $this->assertEquals($groupBeforeRerun, $groupAfterRerun);
++        $this->assertSame('NGUNG_SU_DUNG', $groupAfterRerun->trang_thai);
++        $this->assertSame((string) $groupBeforeRerun->ngay_tao, (string) $groupAfterRerun->ngay_tao);
++        $this->assertSame((string) $groupBeforeRerun->ngay_cap_nhat, (string) $groupAfterRerun->ngay_cap_nhat);
++    }
++
++    public function test_muscle_group_status_and_audit_roll_back_together_when_audit_fails(): void
++    {
++        [$admin, $headers] = $this->admin();
++        $groupId = (int) $this->postJson('/api/admin/muscle-groups', [
++            'code' => 'AUDIT_ROLLBACK_'.strtoupper(bin2hex(random_bytes(4))),
++            'name' => 'Nhom co rollback audit',
++        ], $headers)->assertCreated()->json('data.id');
++        $before = DB::table('nhom_co')->where('id', $groupId)->sole();
++        $auditQuery = DB::table('nhat_ky_he_thong')
++            ->where('hanh_dong', 'CAP_NHAT_TRANG_THAI_NHOM_CO')
++            ->where('loai_doi_tuong', 'NHOM_CO')
++            ->where('dinh_danh_doi_tuong', $groupId);
++        $auditBefore = $auditQuery->count();
++        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-08-31 09:03:00.000000', 'UTC'));
++        $eventName = 'eloquent.creating: '.NhatKyHeThong::class;
++        Event::listen($eventName, static function (NhatKyHeThong $audit): void {
++            if ($audit->hanh_dong === 'CAP_NHAT_TRANG_THAI_NHOM_CO') {
++                throw new RuntimeException('Forced muscle group audit failure');
++            }
++        });
++
++        try {
++            try {
++                app(ExerciseCatalogAdminService::class)->capNhatNhomCo($admin['user'], $groupId, [
++                    'status' => 'NGUNG_SU_DUNG',
++                ]);
++                $this->fail('Expected the Muscle Group audit failure.');
++            } catch (RuntimeException $exception) {
++                $this->assertSame('Forced muscle group audit failure', $exception->getMessage());
++            }
++        } finally {
++            Event::forget($eventName);
++        }
++
++        $after = DB::table('nhom_co')->where('id', $groupId)->sole();
++        $this->assertEquals($before, $after);
++        $this->assertSame((string) $before->trang_thai, (string) $after->trang_thai);
++        $this->assertSame((string) $before->ngay_tao, (string) $after->ngay_tao);
++        $this->assertSame((string) $before->ngay_cap_nhat, (string) $after->ngay_cap_nhat);
++        $this->assertSame($auditBefore, $auditQuery->count());
++    }
++
+     public function test_template_mutation_changes_future_catalog_only_and_preserves_plan_and_completed_history(): void
+     {
+         [$admin, $headers] = $this->admin();
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-before\\docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md"
+index 04acea5..56a4a1a 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-before\\docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\docs\\thiet_ke_co_so_du_lieu\\MUSCLE_GROUP_DEACTIVATION_REPORT.md"
+@@ -17,6 +17,7 @@ Triển khai vòng đời `nhom_co` với trạng thái `HOAT_DONG`/`NGUNG_SU_DU
+ - `BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php`
+ - `BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php`
+ - `BE/app/Services/Admin/ExerciseCatalogAdminService.php`
++- `BE/database/seeders/ExerciseDatasetSeeder.php`
+ - `BE/tests/Feature/AdminCatalogApiTest.php`
+ - `BE/tests/Feature/AdminCatalogConcurrencyTest.php`
+ - `BE/tests/Support/run_admin_catalog_action.php`
+@@ -95,9 +96,9 @@ Runtime và DB proof: `E:\Fitness\.tools\php\php.exe` PHP 8.4.25; `APP_ENV=testi
+ | `& 'E:\Fitness\.tools\php\php.exe' 'E:\Fitness\.tools\composer\composer.phar' check-platform-reqs` | PASS |
+ | `& 'E:\Fitness\.tools\php\php.exe' artisan route:list --path=api/admin/muscle-groups --json` | PASS — GET/POST/PATCH, `auth:api` + `role:ADMIN`, no DELETE |
+ | Guarded `artisan migrate --database=mysql --force`; `artisan migrate:rollback --database=mysql --step=1 --force`; `artisan migrate --database=mysql --force` | PASS — B26/B29 50/3903 before, 50/3903 after down; after up `varchar(30)`, NOT NULL, default `'HOAT_DONG'`, `utf8mb4_nopad_bin`, ordinal 5, CHECK `kiem_tra_b26_01` |
+-| `& 'E:\Fitness\.tools\php\php.exe' artisan test --filter=AdminCatalogApiTest` | PASS — 9 tests, 213 assertions |
+-| `& 'E:\Fitness\.tools\php\php.exe' artisan test --filter=AdminCatalogConcurrencyTest` | PASS — 3 tests, 50 assertions |
+-| `& 'E:\Fitness\.tools\php\php.exe' artisan test` | PASS — 327 tests, 3,888 assertions |
++| `& 'E:\Fitness\.tools\php\php.exe' artisan test --filter=AdminCatalogApiTest` | PASS — 11 tests, 232 assertions (final repair state) |
++| `& 'E:\Fitness\.tools\php\php.exe' artisan test --filter=AdminCatalogConcurrencyTest` | PASS — 3 tests, 50 assertions (final repair state) |
++| `& 'E:\Fitness\.tools\php\php.exe' artisan test` | PASS — 329 tests, 3,905 assertions (final repair state) |
+ | `& 'E:\Fitness\.tools\php\php.exe' vendor\bin\pint --test` | PASS |
+ | PHP syntax lint (8 affected PHP files) | PASS |
+ | Drawio XML parse and `git diff --check` | PASS; staged diff empty |
+@@ -108,6 +109,24 @@ Không còn product-code item trong allow-list cần triển khai. Independent S
+ 
+ 15. Rui ro con lai
+ 
++## Repair round 1 follow-up — FE3-BE-R1-001
++
++The independent round-1 review found that an inactive seeded muscle group could receive a missing `bai_tap_nhom_co` pivot during a dataset rerun. `ExerciseDatasetSeeder` now preserves existing pivots unchanged, locks and re-reads a missing target `NhomCo` inside the existing transaction, and inserts only when the locked status is `HOAT_DONG`. `upsertMuscle` skips an unchanged existing group so an idempotent rerun cannot advance `ngay_cap_nhat`. The repair also adds a test-only `NhatKyHeThong` create failure and proves that a Muscle Group status transition rolls back its status, timestamps, and audit row together.
++
++Final repair verification used only `E:\Fitness\.tools\php\php.exe` 8.4.25 with `APP_ENV=testing`, `DB_CONNECTION=mysql`, and configured/current/approved database `smart_fitness_test` verified by `TestDatabaseGuard`.
++
++| Final repair command/check | Result |
++| --- | --- |
++| `artisan test --filter=test_dataset_seeder_skips_missing_relation_for_inactive_seeded_group_and_preserves_history` | PASS — 1 test, 12 assertions |
++| `artisan test --filter=test_muscle_group_status_and_audit_roll_back_together_when_audit_fails` | PASS — 1 test, 7 assertions |
++| `artisan test --filter=AdminCatalogApiTest` | PASS — 11 tests, 232 assertions |
++| `artisan test --filter=AdminCatalogConcurrencyTest` | PASS — 3 tests, 50 assertions |
++| `artisan test` | PASS — 329 tests, 3,905 assertions |
++| `vendor\\bin\\pint --test` | PASS |
++| PHP syntax lint for `ExerciseDatasetSeeder.php` and `AdminCatalogApiTest.php` | PASS |
++
++The first Pint run after the repair reported only import normalization in `AdminCatalogApiTest`; that import was corrected with `apply_patch`, and the final Pint run passed. Independent controller review and FE3 entry-gate revalidation remain pending handoff steps.
++
+ - Client cũ sẽ thấy thêm nhóm inactive trong list và phải lọc `status` khi dựng selector; Backend vẫn là guard cuối.
+ - Rollback M061 làm mất bit trạng thái của nhóm, nên chỉ dùng cho schema thử nghiệm/disposable.
+ - Quan hệ inactive được giữ readable chủ ý; mọi đường ghi ngoài service này phải tiếp tục tôn trọng invariant và không hard-delete lịch sử.
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-before\\.fitness-sdd\\fe3-all\\entry-gate-repair-report-round-1.md" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\.fitness-sdd\\fe3-all\\entry-gate-repair-report-round-1.md"
+index 7b852a9..f253b11 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-before\\.fitness-sdd\\fe3-all\\entry-gate-repair-report-round-1.md"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\entry-gate-repair-fix-round-1-current\\.fitness-sdd\\fe3-all\\entry-gate-repair-report-round-1.md"
+@@ -18,6 +18,7 @@ Hoàn thành một repair nguyên tử cho Muscle Group entry-gate Backend: M061
+ - `BE/app/Http/Requests/Admin/Catalog/CreateMuscleGroupRequest.php`
+ - `BE/app/Http/Requests/Admin/Catalog/UpdateMuscleGroupRequest.php`
+ - `BE/app/Services/Admin/ExerciseCatalogAdminService.php`
++- `BE/database/seeders/ExerciseDatasetSeeder.php`
+ - `BE/tests/Feature/AdminCatalogApiTest.php`
+ - `BE/tests/Feature/AdminCatalogConcurrencyTest.php`
+ - `BE/tests/Support/run_admin_catalog_action.php`
+@@ -81,9 +82,9 @@ All commands used the project portable `E:\Fitness\.tools\php\php.exe` (PHP 8.4.
+ | `& 'E:\Fitness\.tools\php\php.exe' 'E:\Fitness\.tools\composer\composer.phar' check-platform-reqs` | PASS |
+ | `& 'E:\Fitness\.tools\php\php.exe' artisan route:list --path=api/admin/muscle-groups --json` | PASS — GET/POST/PATCH with `auth:api` + `role:ADMIN`; no DELETE |
+ | Guarded `artisan migrate --database=mysql --force`; `artisan migrate:rollback --database=mysql --step=1 --force`; `artisan migrate --database=mysql --force` + metadata/count probe | PASS — B26/B29 stayed 50/3903; final type/default/collation/ordinal/CHECK exact |
+-| `& 'E:\Fitness\.tools\php\php.exe' artisan test --filter=AdminCatalogApiTest` | PASS — 9 tests, 213 assertions |
+-| `& 'E:\Fitness\.tools\php\php.exe' artisan test --filter=AdminCatalogConcurrencyTest` | PASS — 3 tests, 50 assertions |
+-| `& 'E:\Fitness\.tools\php\php.exe' artisan test` after final migration up | PASS — 327 tests, 3,888 assertions |
++| `& 'E:\Fitness\.tools\php\php.exe' artisan test --filter=AdminCatalogApiTest` | PASS — 11 tests, 232 assertions (final repair state) |
++| `& 'E:\Fitness\.tools\php\php.exe' artisan test --filter=AdminCatalogConcurrencyTest` | PASS — 3 tests, 50 assertions (final repair state) |
++| `& 'E:\Fitness\.tools\php\php.exe' artisan test` | PASS — 329 tests, 3,905 assertions (final repair state) |
+ | `& 'E:\Fitness\.tools\php\php.exe' vendor\bin\pint --test` | PASS |
+ | PHP lint, Drawio XML parse, `git diff --check` | PASS; staged diff empty |
+ 
+@@ -93,4 +94,22 @@ Implementation and required local gates are complete. The parent/controller must
+ 
+ 15. Rui ro con lai
+ 
++## Repair round 1 follow-up — FE3-BE-R1-001
++
++The independent round-1 review found that an inactive seeded muscle group could receive a missing `bai_tap_nhom_co` pivot during a dataset rerun. `ExerciseDatasetSeeder` now preserves existing pivots unchanged, locks and re-reads a missing target `NhomCo` inside the existing transaction, and inserts only when the locked status is `HOAT_DONG`. `upsertMuscle` skips an unchanged existing group so an idempotent rerun cannot advance `ngay_cap_nhat`. The repair also adds a test-only `NhatKyHeThong` create failure and proves that a Muscle Group status transition rolls back its status, timestamps, and audit row together.
++
++Final repair verification used only `E:\Fitness\.tools\php\php.exe` 8.4.25 with `APP_ENV=testing`, `DB_CONNECTION=mysql`, and configured/current/approved database `smart_fitness_test` verified by `TestDatabaseGuard`.
++
++| Final repair command/check | Result |
++| --- | --- |
++| `artisan test --filter=test_dataset_seeder_skips_missing_relation_for_inactive_seeded_group_and_preserves_history` | PASS — 1 test, 12 assertions |
++| `artisan test --filter=test_muscle_group_status_and_audit_roll_back_together_when_audit_fails` | PASS — 1 test, 7 assertions |
++| `artisan test --filter=AdminCatalogApiTest` | PASS — 11 tests, 232 assertions |
++| `artisan test --filter=AdminCatalogConcurrencyTest` | PASS — 3 tests, 50 assertions |
++| `artisan test` | PASS — 329 tests, 3,905 assertions |
++| `vendor\\bin\\pint --test` | PASS |
++| PHP syntax lint for `ExerciseDatasetSeeder.php` and `AdminCatalogApiTest.php` | PASS |
++
++The first Pint run after the repair reported only import normalization in `AdminCatalogApiTest`; that import was corrected with `apply_patch`, and the final Pint run passed. Independent controller review and FE3 entry-gate revalidation remain pending handoff steps.
++
+ M061 down discards status and is restricted to disposable test schemas. Legacy clients must filter inactive list rows before new selections. Any future writer touching B29 must retain the same inactive-relation and no-hard-delete invariants. No development/production schema was selected or mutated.

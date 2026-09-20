@@ -1,0 +1,99 @@
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\services\\bai_tap.api.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\FE\\src\\services\\bai_tap.api.js"
+index d2fa1da..3995807 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\services\\bai_tap.api.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\FE\\src\\services\\bai_tap.api.js"
+@@ -70,7 +70,7 @@ function taoPayloadBaiTap(value = {}, { partial = false } = {}) {
+       && Object.prototype.hasOwnProperty.call(value, field)
+       && value[field] !== undefined
+     const current = layChuoi(value[field], field, {
+-      required: (!partial && ['code', 'name', 'difficulty'].includes(field)) || instructionsPresent,
++      required: (!partial && ['code', 'name', 'difficulty', 'instructions'].includes(field)) || instructionsPresent,
+       nullable: ['image_path', 'video_path'].includes(field),
+       max: field === 'code' ? 40 : (field === 'name' ? 200 : (field === 'difficulty' ? 30 : (['image_path', 'video_path'].includes(field) ? 1000 : 5000))),
+     })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\services\\bai_tap.api.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\FE\\src\\services\\bai_tap.api.test.js"
+index 73e938c..ce8625f 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\services\\bai_tap.api.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\FE\\src\\services\\bai_tap.api.test.js"
+@@ -53,6 +53,18 @@ describe('bai_tap.api FE3', () => {
+     expect(patch.mock.calls[0][1]).toEqual({ image_path: null, video_path: null })
+   })
+ 
++  it('tao bai tap chan khi thieu instructions truoc network', async () => {
++    const payload = { ...base }
++    delete payload.instructions
++
++    await expect(taoBaiTap(payload)).rejects.toMatchObject({
++      httpStatus: 422,
++      code: 'INVALID_EXERCISE_REQUEST',
++      fieldErrors: { instructions: ['Giá trị không hợp lệ.'] },
++    })
++    expect(post).not.toHaveBeenCalled()
++  })
++
+   it('instructions required: null/blank/object bị chặn trước network', async () => {
+     await expect(taoBaiTap({ ...base, instructions: null })).rejects.toMatchObject({ httpStatus: 422 })
+     await expect(taoBaiTap({ ...base, instructions: '   ' })).rejects.toMatchObject({ httpStatus: 422 })
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue"
+index cdc7443..263aa09 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.vue"
+@@ -67,7 +67,7 @@ onMounted(() => { void Promise.all([tai(), store.taiDanhSachBaiTap({ status: 'HO
+   >
+     <TieuDeTrang
+       tieu-de="Chi tiết giáo án mẫu"
+-      mo-ta="PATCH chỉ sửa metadata/status; nội dung days chỉ được thay bằng phiên bản mới."
++      mo-ta="PATCH tại chi tiết chỉ sửa metadata; chuyển trạng thái thực hiện từ danh sách giáo án mẫu; nội dung days cần tạo phiên bản mới."
+     /><TrangThaiTaiDuLieu
+       v-if="giaoAnMau.dangTaiChiTiet && !giaoAnMau.chiTiet"
+       nhan="Đang tải chi tiết giáo án mẫu…"
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
+index 26a7431..ba7990c 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\FE\\src\\pages\\admin\\giao_an_mau\\giao_an_mau.chi_tiet.test.js"
+@@ -50,6 +50,9 @@ describe('giao_an_mau.chi_tiet FE3', () => {
+     expect(wrapper.get('#giao-an-detail-status').element.disabled).toBe(true)
+     expect(wrapper.find('[data-testid="giao-an-status-action"]').exists()).toBe(false)
+     expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
++    expect(wrapper.text()).toContain('PATCH tại chi tiết chỉ sửa metadata')
++    expect(wrapper.text()).toContain('chuyển trạng thái thực hiện từ danh sách giáo án mẫu')
++    expect(wrapper.text()).toContain('nội dung days cần tạo phiên bản mới')
+     await wrapper.find('#giao-an-detail-name').setValue('Sức mạnh chỉnh sửa')
+     await wrapper.find('form').trigger('submit')
+     await flushPromises()
+diff --git "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md" "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md"
+index db6ef98..c953318 100644
+--- "a/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-before\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md"
++++ "b/E:\\Fitness\\.fitness-sdd\\fe3-all\\task-fe3-all-fix-round-4-current\\.fitness-sdd\\fe3-all\\task-fe3-all-report.md"
+@@ -151,3 +151,31 @@ Round-3 preservation audit: the 710-row preservation manifest had 696 unchanged
+ `F-013: CLOSED`  
+ `FE3_TASK_GATE: PASS`  
+ `STATUS: DONE`
++
++## 20. FE3-ALL repair round 4
++
++Round 4 status: DONE. The repair closes F-013 and F-015 while preserving every finding already closed in rounds 1–3.
++
++- F-013: `taoPayloadBaiTap` now requires `instructions` on every create, while a partial update requires it only when the property is present with a defined value. Missing create instructions now produce the normalized `422 / INVALID_EXERCISE_REQUEST` with an `instructions` field error before `POST`; partial omission still reaches `PATCH` without `instructions`, and a valid present value is trimmed and sent.
++- F-015: Template detail copy now states that its PATCH edits metadata only, status transitions are performed from the Workout Template list, and `days` content requires a new revision. The mounted test protects all three statements.
++- Exactly these four product paths are changed: `FE/src/services/bai_tap.api.js`, `FE/src/services/bai_tap.api.test.js`, `FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.vue`, and `FE/src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.test.js`. No Backend, Database, API endpoint, route, dependency, lockfile, or other workflow artifact was changed.
++
++## 21. Round 4 verification evidence
++
++- Focused mapped suite: `rtk npm run test -- --run src/services/bai_tap.api.test.js src/pages/admin/giao_an_mau/giao_an_mau.chi_tiet.test.js` — 2 files passed, 15 tests passed, no skip/only, unhandled rejection, Vue warning, or compiler warning.
++- Closed-finding preservation matrix: the requested router/menu/auth, catalog store, shared dialog, five service, twelve FE3 page, Q11, and M061 suites were run as one Vitest command — 28 files passed, 179 tests passed, no skip/only, unhandled rejection, Vue warning, or compiler warning.
++- Full tree tests: `rtk npm run test` — 58 files passed, 675 tests passed, no skip/only, unhandled rejection, Vue warning, or compiler warning.
++- Lint: `rtk npm run lint` — exit 0, exactly 0 warnings and 0 errors.
++- Build: `rtk npm run build` — PASS, Vite transformed 169 modules.
++- Dependencies: `rtk npm ls --depth=0` — PASS; dependency tree resolved. `rtk git diff --quiet -- FE/package.json FE/package-lock.json` — PASS with no package/lock delta.
++- Static scans — PASS with zero matches for executable catalog DELETE/hard-delete calls, FE4/payment scope, hard-coded API roots, forbidden dependency/framework/font additions, secret/token logging, legacy `handleXxx`, native bound handlers outside `xuLy...`, `__file`, skipped/only tests, TODO/FIXME, and `v-model="form"`. Template detail production source has no status action/dialog/state-machine residue; its metadata call contains neither `status` nor `days`, and the mounted test asserts both exclusions.
++- Diff/boundary: `rtk git diff --check` — PASS; `rtk git diff --cached --quiet` — PASS. The round-4 before manifest has 5 entries (4 product paths plus the report); current hashes show exactly 4 changed allow-listed product paths. The 710-row preservation manifest has 4 changed allow-listed rows and 0 unexpected or mismatched non-allow-listed rows.
++
++## 22. Round 4 completion status
++
++`F-013: CLOSED`  
++`F-015: CLOSED`  
++`FE3_TASK_GATE: PASS`  
++`STATUS: DONE`
++
++Browser smoke was not run because no authenticated local Admin session was available; the brief-approved mounted, service-boundary, router, Pinia, accessibility, lint, build, and static evidence was used.

@@ -12,7 +12,7 @@
 - Đây là bản hợp nhất có cập nhật, không phải bản sao nguyên văn của prompt ban đầu. Những phần không được chủ dự án thay đổi vẫn được giữ nguyên.
 - Quyết định kích hoạt mới nhất thay thế các mô tả kích hoạt mâu thuẫn trong những bản trước; áp dụng thống nhất cho gói kết hợp và gói chỉ có dịch vụ online.
 - Không dùng nội dung từ bản cũ để ghi đè các quy tắc đã hợp nhất ở đây. Chỉ thay đổi business rule khi chủ dự án có yêu cầu mới.
-- Agent phải đọc toàn bộ tệp này trước khi phân tích, thiết kế, viết/sửa code, test, refactor hoặc review dự án. Nếu đầu ra đọc tệp bị cắt, phải đọc tiếp các phần còn thiếu.
+- Canonical Source Policy: Tệp `PROJECT_RULES.md` là nguồn chân lý tối cao (Canonical Source of Truth) của toàn bộ dự án. Nhằm tối ưu token, Agent không mặc định đọc toàn bộ 3,000 dòng của tệp này cho mọi tác vụ thông thường. Thay vào đó, Agent đọc [.fitness-rules/PROJECT_CORE.md](.fitness-rules/PROJECT_CORE.md) và tra cứu module tương ứng qua [.fitness-rules/RULE_INDEX.md](.fitness-rules/RULE_INDEX.md). Chỉ tra cứu trực tiếp các mục trong tệp này khi có xung đột, điểm mơ hồ nghiệp vụ, hoặc khi Controller yêu cầu kiểm chứng canonical.
 
 ---
 
@@ -1178,6 +1178,8 @@ Ví dụ:
 KHÔNG phải quản lý tài sản thiết bị.
 
 **Q11:** Mọi hàng `bai_tap_dung_cu` của một bài có nghĩa AND: bài cần Bench và Barbell thì phải có cả hai. Không xây nhóm dụng cụ OR trong MVP. Biến thể dùng dụng cụ khác quản lý như bài/biến thể bài khác trong Exercise Library; Rule Engine và Apply kiểm tra đủ tập dụng cụ.
+
+**M061 — vòng đời Muscle Group:** `nhom_co.trang_thai` chỉ nhận `HOAT_DONG` hoặc `NGUNG_SU_DUNG`, mặc định `HOAT_DONG`; Admin quản lý bằng GET/POST/PATCH và không có DELETE. GET vẫn trả cả nhóm ngừng sử dụng để đọc catalog và quan hệ lịch sử. Backend chỉ cho tạo quan hệ `bai_tap_nhom_co` mới với nhóm đang hoạt động. Việc ngừng sử dụng không xóa/sửa pivot hoặc history; quan hệ hiện hữu vẫn đọc được kèm status và phải giữ nguyên id, vai trò, `ngay_tao`, `ngay_cap_nhat` cho tới khi nhóm được kích hoạt lại. Khi PATCH Exercise gửi replacement `muscle_groups`, mọi quan hệ inactive hiện hữu phải được gửi lại đúng vai trò; thêm, bỏ hoặc đổi vai trò bị từ chối nguyên tử với mã `INACTIVE_MUSCLE_GROUP_RELATION_IMMUTABLE`. Bỏ trường `muscle_groups` khỏi PATCH chỉ cập nhật các chiều khác. PATCH nhóm cùng trạng thái sau chuẩn hóa là no-op; chuyển trạng thái thật ghi một audit `CAP_NHAT_TRANG_THAI_NHOM_CO` cùng transaction.
 
 ---
 
@@ -2468,6 +2470,7 @@ Các ca bổ sung Q04/Q12:
 - Hai Admin đồng thời gán hai PT khác nhau cho cùng Member: chỉ một phân công hiệu lực; không overlap.
 - Member không có PT hợp lệ; đổi PT đúng ranh giới hợp lệ, hai khoảng hữu hạn giao nhau bị từ chối.
 - Xóa account/catalog không cascade mất history; khóa/ngừng sử dụng giữ đầy đủ tham chiếu.
+- Muscle Group: list gồm cả hai trạng thái; create/patch chuẩn hóa enum; transition audit nguyên tử; same-state không đổi timestamp/audit; inactive relation không được tạo mới và pivot cũ giữ nguyên; PATCH Exercise thiếu `muscle_groups` không được chạm B29; race status/relation phải tuyến tính hóa dưới khóa hàng.
 
 ---
 
@@ -2776,7 +2779,7 @@ Chỉ sau khi xác định các nội dung trên mới bắt đầu triển khai
 
 Khi tôi yêu cầu bạn viết hoặc sửa code Smart Fitness Platform:
 
-1. Đọc toàn bộ MASTER PROMPT trước.
+1. Đọc `.fitness-rules/PROJECT_CORE.md`, tra cứu module quy tắc tương ứng qua `.fitness-rules/RULE_INDEX.md` và đọc Task Packet được giao; không mặc định đọc toàn bộ file canonical nếu không có yêu cầu leo thang (escalation).
 2. Không thay đổi Business Rule.
 3. Không tự mở rộng Scope.
 4. Database dùng tiếng Việt không dấu.
