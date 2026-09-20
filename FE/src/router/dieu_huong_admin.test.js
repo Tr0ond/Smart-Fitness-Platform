@@ -28,7 +28,7 @@ describe('dieu_huong_admin FE1-T01', () => {
   })
 
   it('co menu Admin san sang voi nhan tieng Viet va PT dung thu tu', () => {
-    expect(CAC_NHOM_DIEU_HUONG_ADMIN).toHaveLength(11)
+    expect(CAC_NHOM_DIEU_HUONG_ADMIN).toHaveLength(13)
     expect([...CAC_NHOM_DIEU_HUONG_ADMIN].sort((a, b) => a.thuTu - b.thuTu).map((muc) => muc.nhan)).toEqual([
       'Bảng điều khiển',
       'Tài khoản',
@@ -41,10 +41,12 @@ describe('dieu_huong_admin FE1-T01', () => {
       'Nhóm cơ',
       'Bài tập',
       'Giáo án mẫu',
+      'Thanh toán',
+      'Đối soát thanh toán',
     ])
   })
 
-  it('co nam muc catalog dung hop dong va khong co thanh toan', () => {
+  it('co nam muc catalog va hai muc payment read-only dung hop dong', () => {
     const chuoiConfig = JSON.stringify(CAC_NHOM_DIEU_HUONG_ADMIN)
     const cacMucPhanCong = CAC_NHOM_DIEU_HUONG_ADMIN.filter(
       (muc) => muc.nhan === 'Phân công PT',
@@ -62,7 +64,19 @@ describe('dieu_huong_admin FE1-T01', () => {
     ].includes(muc.nhan)).map((muc) => muc.tenTuyenDuong)).toEqual([
       'adminGoiTap', 'adminDungCu', 'adminNhomCo', 'adminBaiTap', 'adminGiaoAnMau',
     ])
-    expect(chuoiConfig).not.toContain('Thanh toán')
+    expect(chuoiConfig).toContain('Thanh toán')
+    expect(CAC_NHOM_DIEU_HUONG_ADMIN).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        nhan: 'Thanh toán',
+        tenTuyenDuong: 'adminThanhToan',
+        cacTuyenDuongLienQuan: ['adminThanhToan', 'adminChiTietThanhToan'],
+      }),
+      expect.objectContaining({
+        nhan: 'Đối soát thanh toán',
+        tenTuyenDuong: 'adminDoiSoatThanhToan',
+        cacTuyenDuongLienQuan: ['adminDoiSoatThanhToan'],
+      }),
+    ]))
     expect(CAC_NHOM_DIEU_HUONG_ADMIN.filter((muc) => muc.nhan === 'Huấn luyện viên'))
       .toHaveLength(1)
   })
@@ -195,6 +209,24 @@ describe('dieu_huong_admin FE1-T01', () => {
     expect(laMucDieuHuongDangHoatDong(mucPhanCong, {
       name: 'adminHuanLuyenVien',
       matched: [{ name: 'adminHuanLuyenVien' }],
+    })).toBe(false)
+  })
+
+  it('Payment detail active parent va queue doi soat khong active nham', () => {
+    const mucThanhToan = CAC_NHOM_DIEU_HUONG_ADMIN.find((muc) => muc.tenTuyenDuong === 'adminThanhToan')
+    const mucDoiSoat = CAC_NHOM_DIEU_HUONG_ADMIN.find((muc) => muc.tenTuyenDuong === 'adminDoiSoatThanhToan')
+
+    expect(laMucDieuHuongDangHoatDong(mucThanhToan, {
+      name: 'adminChiTietThanhToan',
+      matched: [{ name: 'adminChiTietThanhToan' }],
+    })).toBe(true)
+    expect(laMucDieuHuongDangHoatDong(mucDoiSoat, {
+      name: 'adminDoiSoatThanhToan',
+      matched: [{ name: 'adminDoiSoatThanhToan' }],
+    })).toBe(true)
+    expect(laMucDieuHuongDangHoatDong(mucThanhToan, {
+      name: 'adminDoiSoatThanhToan',
+      matched: [{ name: 'adminDoiSoatThanhToan' }],
     })).toBe(false)
   })
 

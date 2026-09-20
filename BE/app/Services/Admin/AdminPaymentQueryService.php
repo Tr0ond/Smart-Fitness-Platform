@@ -63,8 +63,14 @@ class AdminPaymentQueryService
     {
         $chiNhanhId = $this->chiNhanhId($actor);
         $truyVan = SuKienThanhToan::query()->with(['lanThanhToan.donMuaGoi.hoiVien.nguoiDung']);
-        $truyVan->whereNotNull('lan_thanh_toan_id')
-            ->whereHas('lanThanhToan.donMuaGoi.hoiVien.nguoiDung', fn (Builder $nguoiDung) => $nguoiDung->where('chi_nhanh_id', $chiNhanhId));
+        $truyVan->where(function (Builder $query) use ($chiNhanhId): void {
+            // Event chua lien ket khong co branch key; single-branch MVP cho phep Admin xem DTO da loc.
+            $query->whereNull('lan_thanh_toan_id')
+                ->orWhereHas(
+                    'lanThanhToan.donMuaGoi.hoiVien.nguoiDung',
+                    fn (Builder $nguoiDung) => $nguoiDung->where('chi_nhanh_id', $chiNhanhId),
+                );
+        });
         $this->apDungBoLocSuKien($truyVan, $boLoc);
         $sapXep = [
             'received_at' => 'nhan_dau_luc',
@@ -120,13 +126,24 @@ class AdminPaymentQueryService
         if (filter_var($boLoc['reconciliation_required'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
             $truyVan->where(function (Builder $query): void {
                 $query->where('trang_thai', 'CAN_DOI_SOAT')
-                    ->orWhereHas('donMuaGoi', fn (Builder $don) => $don->where('trang_thai', 'CAN_DOI_SOAT'));
+                    ->orWhereHas('donMuaGoi', fn (Builder $don) => $don->where('trang_thai', 'CAN_DOI_SOAT'))
+                    ->orWhereHas('suKienThanhToans', fn (Builder $suKien) => $suKien->where('trang_thai_xu_ly', 'CAN_DOI_SOAT'));
             });
         }
         $this->apDungKhoangThoiGian($truyVan, 'ngay_tao', $boLoc);
     }
 
-    /** @param Builder<SuKienThanhToan> $truyVan */
+    /**
+     * Tra cuu event thanh toan an toan cho hang doi doi soat read-only.
+     *
+     * Input: actor da duoc xac thuc va bo loc da qua FormRequest.
+     * Process: giu event da lien ket trong scope Member/chi nhanh; trong MVP
+     * mot chi nhanh, cho phep event chua lien ket (lan_thanh_toan_id = null)
+     * hien thi an toan vi khong co quan he chi nhanh de suy dien.
+     * Output: DTO allow-list va phan trang; khong co side effect/ghi lich su.
+     *
+     * @param  Builder<SuKienThanhToan>  $truyVan
+     */
     private function apDungBoLocSuKien(Builder $truyVan, array $boLoc): void
     {
         if (isset($boLoc['order_code'])) {

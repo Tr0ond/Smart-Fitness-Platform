@@ -9,6 +9,7 @@ import { xoaDuLieuTaiKhoanNeuDaKhoiTao } from './tai_khoan.store.js'
 import { xoaDuLieuHuanLuyenVienNeuDaKhoiTao } from './huan_luyen_vien.store.js'
 import { xoaDuLieuPhanCongPtNeuDaKhoiTao } from './phan_cong_pt.store.js'
 import { xoaDuLieuDanhMucNeuDaKhoiTao } from './danh_muc.store.js'
+import { xoaDuLieuThanhToanNeuDaKhoiTao } from './thanh_toan.store.js'
 import {
   docTokenPhienDangNhap,
   docVaiTroDangDung,
@@ -158,6 +159,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
       xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
       xoaDuLieuPhanCongPtNeuDaKhoiTao()
       xoaDuLieuDanhMucNeuDaKhoiTao()
+      xoaDuLieuThanhToanNeuDaKhoiTao()
     },
 
     /**
@@ -179,6 +181,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
       xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
       xoaDuLieuPhanCongPtNeuDaKhoiTao()
       xoaDuLieuDanhMucNeuDaKhoiTao()
+      xoaDuLieuThanhToanNeuDaKhoiTao()
     },
 
     /**
@@ -212,6 +215,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
         xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
         xoaDuLieuPhanCongPtNeuDaKhoiTao()
         xoaDuLieuDanhMucNeuDaKhoiTao()
+        xoaDuLieuThanhToanNeuDaKhoiTao()
       }
 
       return nguoiDung
@@ -366,6 +370,7 @@ export const useXacThucStore = defineStore('xac_thuc', {
         xoaDuLieuHuanLuyenVienNeuDaKhoiTao()
         xoaDuLieuPhanCongPtNeuDaKhoiTao()
         xoaDuLieuDanhMucNeuDaKhoiTao()
+        xoaDuLieuThanhToanNeuDaKhoiTao()
       }
 
       return vaiTro

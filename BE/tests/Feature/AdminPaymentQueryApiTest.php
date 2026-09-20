@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\GoiTap;
+use App\Models\LanThanhToan;
+use App\Models\SuKienThanhToan;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Tests\Concerns\CreatesAuthenticationFixtures;
@@ -99,6 +101,91 @@ class AdminPaymentQueryApiTest extends TestCase
         $this->assertDatabaseHas('lan_thanh_toan', ['id' => $expired['payment']->getKey(), 'ma_loi' => 'ORDER_EXPIRED']);
     }
 
+    public function test_admin_can_read_unlinked_events_with_safe_redaction_and_no_mutation(): void
+    {
+        $fixture = $this->taoFixture();
+        $created = $this->taoDonPaymentQuaApi($fixture['member'], $fixture['package']->getKey());
+        $this->dungGatewayPayOSXacMinhChuKy();
+
+        $unknownProviderOrderCode = 9007199254740000;
+        $this->postJson('/api/webhooks/payos', $this->webhookPayment($created['payment'], [
+            'orderCode' => $unknownProviderOrderCode,
+            'reference' => 'REF-ADMIN-UNKNOWN',
+        ]))->assertOk()->assertJsonPath('data.result', 'CAN_DOI_SOAT');
+
+        $invalidSignature = $this->webhookPayment($created['payment'], ['reference' => 'REF-ADMIN-INVALID']);
+        $invalidSignature['signature'] = 'invalid-signature';
+        $this->postJson('/api/webhooks/payos', $invalidSignature)->assertBadRequest();
+
+        $headers = $this->bearer($fixture['admin_token']);
+        $snapshot = $this->snapshotPaymentTables();
+        $unknown = $this->getJson('/api/admin/payment-events?provider_order_code='.$unknownProviderOrderCode, $headers)
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 1)
+            ->assertJsonPath('data.items.0.payment_id', null)
+            ->assertJsonPath('data.items.0.provider_order_code', $unknownProviderOrderCode)
+            ->assertJsonPath('data.items.0.processing_status', 'CAN_DOI_SOAT')
+            ->assertJsonPath('data.items.0.reconciliation_reason', 'UNKNOWN_PROVIDER_ORDER');
+        $this->assertSame([
+            'event_id',
+            'payment_id',
+            'channel',
+            'provider_order_code',
+            'provider_payment_link_id',
+            'provider_reference',
+            'amount',
+            'currency',
+            'provider_result_code',
+            'processing_status',
+            'receipt_count',
+            'received_at',
+            'last_received_at',
+            'processed_at',
+            'reconciliation_reason',
+            'created_at',
+        ], array_keys($unknown->json('data.items.0')));
+        foreach (['du_lieu_da_loc', 'ma_bam_noi_dung', 'khoa_chong_lap', 'chu_ky_hop_le', 'signature', 'checkout_url', 'TEST-REDACTED'] as $forbidden) {
+            $this->assertStringNotContainsString($forbidden, $unknown->getContent());
+        }
+
+        $invalid = $this->getJson('/api/admin/payment-events?processing_status=BI_TU_CHOI', $headers)
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 1)
+            ->assertJsonPath('data.items.0.payment_id', null)
+            ->assertJsonPath('data.items.0.processing_status', 'BI_TU_CHOI')
+            ->assertJsonPath('data.items.0.reconciliation_reason', 'INVALID_SIGNATURE');
+        foreach (['du_lieu_da_loc', 'ma_bam_noi_dung', 'khoa_chong_lap', 'chu_ky_hop_le', 'signature', 'checkout_url', 'TEST-REDACTED'] as $forbidden) {
+            $this->assertStringNotContainsString($forbidden, $invalid->getContent());
+        }
+        $this->assertSame($snapshot, $this->snapshotPaymentTables());
+    }
+
+    public function test_reconciliation_includes_successful_payment_with_related_abnormal_event(): void
+    {
+        $fixture = $this->taoFixture();
+        $created = $this->taoDonPaymentQuaApi($fixture['member'], $fixture['package']->getKey());
+        $this->dungGatewayPayOSXacMinhChuKy();
+        $this->postJson('/api/webhooks/payos', $this->webhookPayment($created['payment'], [
+            'reference' => 'REF-ADMIN-SUCCESS',
+        ]))->assertOk()->assertJsonPath('data.result', 'DA_XAC_NHAN');
+        $this->taoSuKienPayment($created['payment'], 'REF-ADMIN-POST-SUCCESS', 'CAN_DOI_SOAT', 'POST_SUCCESS_RECONCILIATION');
+
+        $headers = $this->bearer($fixture['admin_token']);
+        $snapshot = $this->snapshotPaymentTables();
+        $response = $this->getJson('/api/admin/payments?reconciliation_required=1&payment_status=THANH_CONG&order_status=DA_THANH_TOAN&per_page=1', $headers)
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 1)
+            ->assertJsonPath('data.items.0.status', 'THANH_CONG')
+            ->assertJsonPath('data.items.0.order.status', 'DA_THANH_TOAN');
+        $items = $response->json('data.items');
+        $this->assertCount(1, $items);
+        $this->assertTrue(collect($items[0]['events'])->contains(
+            fn (array $event): bool => $event['processing_status'] === 'CAN_DOI_SOAT'
+                && $event['reconciliation_reason'] === 'POST_SUCCESS_RECONCILIATION',
+        ));
+        $this->assertSame($snapshot, $this->snapshotPaymentTables());
+    }
+
     public function test_payment_queries_are_admin_only_and_do_not_cross_branch(): void
     {
         $fixture = $this->taoFixture();
@@ -114,11 +201,16 @@ class AdminPaymentQueryApiTest extends TestCase
         }
         $this->getJson('/api/admin/payments/'.$hidden['payment']->getKey(), $adminHeaders)
             ->assertNotFound()->assertJsonPath('code', 'PAYMENT_NOT_FOUND');
+        $this->taoSuKienPayment($hidden['payment'], 'REF-FOREIGN-EVENT');
+        $this->getJson('/api/admin/payment-events?provider_reference=REF-FOREIGN-EVENT', $adminHeaders)
+            ->assertOk()->assertJsonPath('data.pagination.total', 0);
         $this->getJson('/api/admin/payments', $adminHeaders)
             ->assertOk()->assertJsonPath('data.pagination.total', 1)
             ->assertJsonPath('data.items.0.payment_id', $visible['payment']->getKey());
         $this->getJson('/api/admin/payments?payment_status=INVALID', $adminHeaders)
             ->assertUnprocessable()->assertJsonValidationErrors('payment_status');
+        $this->getJson('/api/admin/payment-events?processing_status=INVALID', $adminHeaders)
+            ->assertUnprocessable()->assertJsonValidationErrors('processing_status');
     }
 
     /** @return array{admin:array<string,mixed>,member:array<string,mixed>,foreign:array<string,mixed>,admin_token:string,member_token:string,pt_token:string,package:GoiTap} */
@@ -154,5 +246,38 @@ class AdminPaymentQueryApiTest extends TestCase
         return collect(['don_mua_goi', 'lan_thanh_toan', 'su_kien_thanh_toan', 'ky_han_hoi_vien', 'dang_ky_goi_tap'])
             ->mapWithKeys(fn (string $table): array => [$table => hash('sha256', DB::table($table)->orderBy('id')->get()->toJson())])
             ->all();
+    }
+
+    private function taoSuKienPayment(
+        LanThanhToan $payment,
+        string $reference,
+        string $processingStatus = 'DA_XU_LY',
+        ?string $reason = null,
+    ): SuKienThanhToan {
+        $now = CarbonImmutable::now('UTC');
+        $hash = hash('sha256', $reference);
+
+        return SuKienThanhToan::query()->create([
+            'lan_thanh_toan_id' => $payment->getKey(),
+            'ma_kenh_thanh_toan' => 'PAYOS',
+            'ma_don_cong_thanh_toan' => $payment->ma_don_cong_thanh_toan,
+            'ma_lien_ket_thanh_toan' => $payment->ma_lien_ket_thanh_toan,
+            'ma_tham_chieu' => $reference,
+            'so_tien' => $payment->so_tien_yeu_cau,
+            'don_vi_tien' => $payment->don_vi_tien,
+            'ma_ket_qua' => '00',
+            'chu_ky_hop_le' => true,
+            'khoa_chong_lap' => $hash,
+            'ma_bam_noi_dung' => $hash,
+            'du_lieu_da_loc' => ['reference' => $reference],
+            'trang_thai_xu_ly' => $processingStatus,
+            'so_lan_nhan' => 1,
+            'nhan_dau_luc' => $now,
+            'nhan_cuoi_luc' => $now,
+            'xu_ly_luc' => $now,
+            'ly_do' => $reason,
+            'ngay_tao' => $now,
+            'ngay_cap_nhat' => $now,
+        ]);
     }
 }

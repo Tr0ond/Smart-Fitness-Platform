@@ -7,6 +7,7 @@ import {
   useXacThucStore,
 } from './xac_thuc.store.js'
 import { useTaiKhoanStore } from './tai_khoan.store.js'
+import { useThanhToanStore } from './thanh_toan.store.js'
 import {
   dangNhap as dangNhapApi,
   dangXuat as dangXuatApi,
@@ -258,6 +259,30 @@ describe('xac_thuc.store', () => {
 
     expect(accountStore.danhSachTaiKhoan).toEqual([])
     expect(accountStore.danhSachNhanVienLeTan).toEqual([])
+  })
+
+  it('logout va doi actor don dep Payment list/detail va hai queue trong memory', () => {
+    const authStore = useXacThucStore()
+    const paymentStore = useThanhToanStore()
+    paymentStore.danhSachThanhToan = [{ payment_id: 7, status: 'THANH_CONG' }]
+    paymentStore.chiTietThanhToan = { payment_id: 7, status: 'THANH_CONG' }
+    paymentStore.danhSachCanDoiSoat = [{ payment_id: 7, status: 'CAN_DOI_SOAT' }]
+    paymentStore.danhSachSuKienThanhToan = [{ event_id: 71, payment_id: null }]
+    paymentStore.loiThanhToan = { message: 'loi cu' }
+    paymentStore.loiChiTiet = { message: 'loi detail cu' }
+    paymentStore.loiCanDoiSoat = { message: 'loi queue cu' }
+    paymentStore.loiSuKienThanhToan = { message: 'loi event cu' }
+
+    authStore.xoaPhienDangNhap()
+
+    expect(paymentStore.danhSachThanhToan).toEqual([])
+    expect(paymentStore.chiTietThanhToan).toBeNull()
+    expect(paymentStore.danhSachCanDoiSoat).toEqual([])
+    expect(paymentStore.danhSachSuKienThanhToan).toEqual([])
+    expect(paymentStore.loiThanhToan).toBeNull()
+    expect(paymentStore.loiChiTiet).toBeNull()
+    expect(paymentStore.loiCanDoiSoat).toBeNull()
+    expect(paymentStore.loiSuKienThanhToan).toBeNull()
   })
 
   it('logout network hoac 5xx fail van clear local session', async () => {

@@ -1,20 +1,23 @@
 # Vue Web Completion Checkpoint
 
-CURRENT_PHASE: FE-3
-CURRENT_TASK: FE3-ALL
+CURRENT_PHASE: FE-4
+CURRENT_TASK: FE4-ALL
 STATUS: PASS
 FE0_PHASE_STATUS: PASS
 FE1_PHASE_STATUS: PASS
 FE2_PHASE_STATUS: PASS
 FE3_PHASE_STATUS: PASS
+FE4_PHASE_STATUS: PASS
 
 COMPLETED_PHASES:
+- FE-4 — Admin Payment & Reconciliation; BE-WEB-T01 prerequisite và FE4-ALL repair round 1 đã PASS với Backend 331 tests, Frontend 729 tests và independent final review.
 - FE-3 — Admin Catalog; FE3-ALL và final repair Wave 5 đã PASS với Frontend 684 tests, Backend 329 tests và independent final review.
 - FE-0 — Foundation; remediation đã PASS với 200 tests.
 - FE-1 — Admin Foundation; remediation 7 finding và full gate đã PASS với 470 tests.
 - FE-2 — Admin PT; FE2-ALL và menu remediation round 5 đã PASS với Backend 323 tests và Frontend 572 tests.
 
 COMPLETED_TASKS:
+- FE4-ALL
 - FE3-ALL
 - FE0-T01
 - FE0-T02
@@ -52,10 +55,21 @@ REMEDIATED_TASKS:
 - FE1-T08 — Cleanup/race/pagination/422/drawer/filter/status label đã sửa và full gate chạy lại PASS.
 - FE2-T08 — Trang phân công PT đã được mở trong menu Admin; route metadata, thứ tự/active state và full FE gate 572 tests đã PASS ở remediation round 5.
 
-EXACT_NEXT_ACTION: FE4-ALL
+EXACT_NEXT_ACTION: FE5-ALL
+
+FE4_COMPLETION_EVIDENCE_2026_09_20:
+- ENTRY_GATE: PASS — FE-1/FE-3 checkpoint PASS; BE-WEB-T01 closed BE-FOLLOWUP-01A/01B with safe unlinked events, related abnormal-event reconciliation, Admin authorization, linked branch isolation and Safe DTO redaction.
+- BACKEND_GATE: PASS — focused Admin Payment 4/4 tests, 103 assertions; full Backend 331/331 tests, 3,951 assertions; Pint, Composer validation, source-root/DB guard and independent review PASS.
+- FE4_SCOPE: PASS — exactly 3 read-only Admin screens/routes: Payment list, Payment detail and reconciliation queues; no financial mutation, client join, entitlement calculation or sensitive raw payload rendering.
+- FE4_REPAIR_ROUND_1: PASS — deep Safe DTO projection, detail unmount cleanup, retained-data retry banners, request-race coverage and Visual UI token audit closed F-001..F-005.
+- FRONTEND_GATE: PASS — focused repair 36/36, required gate 91/91, full Frontend 63 files/729 tests, lint, production build, dependency inventory, static/security scans and `git diff --check` PASS.
+- INDEPENDENT_TASK_REVIEW: PASS — SPEC PASS, QUALITY PASS, no remaining finding.
+- INDEPENDENT_FINAL_REVIEW: PASS — complete Backend + Frontend delta, baseline preservation and final-tree evidence verified; no Critical/Important/Minor finding.
+- RESIDUAL_NON_BLOCKERS: authenticated browser visual QA unavailable; build has non-failing 523.20 kB chunk warning; unlinked-event visibility remains a single-branch MVP ruling; one transient historical MariaDB deadlock did not recur.
+- CHECKPOINT_TRANSITION: FE-4/FE4-ALL PASS; next action is FE5-ALL. FE5 was not started.
 
 BLOCKED_FEATURES:
-- CURRENT: Không còn blocker hiện hành thuộc FE-3. Các dòng FE3 quota/entry-gate cũ ngay bên dưới là historical evidence đã được supersede bởi final review Wave 5 PASS.
+- CURRENT: Không còn blocker hiện hành thuộc FE-4. BE-FOLLOWUP-01A/01B và FE4-ALL đã được supersede bằng independent final review PASS; các dòng FE3 quota/entry-gate cũ ngay bên dưới chỉ là historical evidence.
 - FE3 execution is temporarily blocked by required-model capacity: three Luna Max writer attempts ended during mandatory preflight with zero target changes; current Codex weekly/secondary usage is 100%, `rateLimitReachedType=rate_limit_reached`, no reset credit, reset expected 15/09/2026 12:49:44 ICT. The approved Sol repair plan/brief and 16-target byte-for-byte snapshot are preserved in `.fitness-sdd/fe3-all`; model substitution is prohibited.
 - FE3-ALL entry gate failed on 10/09/2026: actual `nhom_co` schema/model/create-update requests/service DTO have no `status`, so Muscle Group cannot be deactivated without hard delete. Backend tests also lack Muscle Group deactivate coverage and Muscle Group PATCH authorization-matrix coverage. Planner verdict is `WAITING_BACKEND_FIX`; no FE3 writer/reviewer was dispatched and no product code changed.
 - Không còn blocker thuộc FE-0 sau remediation.
@@ -76,7 +90,7 @@ BACKEND_API_BLOCKERS:
 FUTURE_BACKEND_BLOCKERS:
 - Các blocker Admin PT profile và Admin assignment history đã được đóng trong FE-2; historical entries trong V2/checkpoint vẫn được giữ để truy nguyên.
 - Các dependency phase sau vẫn giữ nguyên: PT Member detail, PT current Workout Plan, PT Workout History, Receptionist Member lookup và Receptionist Membership/Gym eligibility.
-- Payment event visibility và reconciliation filter vẫn là dependency phase sau; invitation recovery và PT onboarding audit snapshot đã được đóng trong FE-2.
+- Payment event visibility và reconciliation filter đã được đóng bởi BE-WEB-T01 với regression/authorization/redaction evidence PASS; invitation recovery và PT onboarding audit snapshot đã được đóng trong FE-2.
 - Reverb external probe và các dependency triển khai HTTPS/CORS/WSS/queue/scheduler vẫn là release dependency; không thuộc FE-0 và không được tuyên bố đã hoàn tất.
 
 FILES_CREATED:

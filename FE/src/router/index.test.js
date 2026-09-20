@@ -33,6 +33,9 @@ const ROUTE_MONG_DOI = {
   adminTaoGiaoAnMau: '/admin/giao-an-mau/tao-moi',
   adminTaoPhienBanGiaoAnMau: '/admin/giao-an-mau/:id/tao-phien-ban',
   adminChiTietGiaoAnMau: '/admin/giao-an-mau/:id',
+  adminThanhToan: '/admin/thanh-toan',
+  adminChiTietThanhToan: '/admin/thanh-toan/:id',
+  adminDoiSoatThanhToan: '/admin/doi-soat-thanh-toan',
 }
 
 const FE3_ROUTE_MATRIX = [
@@ -48,6 +51,12 @@ const FE3_ROUTE_MATRIX = [
   { name: 'adminTaoGiaoAnMau', path: '/admin/giao-an-mau/tao-moi', parent: 'adminGiaoAnMau', menu: false },
   { name: 'adminTaoPhienBanGiaoAnMau', path: '/admin/giao-an-mau/:id/tao-phien-ban', parent: 'adminGiaoAnMau', menu: false },
   { name: 'adminChiTietGiaoAnMau', path: '/admin/giao-an-mau/:id', parent: 'adminGiaoAnMau', menu: false },
+]
+
+const FE4_ROUTE_MATRIX = [
+  { name: 'adminThanhToan', path: '/admin/thanh-toan', parent: null, menu: true },
+  { name: 'adminChiTietThanhToan', path: '/admin/thanh-toan/:id', parent: 'adminThanhToan', menu: false },
+  { name: 'adminDoiSoatThanhToan', path: '/admin/doi-soat-thanh-toan', parent: null, menu: true },
 ]
 
 describe('router foundation FE0-T05', () => {
@@ -255,6 +264,30 @@ describe('router foundation FE0-T05', () => {
       if (expected.parent) {
         expect(route.meta.duongDanPhanCap[0].tenTuyenDuong).toBe(expected.parent)
         expect(route.meta.duongDanPhanCap[1]).toMatchObject({ nhan: expect.any(String) })
+      }
+      expect(boDinhTuyen.resolve(expected.path.replace(':id', '17')).name).toBe(expected.name)
+    }
+  })
+
+  it('table-drive exact FE4 Payment routes, Admin metadata, breadcrumbs and deep links', () => {
+    const routes = boDinhTuyen.getRoutes()
+
+    for (const expected of FE4_ROUTE_MATRIX) {
+      const route = routes.find((item) => item.name === expected.name)
+      expect(route).toBeDefined()
+      expect(route.path).toBe(expected.path)
+      expect(route.meta).toMatchObject({
+        yeuCauXacThuc: true,
+        vaiTro: ['ADMIN'],
+        boCuc: 'admin',
+        tinhNang: expected.name,
+        hienTrongDieuHuong: expected.menu,
+      })
+      expect(route.meta.duongDanPhanCap.length).toBe(expected.parent ? 2 : 1)
+      if (expected.parent) {
+        expect(route.meta.duongDanPhanCap[0]).toMatchObject({
+          tenTuyenDuong: expected.parent,
+        })
       }
       expect(boDinhTuyen.resolve(expected.path.replace(':id', '17')).name).toBe(expected.name)
     }

@@ -31,6 +31,9 @@ import PhanCongPt from '../pages/admin/phan_cong_pt/phan_cong_pt.index.vue'
 import NhomCo from '../pages/admin/nhom_co/nhom_co.index.vue'
 import TaiKhoanChiTiet from '../pages/admin/tai_khoan/tai_khoan.chi_tiet.vue'
 import TaiKhoan from '../pages/admin/tai_khoan/tai_khoan.index.vue'
+import DoiSoatThanhToan from '../pages/admin/doi_soat_thanh_toan/doi_soat_thanh_toan.index.vue'
+import ThanhToanChiTiet from '../pages/admin/thanh_toan/thanh_toan.chi_tiet.vue'
+import ThanhToan from '../pages/admin/thanh_toan/thanh_toan.index.vue'
 import { useXacThucStore } from '../stores/xac_thuc.store.js'
 import { taoBaoVeTuyenDuong } from './bao_ve_tuyen_duong.js'
 import { taoMetaTuyenDuongAdmin } from './dieu_huong_admin.js'
@@ -408,6 +411,42 @@ const boDinhTuyen = createRouter({
           { nhan: 'Chi tiết Nhân viên lễ tân' },
         ],
         hienTrongDieuHuong: false,
+      }),
+    },
+    {
+      path: '/admin/thanh-toan',
+      name: 'adminThanhToan',
+      component: ThanhToan,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminThanhToan',
+        tieuDe: 'Thanh toán',
+        duongDanPhanCap: [{ nhan: 'Thanh toán' }],
+        hienTrongDieuHuong: true,
+      }),
+    },
+    {
+      path: '/admin/thanh-toan/:id',
+      name: 'adminChiTietThanhToan',
+      component: ThanhToanChiTiet,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminChiTietThanhToan',
+        tieuDe: 'Chi tiết thanh toán',
+        duongDanPhanCap: [
+          { nhan: 'Thanh toán', tenTuyenDuong: 'adminThanhToan' },
+          { nhan: 'Chi tiết thanh toán' },
+        ],
+        hienTrongDieuHuong: false,
+      }),
+    },
+    {
+      path: '/admin/doi-soat-thanh-toan',
+      name: 'adminDoiSoatThanhToan',
+      component: DoiSoatThanhToan,
+      meta: taoMetaTuyenDuongAdmin({
+        tinhNang: 'adminDoiSoatThanhToan',
+        tieuDe: 'Đối soát thanh toán',
+        duongDanPhanCap: [{ nhan: 'Đối soát thanh toán' }],
+        hienTrongDieuHuong: true,
       }),
     },
     {

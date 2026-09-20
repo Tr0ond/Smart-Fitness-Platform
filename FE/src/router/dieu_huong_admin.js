@@ -69,6 +69,18 @@ const CAC_NHAN_DIEU_HUONG_ADMIN = Object.freeze([
     thuTu: 90,
   }),
   Object.freeze({
+    nhan: 'Thanh toán',
+    tenTuyenDuong: 'adminThanhToan',
+    cacTuyenDuongLienQuan: Object.freeze(['adminThanhToan', 'adminChiTietThanhToan']),
+    thuTu: 100,
+  }),
+  Object.freeze({
+    nhan: 'Đối soát thanh toán',
+    tenTuyenDuong: 'adminDoiSoatThanhToan',
+    cacTuyenDuongLienQuan: Object.freeze(['adminDoiSoatThanhToan']),
+    thuTu: 110,
+  }),
+  Object.freeze({
     nhan: 'Nhân viên lễ tân',
     tenTuyenDuong: 'adminNhanVienLeTan',
     cacTuyenDuongLienQuan: Object.freeze(['adminNhanVienLeTan', 'adminChiTietNhanVienLeTan']),
