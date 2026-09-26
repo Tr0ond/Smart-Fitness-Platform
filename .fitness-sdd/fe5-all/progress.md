@@ -1,0 +1,81 @@
+# FE5-ALL Progress Ledger
+
+- Phase: Task 1 Backend prerequisite implementation
+- Initial branch: `main`
+- Initial worktree: clean (`git status --porcelain=v1 -uall` returned no entries)
+- Pre-existing changed files: none detected
+- Requested workflow: planner -> writer -> independent reviewer -> fixer/rereviewer if needed -> final reviewer
+- Fix rounds: 1
+- Planner: `/root/fe5_initial_planner` (`gpt-5.6-sol`, high) — COMPLETE
+- Plan: `plan.md`; tasks: `BE-FE5-PREREQ` then aggregate `FE5-ALL`
+- Entry gate: FAIL until Task 1 provides BLOCKER-03/04/05 routes and exact-assignment tests
+- Task 1 writer: `/root/fe5_backend_writer` (`gpt-5.6-luna`, max) — DONE
+- Guarded DB evidence: PHP 8.4.25; testing/mysql/`smart_fitness_test`; guard PASS
+- Baseline snapshots: 52 phase targets; Task 1 round 0 has 8 target snapshots/absent markers
+- Task 1 writer evidence: focused 8/57, related regression 55/548, full Backend 339/4,008; Pint/Composer/routes/diff PASS
+- Task 1 reviewer: `/root/fe5_backend_reviewer_retry` (`gpt-5.6-sol`, high) — FAIL
+- Open findings: `F-001` Important — mandatory executable security/no-side-effect/compatibility test scenarios missing
+- Task 1 round 1 snapshot: 8 allowed targets captured in `task-1-round-1-before/`
+- Earlier fix planner attempts: two fresh `gpt-5.6-sol` high dispatches failed before work with usage-limit/429 responses; neither changed source.
+- Round 1 fix planner after quota reset: `/root/fe5_backend_fix_planner_after_reset` (`gpt-5.6-sol`, high) — COMPLETE; `task-1-repair-brief-round-1.md` requires a test-only repair.
+- Round 1 fixer: existing `/root/fe5_backend_writer` (`gpt-5.6-luna`, max) — COMPLETE; only `BE/tests/Feature/PtMemberWorkspaceApiTest.php` changed in product scope.
+- Round 1 fixer evidence: focused 15/153, related regression 62/644, full Backend 346/4,104, DB guard 7/7; Pint/Composer/routes/lint/diff PASS.
+- Production preservation: seven production route/controller/service/contract paths are byte-identical to `task-1-round-1-before/`.
+- Round 1 review package: `task-1-repair-review-package-round-1.md`.
+- Round 1 rereviewer: `/root/fe5_backend_rereviewer_round1` (`gpt-5.6-sol`, high) — FAIL (`SPEC PASS`, `QUALITY FAIL`).
+- F-001: CLOSED; all seven executable scenario groups verified, focused 15/153 and related 62/644 PASS.
+- F-002 Important: independent sequential full Backend gate reported 337 pass / 9 fail out of 346 after retained fixture contamination from an earlier accidental overlapping/aborted pair of full-suite processes. Reviewer found no Task 1 code regression but cannot mark quality PASS without a clean full-suite reproduction.
+- Round 2 fix planner: `/root/fe5_backend_fix_planner_round2` (`gpt-5.6-sol`, high) — COMPLETE, `BLOCKED_USER_ACTION`.
+- F-002 classification: workflow/test-environment incident, not a code/test defect. `smart_fitness_test` is contaminated (branches 5 vs 1 baseline, users 12 vs 8, packages 2 vs 0, orders 2 vs 0, exercises 1326 vs 1324); no PHP/Artisan process or test-schema DB connection remains.
+- Alternate existing schema `smart_fitness_fe2_test` is not safe because it has 60 migrations and lacks M061; no in-scope mutation-free recovery exists.
+- Round 2 repair brief: `task-1-repair-brief-round-2.md`; Luna fixer is not required. Owner approval/provisioning of a fresh disposable `smart_fitness_*test*` schema is required before one sequential full Backend run and a fresh Sol rereview.
+- Owner authorization: GRANTED for fresh disposable schema `smart_fitness_fe5_round2_test`.
+- Round 2 recovery: schema created cleanly, migrated through M061, deterministic seed PASS, DB guard 7/7 PASS, exactly one sequential full Backend suite PASS 346/346 with 4,104 assertions.
+- Recovery scope: no source/test/config/package/migration/seeder change; contaminated `smart_fitness_test` was left untouched.
+- Round 2 review package: `task-1-repair-review-package-round-2.md`.
+- Round 2 rereviewer: `/root/fe5_backend_rereviewer_round2` (`gpt-5.6-sol`, high) — PASS (`SPEC PASS`, `QUALITY PASS`).
+- Task 1 findings: F-001 CLOSED; F-002 CLOSED. Gate `BE-FE5-PREREQ -> FE5-ALL`: OPEN.
+- Task 2 round-0 snapshot: 44 exact FE targets captured in `task-2-round-0-before/` (12 existing, 32 absent markers).
+- Task 2 entry package: `task-2-entry-gate.md`.
+- Task 2 aggregate writer: `/root/fe5_aggregate_writer` (`gpt-5.6-luna`, max) — COMPLETE.
+- Task 2 implementation delta: 42 FE paths (10 modified, 32 created); all 44 allow-list targets captured in `task-2-round-0-after/`; no current out-of-scope FE path.
+- Task 2 writer evidence: focused 22 files/141 tests PASS; full FE 79 files/766 tests PASS; lint exit 0 with 0 errors/110 warnings; build, npm tree, static scans and diff check PASS.
+- Browser evidence: public PT login shell checked at 1440/768/390; authenticated workspace smoke deferred because no safe credential/session fixture was available.
+- Task 2 review package: `task-2-review-package.md`.
+- Task 2 initial reviewer: `/root/fe5_task2_reviewer` (`gpt-5.6-sol`, high) — FAIL (`SPEC FAIL`, `QUALITY FAIL`); focused 141 and full FE 766 tests PASS, but four Important findings remain.
+- Open Task 2 findings verbatim in `task-2-review.md`: FE5-T2-R01 profile API envelope mismatch; FE5-T2-R02 member detail unsafe/invented fields and omitted coaching DTO; FE5-T2-R03 coupled progress query states and missing targeted retry; FE5-T2-R04 stale note reconciliation outcome after selection/session cleanup.
+- Task 2 fix rounds: 1. Before snapshot of all 44 allowed paths: `task-2-round-1-before/`.
+- Workflow model routing changed by explicit user instruction on 2026-09-26: use installed `fitness-sdd` revision `0.1.0+codex.20260926003101`, GPT-6 Sol High for remaining planning/review and GPT-6 Luna Max for remaining fixes. Completed GPT-5.6 artifacts remain historical evidence; no completed work is reopened solely because of the model update.
+- Task 2 round 1 fix planner: `/root/fe5_task2_fix_planner_gpt6_round1` (`gpt-6-sol`, high) — READY_FOR_FIXER; `task-2-repair-brief-round-1.md` maps all four Important findings with no blocker.
+- Task 2 round 1 fixer: `/root/fe5_task2_fixer_gpt6_round1` (`gpt-6-luna`, max) — COMPLETE; four finding repairs and executable regressions appended to `task-2-report.md`.
+- Round 1 delta: exactly 9 of 44 allowed FE paths changed, captured in `task-2-round-1-after/`; 35 remain byte-identical.
+- Round 1 fixer evidence on final code: affected 5 files/33 tests PASS, focused 22 files/156 tests PASS, full FE 79 files/781 tests PASS, lint 0 errors/110 baseline warnings, build/npm tree/static scans/diff check PASS.
+- Repair review package: `task-2-repair-review-package-round-1.md`.
+- Task 2 round 1 rereviewer: `/root/fe5_task2_rereviewer_gpt6_round1` (`gpt-6-sol`, high) — FAIL (`SPEC FAIL`, `QUALITY FAIL`); FE5-T2-R01/R02/R03/R04 CLOSED.
+- New open Important findings verbatim in `task-2-review-round-1.md`: FE5-T2-R05 stale assigned list after member or list authorization 403/404; FE5-T2-R06 A's local note draft can be submitted under B on same-component route reuse; FE5-T2-R07 stale Session A detail stays visible during B load/error.
+- Rereviewer gates: affected 5 files/33 PASS, focused 22 files/156 PASS, full FE 79 files/781 PASS, lint 0 errors/110 warnings, build/npm tree/diff PASS; automated coverage did not exercise R05-R07 transitions.
+- Task 2 fix rounds: 2. `task-2-round-2-before/` captures 44 allowed files and matches round-1 after snapshot byte-for-byte.
+- Task 2 round 2 fix planner: `/root/fe5_task2_fix_planner_gpt6_round2` (`gpt-6-sol`, high) — READY_FOR_FIXER; `task-2-repair-brief-round-2.md` maps only R05/R06/R07 and reports no blocker.
+- Task 2 round 2 fixer: same `/root/fe5_task2_fixer_gpt6_round1` (`gpt-6-luna`, max) — COMPLETE; R05/R06/R07 repair evidence appended to `task-2-report.md`.
+- Round 2 delta: exactly 8 of 44 allowed FE paths changed, captured in `task-2-round-2-after/`; 36 remain byte-identical.
+- Round 2 fixer evidence: affected 4 files/36 tests PASS, focused 22 files/169 tests PASS, full FE 79 files/794 tests PASS, lint 0 errors/110 baseline warnings, build/npm tree/static scans/diff check PASS.
+- Round 2 review package: `task-2-repair-review-package-round-2.md`.
+- Task 2 round 2 rereviewer: `/root/fe5_task2_rereviewer_gpt6_round2` (`gpt-6-sol`, high) — PASS (`SPEC PASS`, `QUALITY PASS`); R05/R06/R07 CLOSED and R01–R04 remain CLOSED.
+- Independent FE evidence on final source: affected 4 files/36 tests PASS, focused 22 files/169 tests PASS, full FE 79 files/794 tests PASS, lint 0 errors/110 baseline warnings, build/npm tree/diff check PASS.
+- Task 2 → Final Review gate: OPEN. Protected authenticated browser smoke remains an explicit verification limitation.
+- Controller final Backend check on guarded `smart_fitness_fe5_round2_test`: DB guard 7/7 PASS, focused 62 tests/644 assertions PASS, full Backend 346 tests/4,106 assertions PASS; Pint, Composer strict validate/audit/platform, route scan and `git diff --check` PASS.
+- Final review package: `final-review-package.md`.
+- Initial whole-phase Final Reviewer: `/root/fe5_final_reviewer_gpt6` (`gpt-6-sol`, high) — FAIL (`SPEC FAIL`, `QUALITY FAIL`), `FE5_CHECKPOINT_TRANSITION_PERMITTED: NO`.
+- Open final findings verbatim in `final-review.md`: FE5-FINAL-001 Important — history load-more 403/404 purges store but does not redirect; FE5-FINAL-002 Minor — assigned-list email fallback is unsupported by safe DTO; FE5-FINAL-003 Minor — Plan empty copy hard-codes 90 days while Backend schedule window is 92 calendar dates.
+- Prior Task 1 and Task 2 findings remain closed; final reviewer found no other cross-task blocker. Authenticated browser smoke remains unverified and is recorded as a limitation.
+- Final repair wave 1 before snapshot: `final-repair-round-1-before/`, all 44 FE targets matched Task 2 round-2 after byte-for-byte.
+- Consolidated final fix planner: `/root/fe5_final_fix_planner_gpt6` (`gpt-6-sol`, high) — READY_FOR_FIXER; `final-repair-brief-round-1.md` maps FINAL-001/002/003.
+- Consolidated final fixer: same `/root/fe5_task2_fixer_gpt6_round1` (`gpt-6-luna`, max) — COMPLETE; final wave delta exactly 6 of 44 allowed FE paths, captured in `final-repair-round-1-after/`.
+- Final-wave FE evidence after last edit: affected 3 files/16 tests PASS, focused 22 files/176 tests PASS, full FE 79 files/801 tests PASS, lint 0 errors/110 baseline warnings, build/npm tree/static/diff PASS.
+- Controller Backend evidence after last edit: DB guard 7/7 PASS, focused 62 tests/644 assertions PASS, full Backend 346 tests/4,104 assertions PASS; Pint and Composer strict validate/audit/platform PASS.
+- Final repair review package: `final-repair-review-package-round-1.md`.
+- Fresh final rereviewer: `/root/fe5_final_rereviewer_gpt6_round1` (`gpt-6-sol`, high) — PASS (`SPEC PASS`, `QUALITY PASS`); FE5-FINAL-001/002/003 CLOSED; Task 1 F-001/F-002 and Task 2 R01–R07 remain CLOSED.
+- Final independent FE evidence: affected 4 files/38 tests, focused 22 files/176 tests, full FE 79 files/801 tests PASS; lint 0 errors/110 warnings; build, npm tree, static scans and diff check PASS. Backend feature rerun 15 tests/153 assertions PASS, alongside controller's final guarded full Backend 346 tests/4,104 assertions PASS.
+- Checkpoint `docs/VUE_WEB_COMPLETION_CHECKPOINT.md` updated to FE-5/FE5-ALL PASS and `EXACT_NEXT_ACTION: FE6-ALL`. Authenticated browser smoke remains explicitly unverified; no commit/push or source cleanup.
+- Canonical 15-section completion report: `final-report.md`.
+- Current status: FE-5 COMPLETE; final independent review PASS; checkpoint transition complete. Next planned phase: FE6-ALL.

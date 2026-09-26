@@ -1,0 +1,6 @@
+Captured before FE5 workflow changes on 2026-09-20 (Asia/Bangkok).
+Branch: main
+git status --porcelain=v1 -uall: CLEAN (no entries)
+Staged paths: none
+Untracked paths: none
+

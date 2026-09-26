@@ -1,0 +1,167 @@
+diff --git a/BE/app/Services/Workout/WorkoutPlanQueryService.php b/BE/app/Services/Workout/WorkoutPlanQueryService.php
+index 949ae60..9a5401c 100644
+--- a/BE/app/Services/Workout/WorkoutPlanQueryService.php
++++ b/BE/app/Services/Workout/WorkoutPlanQueryService.php
+@@ -3,6 +3,7 @@
+ namespace App\Services\Workout;
+ 
+ use App\Exceptions\Workout\WorkoutWorkflowException;
++use App\Models\HoSoHoiVien;
+ use App\Models\KeHoachTap;
+ use App\Models\NguoiDung;
+ 
+@@ -13,7 +14,12 @@ public function __construct(private readonly WorkoutMemberService $members) {}
+     /** Trả Plan đang dùng của chính Member hoặc null. */
+     public function hienTai(NguoiDung $nguoiDung): ?array
+     {
+-        $hoiVien = $this->members->hoiVienCuaNguoiDung($nguoiDung);
++        return $this->hienTaiChoHoiVien($this->members->hoiVienCuaNguoiDung($nguoiDung));
++    }
++
++    /** Trả Plan chính thức đang dùng theo hồ sơ Member đã được xác thực phạm vi. */
++    public function hienTaiChoHoiVien(HoSoHoiVien $hoiVien): ?array
++    {
+         $keHoach = $this->truyVanChiTiet()
+             ->where('hoi_vien_id', $hoiVien->getKey())
+             ->where('trang_thai', 'DANG_SU_DUNG')
+diff --git a/BE/app/Services/Workout/WorkoutScheduleService.php b/BE/app/Services/Workout/WorkoutScheduleService.php
+index fa5e33a..1d74f26 100644
+--- a/BE/app/Services/Workout/WorkoutScheduleService.php
++++ b/BE/app/Services/Workout/WorkoutScheduleService.php
+@@ -23,7 +23,12 @@ public function __construct(private readonly WorkoutMemberService $members) {}
+     /** Đọc lịch self-owned trong khoảng ngày hữu hạn, theo thứ tự ổn định. */
+     public function danhSach(NguoiDung $nguoiDung, string $tuNgay, string $denNgay): array
+     {
+-        $hoiVien = $this->members->hoiVienCuaNguoiDung($nguoiDung);
++        return $this->danhSachChoHoiVien($this->members->hoiVienCuaNguoiDung($nguoiDung), $tuNgay, $denNgay);
++    }
++
++    /** Trả lịch chính thức theo hồ sơ Member đã được xác thực phạm vi. */
++    public function danhSachChoHoiVien(HoSoHoiVien $hoiVien, string $tuNgay, string $denNgay): array
++    {
+         [$tu, $den] = $this->khoangNgay($tuNgay, $denNgay);
+ 
+         return BuoiTapDuKien::query()
+diff --git a/BE/app/Services/Workout/WorkoutSessionQueryService.php b/BE/app/Services/Workout/WorkoutSessionQueryService.php
+index a3b8925..7046699 100644
+--- a/BE/app/Services/Workout/WorkoutSessionQueryService.php
++++ b/BE/app/Services/Workout/WorkoutSessionQueryService.php
+@@ -3,6 +3,7 @@
+ namespace App\Services\Workout;
+ 
+ use App\Exceptions\Workout\WorkoutWorkflowException;
++use App\Models\HoSoHoiVien;
+ use App\Models\NguoiDung;
+ use App\Models\PhienTap;
+ 
+@@ -13,7 +14,12 @@ public function __construct(private readonly WorkoutMemberService $members) {}
+     /** Trả history self-owned, giới hạn 1..100 và cursor ID giảm dần. */
+     public function danhSach(NguoiDung $nguoiDung, int $limit = 20, ?int $truocId = null): array
+     {
+-        $hoiVien = $this->members->hoiVienCuaNguoiDung($nguoiDung);
++        return $this->danhSachChoHoiVien($this->members->hoiVienCuaNguoiDung($nguoiDung), $limit, $truocId);
++    }
++
++    /** Trả history theo hồ sơ Member đã được xác thực phạm vi. */
++    public function danhSachChoHoiVien(HoSoHoiVien $hoiVien, int $limit = 20, ?int $truocId = null): array
++    {
+         $limit = max(1, min(100, $limit));
+         $truyVan = $this->truyVanChiTiet()->where('hoi_vien_id', $hoiVien->getKey());
+         if ($truocId !== null) {
+@@ -27,7 +33,12 @@ public function danhSach(NguoiDung $nguoiDung, int $limit = 20, ?int $truocId =
+     /** Trả Session theo self ownership; Session của Member khác được che bằng 404. */
+     public function chiTiet(NguoiDung $nguoiDung, int $phienId): array
+     {
+-        $hoiVien = $this->members->hoiVienCuaNguoiDung($nguoiDung);
++        return $this->chiTietChoHoiVien($this->members->hoiVienCuaNguoiDung($nguoiDung), $phienId);
++    }
++
++    /** Trả immutable session snapshot theo hồ sơ Member đã được xác thực phạm vi. */
++    public function chiTietChoHoiVien(HoSoHoiVien $hoiVien, int $phienId): array
++    {
+         $phien = $this->truyVanChiTiet()->where('hoi_vien_id', $hoiVien->getKey())->find($phienId);
+         if (! $phien instanceof PhienTap) {
+             throw new WorkoutWorkflowException('Không tìm thấy phiên tập.', 404, 'WORKOUT_SESSION_NOT_FOUND');
+diff --git a/BE/routes/api.php b/BE/routes/api.php
+index 6b06a2d..95f891b 100644
+--- a/BE/routes/api.php
++++ b/BE/routes/api.php
+@@ -21,6 +21,7 @@
+ use App\Http\Controllers\Api\Pt\PtAssignmentController;
+ use App\Http\Controllers\Api\Pt\PtChatController;
+ use App\Http\Controllers\Api\Pt\PtDirectServiceController;
++use App\Http\Controllers\Api\Pt\PtMemberWorkspaceController;
+ use App\Http\Controllers\Api\Pt\PtProposalController;
+ use App\Http\Controllers\Api\Workout\WorkoutController;
+ use Illuminate\Support\Facades\Route;
+@@ -183,6 +184,11 @@
+     ->post('/pt/direct-sessions/complete', [PtDirectServiceController::class, 'hoanTat']);
+ 
+ Route::middleware(['auth:api', 'role:PT'])->prefix('pt/members/{member}')->group(function (): void {
++    Route::get('/', [PtMemberWorkspaceController::class, 'chiTietHoiVien'])->whereNumber('member');
++    Route::get('/workout/plans/current', [PtMemberWorkspaceController::class, 'keHoachHienTai'])->whereNumber('member');
++    Route::get('/workout/sessions', [PtMemberWorkspaceController::class, 'danhSachPhien'])->whereNumber('member');
++    Route::get('/workout/sessions/{session}', [PtMemberWorkspaceController::class, 'chiTietPhien'])
++        ->whereNumber(['member', 'session']);
+     Route::get('/proposals', [PtProposalController::class, 'danhSachCuaPt'])->whereNumber('member');
+     Route::post('/proposals', [PtProposalController::class, 'tao'])->whereNumber('member');
+     Route::get('/notes', [PtProposalController::class, 'ghiChusCuaPt'])->whereNumber('member');
+diff --git a/docs/BACKEND_API_CONTRACT.md b/docs/BACKEND_API_CONTRACT.md
+index a788a71..cc4463f 100644
+--- a/docs/BACKEND_API_CONTRACT.md
++++ b/docs/BACKEND_API_CONTRACT.md
+@@ -89,6 +89,10 @@ Payment success grants ownership/snapshot only. The first valid paid entitlement
+ | POST | `/pt/assignments/{id}/reassign` | ADMIN |
+ | GET | `/pt/assignment` | MEMBER |
+ | GET | `/pt/members` | PT |
++| GET | `/pt/members/{member}` | PT with current assignment |
++| GET | `/pt/members/{member}/workout/plans/current` | PT with current assignment; official Plan read-only |
++| GET | `/pt/members/{member}/workout/sessions` | PT with current assignment; immutable history read-only |
++| GET | `/pt/members/{member}/workout/sessions/{session}` | PT with current assignment; immutable snapshot detail |
+ | GET | `/pt/direct-sessions` | MEMBER, PT |
+ | POST | `/pt/direct-sessions/complete` | PT, **Idempotency-Key** |
+ | GET/POST | `/pt/members/{member}/proposals` | PT with current assignment; POST uses **Idempotency-Key** |
+@@ -99,6 +103,43 @@ Payment success grants ownership/snapshot only. The first valid paid entitlement
+ 
+ Admin assignment reads return `{data:{items,pagination}}` or one exact assignment DTO with only `id`, `member:{id,code,name}`, `trainer:{id,code,name,status}`, `start_at`, `end_at`, `reason`, server-UTC `is_current`, `created_at`, and `updated_at`. Both linked accounts must belong to the authenticated Admin's branch; foreign/missing rows are concealed as `404 ASSIGNMENT_NOT_FOUND`. List filters are the allow-listed `member_id`, `trainer_id`, `current`, `page`, and `per_page`, ordered by `start_at DESC, id DESC`. Assignment intervals use half-open `[start_at,end_at)` semantics, so adjacency is valid and overlap is rejected under actor/member/all-member-assignment/trainer locks. End is a server-time target-state no-op when already ended; reassign closes the old row at the new start and inserts a new row. Every successful create/end/reassign writes allow-listed before/after audit snapshots in the same transaction; no assignment mutation adds an `Idempotency-Key`, and timeout/5xx clients must reconcile through GET without blind retry.
+ 
++### 6.1 PT member workspace read contracts
++
++All workspace routes below require `Authorization: Bearer <token>`, an active account with role `PT`, and an exact current assignment for the requested Member. The assignment interval is half-open `[ngay_bat_dau, ngay_ket_thuc)`: `start_at` is inclusive, `end_at` is exclusive, and `null` end is open. An unassigned, future, ended, old-PT, or foreign-PT request is concealed as `404` and does not fall back to Member-self or Admin routes. The backend checks the assignment at request time with server UTC and performs no Membership lookup, activation, quota consumption, audit write, or mutation.
++
++`GET /pt/members/{member}` returns:
++
++```json
++{
++  "data": {
++    "member": {
++      "id": 42,
++      "code": "HV_001",
++      "name": "Member",
++      "training_goal": "TANG_SUC_MANH",
++      "training_experience": "MOI_BAT_DAU",
++      "desired_training_days": 3,
++      "session_duration_minutes": 60,
++      "profile_version": 1,
++      "updated_at": "2026-08-30T02:00:00.000000Z"
++    },
++    "assignment": {
++      "id": 7,
++      "start_at": "2026-08-29T02:00:00.000000Z",
++      "end_at": null
++    }
++  }
++}
++```
++
++The `member` and `assignment` objects are allow-listed exactly as shown. Email, phone, birth date, credentials, branch authority, end reason, audit actor, and other internal fields are not returned.
++
++`GET /pt/members/{member}/workout/plans/current` returns `{ plan, future_schedule, schedule_window }`. `plan` is the existing safe official current Plan DTO or `null`; a pending/unconfirmed Proposal is never presented as the official Plan. `future_schedule` reuses the existing safe scheduled-workout item DTO. `schedule_window` is server-authoritative and contains `from`, `to` (inclusive dates covering at most 92 calendar days from the current business date), and `timezone: "Asia/Ho_Chi_Minh"`.
++
++`GET /pt/members/{member}/workout/sessions?before_id&limit` reuses the existing `ListWorkoutSessionsRequest` validation (`limit` 1..100, default 20; positive integer `before_id`) and existing immutable session DTO. Results are ordered by descending session ID; `before_id` is an exclusive stable cursor. Invalid query values return `422`.
++
++`GET /pt/members/{member}/workout/sessions/{session}` returns the existing immutable session snapshot only when the session belongs to the authorized Member. A session belonging to another Member is concealed as `404`, including when the same PT is currently assigned to that other Member. There are no Plan/Session write routes in this workspace contract.
++
+ Only PT-confirmed direct-session completion consumes direct PT quota. PT Proposal confirmation creates a new immutable Workout Plan Version.
+ 
+ ## 7. PT Realtime Chat
