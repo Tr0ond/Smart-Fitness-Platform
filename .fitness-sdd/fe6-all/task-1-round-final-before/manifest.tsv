@@ -1,0 +1,13 @@
+﻿BE/routes/api.php	PRESENT	14306
+BE/app/Http/Controllers/Api/Pt/PtDirectServiceController.php	PRESENT	1675
+BE/app/Services/Pt/PtDirectService.php	PRESENT	13725
+BE/tests/Feature/PtDirectServiceTest.php	PRESENT	14333
+FE/src/services/buoi_huan_luyen.api.js	PRESENT	2275
+FE/src/services/buoi_huan_luyen.api.test.js	PRESENT	2150
+FE/src/pages/pt/buoi_huan_luyen/buoi_huan_luyen.index.test.js	PRESENT	10422
+FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.tao_moi.vue	PRESENT	30339
+FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.tao_moi.test.js	PRESENT	13366
+FE/src/components/PT/khung_xem_de_xuat.vue	PRESENT	7262
+FE/src/components/PT/khung_xem_de_xuat.test.js	PRESENT	3698
+docs/BACKEND_API_CONTRACT.md	PRESENT	16986
+.fitness-sdd/fe6-all/task-1-report.md	PRESENT	11600

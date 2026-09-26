@@ -1,0 +1,723 @@
+diff --git a/FE/src/components/PT/thanh_dieu_huong_hoi_vien.test.js b/FE/src/components/PT/thanh_dieu_huong_hoi_vien.test.js
+index 5cd3238..aaa6d8e 100644
+--- a/FE/src/components/PT/thanh_dieu_huong_hoi_vien.test.js
++++ b/FE/src/components/PT/thanh_dieu_huong_hoi_vien.test.js
+@@ -13,6 +13,9 @@ describe('ThanhDieuHuongHoiVien', () => {
+         { name: 'ptKeHoachTapHoiVien', path: '/pt/hoi-vien/:id/ke-hoach-tap' },
+         { name: 'ptLichSuTapHoiVien', path: '/pt/hoi-vien/:id/lich-su-tap' },
+         { name: 'ptGhiChuHoiVien', path: '/pt/hoi-vien/:id/ghi-chu' },
++        { name: 'ptBuoiHuanLuyen', path: '/pt/hoi-vien/:id/buoi-huan-luyen' },
++        { name: 'ptDeXuatKeHoach', path: '/pt/hoi-vien/:id/de-xuat' },
++        { name: 'ptTaoDeXuatKeHoach', path: '/pt/hoi-vien/:id/de-xuat/tao-moi' },
+       ],
+     })
+     await router.push({ name: 'ptTienDoHoiVien', params: { id: '42' } })
+@@ -25,8 +28,38 @@ describe('ThanhDieuHuongHoiVien', () => {
+     })
+ 
+     expect(wrapper.text()).toContain('Ti?n ??')
+-    expect(wrapper.findAll('a')).toHaveLength(5)
++    expect(wrapper.findAll('a')).toHaveLength(7)
+     expect(wrapper.find('a[aria-current="page"]').text()).toBe('Ti?n ??')
+     expect(wrapper.find('a[aria-current="page"]').attributes('href')).toBe('/pt/hoi-vien/42/tien-do')
++
++    expect(wrapper.find('a[href="/pt/hoi-vien/42/buoi-huan-luyen"]').text()).toContain('Bu?i hu?n luy?n')
++    expect(wrapper.find('a[href="/pt/hoi-vien/42/de-xuat"]').text()).toContain('?? xu?t')
++    await router.push({ name: 'ptTaoDeXuatKeHoach', params: { id: '42' } })
++    expect(wrapper.find('a[aria-current="page"]').text()).toBe('?? xu?t')
++  })
++
++  it('omits tabs whose routes are not registered in the current router', async () => {
++    const router = createRouter({
++      history: createMemoryHistory(),
++      routes: [
++        { name: 'ptChiTietHoiVien', path: '/pt/hoi-vien/:id' },
++        { name: 'ptTienDoHoiVien', path: '/pt/hoi-vien/:id/tien-do' },
++        { name: 'ptKeHoachTapHoiVien', path: '/pt/hoi-vien/:id/ke-hoach-tap' },
++        { name: 'ptLichSuTapHoiVien', path: '/pt/hoi-vien/:id/lich-su-tap' },
++        { name: 'ptGhiChuHoiVien', path: '/pt/hoi-vien/:id/ghi-chu' },
++      ],
++    })
++    await router.push({ name: 'ptTienDoHoiVien', params: { id: '42' } })
++
++    const wrapper = mount(ThanhDieuHuongHoiVien, {
++      props: { memberId: 42 },
++      global: {
++        plugins: [router],
++      },
++    })
++
++    expect(wrapper.findAll('a')).toHaveLength(5)
++    expect(wrapper.text()).not.toContain('Bu?i hu?n luy?n')
++    expect(wrapper.text()).not.toContain('?? xu?t')
+   })
+ })
+diff --git a/FE/src/components/PT/thanh_dieu_huong_hoi_vien.vue b/FE/src/components/PT/thanh_dieu_huong_hoi_vien.vue
+index 9fd9ecb..a4dd070 100644
+--- a/FE/src/components/PT/thanh_dieu_huong_hoi_vien.vue
++++ b/FE/src/components/PT/thanh_dieu_huong_hoi_vien.vue
+@@ -1,6 +1,6 @@
+ <script setup>
+ import { computed } from 'vue'
+-import { useRoute } from 'vue-router'
++import { useRoute, useRouter } from 'vue-router'
+ import { laMucDieuHuongDangHoatDong } from '../../router/dieu_huong_admin.js'
+ 
+ const props = defineProps({
+@@ -11,6 +11,7 @@ const props = defineProps({
+ })
+ 
+ const route = useRoute()
++const router = useRouter()
+ 
+ const CAC_TAB = Object.freeze([
+   Object.freeze({ nhan: 'T?ng quan', tenTuyenDuong: 'ptChiTietHoiVien', cacTuyenDuongLienQuan: ['ptChiTietHoiVien'] }),
+@@ -18,9 +19,12 @@ const CAC_TAB = Object.freeze([
+   Object.freeze({ nhan: 'K? ho?ch t?p', tenTuyenDuong: 'ptKeHoachTapHoiVien', cacTuyenDuongLienQuan: ['ptKeHoachTapHoiVien'] }),
+   Object.freeze({ nhan: 'L?ch s? t?p', tenTuyenDuong: 'ptLichSuTapHoiVien', cacTuyenDuongLienQuan: ['ptLichSuTapHoiVien'] }),
+   Object.freeze({ nhan: 'Ghi ch?', tenTuyenDuong: 'ptGhiChuHoiVien', cacTuyenDuongLienQuan: ['ptGhiChuHoiVien'] }),
++  Object.freeze({ nhan: 'Bu?i hu?n luy?n', tenTuyenDuong: 'ptBuoiHuanLuyen', cacTuyenDuongLienQuan: ['ptBuoiHuanLuyen'] }),
++  Object.freeze({ nhan: '?? xu?t', tenTuyenDuong: 'ptDeXuatKeHoach', cacTuyenDuongLienQuan: ['ptDeXuatKeHoach', 'ptTaoDeXuatKeHoach'] }),
+ ])
+ 
+ const idAnToan = computed(() => String(props.memberId ?? '').trim())
++const cacTabSanSang = computed(() => CAC_TAB.filter(tab => router.hasRoute(tab.tenTuyenDuong)))
+ 
+ function taoLienKet(tab) {
+   return { name: tab.tenTuyenDuong, params: { id: idAnToan.value } }
+@@ -37,7 +41,7 @@ function dangHoatDong(tab) {
+     aria-label="?i?u h??ng h? s? h?i vi?n"
+   >
+     <RouterLink
+-      v-for="tab in CAC_TAB"
++      v-for="tab in cacTabSanSang"
+       :key="tab.tenTuyenDuong"
+       class="pt-thanh-dieu-huong-hoi-vien__muc"
+       :class="{ 'pt-thanh-dieu-huong-hoi-vien__muc--dang-chon': dangHoatDong(tab) }"
+diff --git a/FE/src/router/dieu_huong_pt.js b/FE/src/router/dieu_huong_pt.js
+index 1177d89..e99be42 100644
+--- a/FE/src/router/dieu_huong_pt.js
++++ b/FE/src/router/dieu_huong_pt.js
+@@ -17,6 +17,9 @@ const CAC_NHAN_DIEU_HUONG_PT_NOI_BO = Object.freeze([
+       'ptKeHoachTapHoiVien',
+       'ptLichSuTapHoiVien',
+       'ptGhiChuHoiVien',
++      'ptBuoiHuanLuyen',
++      'ptDeXuatKeHoach',
++      'ptTaoDeXuatKeHoach',
+     ]),
+     thuTu: 20,
+   }),
+diff --git a/FE/src/router/dieu_huong_pt.test.js b/FE/src/router/dieu_huong_pt.test.js
+index 40a4346..d95996b 100644
+--- a/FE/src/router/dieu_huong_pt.test.js
++++ b/FE/src/router/dieu_huong_pt.test.js
+@@ -17,6 +17,7 @@ describe('dieu_huong_pt FE5', () => {
+     const menu = taoDanhSachDieuHuongPt(taoRouter([
+       'ptHoSo', 'ptHoiVien', 'ptChiTietHoiVien', 'ptTienDoHoiVien',
+       'ptKeHoachTapHoiVien', 'ptLichSuTapHoiVien', 'ptGhiChuHoiVien',
++      'ptBuoiHuanLuyen', 'ptDeXuatKeHoach', 'ptTaoDeXuatKeHoach',
+     ]))
+     expect(menu.map((item) => item.tenTuyenDuong)).toEqual(['ptHoSo', 'ptHoiVien'])
+     expect(menu[1].to).toEqual({ name: 'ptHoiVien' })
+@@ -30,6 +31,22 @@ describe('dieu_huong_pt FE5', () => {
+     })).toBe(true)
+   })
+ 
++  it('recognizes FE6 child routes without exposing them as top-level menu entries', () => {
++    const menu = taoDanhSachDieuHuongPt(taoRouter([
++      'ptHoSo', 'ptHoiVien', 'ptBuoiHuanLuyen', 'ptDeXuatKeHoach', 'ptTaoDeXuatKeHoach',
++    ]))
++    const member = CAC_NHAN_DIEU_HUONG_PT.find((item) => item.tenTuyenDuong === 'ptHoiVien')
++
++    expect(menu.map((item) => item.tenTuyenDuong)).toEqual(['ptHoSo', 'ptHoiVien'])
++    expect(member.cacTuyenDuongLienQuan).toEqual(expect.arrayContaining([
++      'ptBuoiHuanLuyen', 'ptDeXuatKeHoach', 'ptTaoDeXuatKeHoach',
++    ]))
++    expect(laMucDieuHuongDangHoatDong(member, {
++      name: 'ptTaoDeXuatKeHoach',
++      matched: [{ name: 'ptTaoDeXuatKeHoach' }],
++    })).toBe(true)
++  })
++
+   it('creates PT-only protected route metadata and safe breadcrumbs', () => {
+     expect(taoMetaTuyenDuongPt({
+       tinhNang: 'ptGhiChuHoiVien',
+diff --git a/FE/src/router/index.js b/FE/src/router/index.js
+index 87a756f..ff8b1df 100644
+--- a/FE/src/router/index.js
++++ b/FE/src/router/index.js
+@@ -41,6 +41,9 @@ import TienDoPt from '../pages/pt/tien_do/tien_do.index.vue'
+ import KeHoachTapPt from '../pages/pt/ke_hoach_tap/ke_hoach_tap.index.vue'
+ import LichSuTapPt from '../pages/pt/lich_su_tap/lich_su_tap.index.vue'
+ import GhiChuPt from '../pages/pt/ghi_chu/ghi_chu.index.vue'
++import BuoiHuanLuyenPt from '../pages/pt/buoi_huan_luyen/buoi_huan_luyen.index.vue'
++import DeXuatKeHoachTapPt from '../pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.index.vue'
++import TaoDeXuatKeHoachTapPt from '../pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.tao_moi.vue'
+ import { useXacThucStore } from '../stores/xac_thuc.store.js'
+ import { taoBaoVeTuyenDuong } from './bao_ve_tuyen_duong.js'
+ import { taoMetaTuyenDuongAdmin } from './dieu_huong_admin.js'
+@@ -550,6 +553,46 @@ const boDinhTuyen = createRouter({
+         ],
+       }),
+     },
++    {
++      path: '/pt/hoi-vien/:id/buoi-huan-luyen',
++      name: 'ptBuoiHuanLuyen',
++      component: BuoiHuanLuyenPt,
++      meta: taoMetaTuyenDuongPt({
++        tinhNang: 'ptBuoiHuanLuyen',
++        tieuDe: 'Bu?i hu?n luy?n tr?c ti?p',
++        duongDanPhanCap: [
++          { nhan: 'H?i vi?n', tenTuyenDuong: 'ptHoiVien' },
++          { nhan: 'Bu?i hu?n luy?n' },
++        ],
++      }),
++    },
++    {
++      path: '/pt/hoi-vien/:id/de-xuat',
++      name: 'ptDeXuatKeHoach',
++      component: DeXuatKeHoachTapPt,
++      meta: taoMetaTuyenDuongPt({
++        tinhNang: 'ptDeXuatKeHoach',
++        tieuDe: '?? xu?t k? ho?ch t?p',
++        duongDanPhanCap: [
++          { nhan: 'H?i vi?n', tenTuyenDuong: 'ptHoiVien' },
++          { nhan: '?? xu?t' },
++        ],
++      }),
++    },
++    {
++      path: '/pt/hoi-vien/:id/de-xuat/tao-moi',
++      name: 'ptTaoDeXuatKeHoach',
++      component: TaoDeXuatKeHoachTapPt,
++      meta: taoMetaTuyenDuongPt({
++        tinhNang: 'ptTaoDeXuatKeHoach',
++        tieuDe: 'T?o ?? xu?t k? ho?ch',
++        duongDanPhanCap: [
++          { nhan: 'H?i vi?n', tenTuyenDuong: 'ptHoiVien' },
++          { nhan: '?? xu?t', tenTuyenDuong: 'ptDeXuatKeHoach' },
++          { nhan: 'T?o m?i' },
++        ],
++      }),
++    },
+     {
+       path: '/le-tan/dang-nhap',
+       name: 'leTanDangNhap',
+diff --git a/FE/src/router/index.test.js b/FE/src/router/index.test.js
+index 6caf480..46c99fb 100644
+--- a/FE/src/router/index.test.js
++++ b/FE/src/router/index.test.js
+@@ -20,6 +20,9 @@ const ROUTE_MONG_DOI = {
+   ptKeHoachTapHoiVien: '/pt/hoi-vien/:id/ke-hoach-tap',
+   ptLichSuTapHoiVien: '/pt/hoi-vien/:id/lich-su-tap',
+   ptGhiChuHoiVien: '/pt/hoi-vien/:id/ghi-chu',
++  ptBuoiHuanLuyen: '/pt/hoi-vien/:id/buoi-huan-luyen',
++  ptDeXuatKeHoach: '/pt/hoi-vien/:id/de-xuat',
++  ptTaoDeXuatKeHoach: '/pt/hoi-vien/:id/de-xuat/tao-moi',
+   leTanDangNhap: '/le-tan/dang-nhap',
+   adminBangDieuKhien: '/admin/bang-dieu-khien',
+   adminTaiKhoan: '/admin/tai-khoan',
+@@ -116,6 +119,40 @@ describe('router foundation FE0-T05', () => {
+     expect(boDinhTuyen.currentRoute.value.name).toBe('ptDangNhap')
+   })
+ 
++  it('registers FE6 routes as protected PT screens with scoped breadcrumbs', () => {
++    const routes = boDinhTuyen.getRoutes()
++    const buoi = routes.find((route) => route.name === 'ptBuoiHuanLuyen')
++    const deXuat = routes.find((route) => route.name === 'ptDeXuatKeHoach')
++    const taoDeXuat = routes.find((route) => route.name === 'ptTaoDeXuatKeHoach')
++
++    expect(buoi.meta).toMatchObject({
++      yeuCauXacThuc: true,
++      vaiTro: ['PT'],
++      boCuc: 'pt',
++      tieuDe: 'Bu?i hu?n luy?n tr?c ti?p',
++      duongDanPhanCap: [{ nhan: 'H?i vi?n', tenTuyenDuong: 'ptHoiVien' }, { nhan: 'Bu?i hu?n luy?n' }],
++    })
++    expect(deXuat.meta).toMatchObject({
++      yeuCauXacThuc: true,
++      vaiTro: ['PT'],
++      boCuc: 'pt',
++      tieuDe: '?? xu?t k? ho?ch t?p',
++      duongDanPhanCap: [{ nhan: 'H?i vi?n', tenTuyenDuong: 'ptHoiVien' }, { nhan: '?? xu?t' }],
++    })
++    expect(taoDeXuat.meta).toMatchObject({
++      yeuCauXacThuc: true,
++      vaiTro: ['PT'],
++      boCuc: 'pt',
++      tieuDe: 'T?o ?? xu?t k? ho?ch',
++      duongDanPhanCap: [
++        { nhan: 'H?i vi?n', tenTuyenDuong: 'ptHoiVien' },
++        { nhan: '?? xu?t', tenTuyenDuong: 'ptDeXuatKeHoach' },
++        { nhan: 'T?o m?i' },
++      ],
++    })
++    expect(boDinhTuyen.resolve('/pt/hoi-vien/7/de-xuat/tao-moi').name).toBe('ptTaoDeXuatKeHoach')
++  })
++
+   it('account detail route co meta Admin, breadcrumb va khong them menu item', () => {
+     const route = boDinhTuyen.getRoutes().find((muc) => muc.name === 'adminChiTietTaiKhoan')
+ 
+diff --git a/FE/src/stores/hoi_vien_pt.store.js b/FE/src/stores/hoi_vien_pt.store.js
+index f4e4fc9..9152884 100644
+--- a/FE/src/stores/hoi_vien_pt.store.js
++++ b/FE/src/stores/hoi_vien_pt.store.js
+@@ -18,6 +18,12 @@ import {
+   taiDanhSachGhiChu as taiDanhSachGhiChuApi,
+   themGhiChuHuanLuyen as themGhiChuHuanLuyenApi,
+ } from '../services/ghi_chu.api.js'
++import {
++  hoanTatBuoiHuanLuyen as hoanTatBuoiHuanLuyenApi,
++  taiLichSuBuoiHuanLuyen as taiLichSuBuoiHuanLuyenApi,
++} from '../services/buoi_huan_luyen.api.js'
++import { taoKhoaIdempotency } from '../utils/khoa_idempotency.js'
++import { xoaDuLieuDeXuatPtNeuDaKhoiTao } from './de_xuat.store.js'
+ 
+ const RESOURCE_KEYS = Object.freeze([
+   'danhSach',
+@@ -30,6 +36,8 @@ const RESOURCE_KEYS = Object.freeze([
+   'chiTietPhien',
+   'ghiChu',
+   'ghiChuMutation',
++  'buoiHuanLuyen',
++  'buoiHuanLuyenMutation',
+ ])
+ 
+ function taoGeneration() {
+@@ -203,6 +211,13 @@ export const useHoiVienPtStore = defineStore('hoi_vien_pt', {
+     dangThemGhiChu: false,
+     loiThemGhiChu: null,
+     ketQuaThemGhiChu: null,
++    lichSuBuoiHuanLuyen: [],
++    dangTaiBuoiHuanLuyen: false,
++    loiBuoiHuanLuyen: null,
++    dangHoanTatBuoiHuanLuyen: false,
++    loiHoanTatBuoiHuanLuyen: null,
++    thaoTacBuoiHuanLuyenDangCho: null,
++    ketQuaBuoiHuanLuyen: null,
+     requestGeneration: taoGeneration(),
+     chiTietTheoHoiVien: taoDoiTuongTheoId(),
+     tienDoTheoHoiVien: taoDoiTuongTheoId(),
+@@ -588,10 +603,128 @@ export const useHoiVienPtStore = defineStore('hoi_vien_pt', {
+       }
+     },
+ 
++    /** Tai latest-100 direct history cua PT; Member filtering and truthful limit belong to page. */
++    async taiLichSuBuoiHuanLuyen(memberId) {
++      const id = laySoId(memberId)
++      if (id === null) {
++        this.loiBuoiHuanLuyen = taoLoiDauVao()
++        return null
++      }
++      if (this.hoiVienDaChonId !== id) this.chonHoiVien(id)
++      const generation = tangGeneration(this, 'buoiHuanLuyen')
++      this.dangTaiBuoiHuanLuyen = true
++      this.loiBuoiHuanLuyen = null
++
++      try {
++        const phanHoi = await taiLichSuBuoiHuanLuyenApi()
++        const payload = layDuLieuEnvelope(phanHoi)
++        const danhSach = Array.isArray(payload) ? payload : Array.isArray(payload?.items) ? payload.items : null
++        if (danhSach === null) throw new Error('D? li?u l?ch s? bu?i hu?n luy?n kh?ng h?p l?.')
++        if (!laSelectedCuaSoHuu(this, id, generation, 'buoiHuanLuyen')) return null
++        this.lichSuBuoiHuanLuyen = danhSach.slice(0, 100)
++        return this.lichSuBuoiHuanLuyen
++      } catch (error) {
++        if (!laSelectedCuaSoHuu(this, id, generation, 'buoiHuanLuyen')) return null
++        if (laLoiMatPhamVi(error)) return this.xuLyMatPhamVi(id, error)
++        this.loiBuoiHuanLuyen = taoLoiAnToan(error, 'Kh?ng th? t?i l?ch s? bu?i hu?n luy?n.')
++        return null
++      } finally {
++        if (laSelectedCuaSoHuu(this, id, generation, 'buoiHuanLuyen')) this.dangTaiBuoiHuanLuyen = false
++      }
++    },
++
++    /**
++     * Complete mot assignment tu profile hien tai va giu cung payload/key neu ket qua khong ro.
++     * Input: selected Member, assignment ID tu Backend detail va note tuy chon.
++     * Process: refetch lich su truoc retry, gui UUIDv4 on dinh; khi unknown chi GET de doi chieu,
++     * sau do user co the retry lai cung assignment/notes/key de Backend replay xac nhan.
++     * Output: history row duy nhat hoac loi an toan; FE khong tinh quota hay kich hoat Membership.
++     * Side effect: Backend moi ghi usage/term; store purge scope khi nhan 403/404.
++     */
++    async hoanTatBuoiHuanLuyen(memberId, assignmentId, notes = null, { retry = false } = {}) {
++      const id = laySoId(memberId)
++      if (id === null || this.hoiVienDaChonId !== id || this.dangHoanTatBuoiHuanLuyen) return null
++
++      let thaoTac = this.thaoTacBuoiHuanLuyenDangCho
++      if (retry) {
++        if (!thaoTac?.outcomeUnknown || thaoTac.memberId !== id) return null
++        const danhSachDoiChieu = await this.taiLichSuBuoiHuanLuyen(id)
++        if (this.hoiVienDaChonId !== id || !Array.isArray(danhSachDoiChieu)
++          || this.thaoTacBuoiHuanLuyenDangCho?.idempotencyKey !== thaoTac.idempotencyKey) return null
++      } else {
++        if (thaoTac?.outcomeUnknown) return null
++        const assignmentHienTai = this.chiTietHoiVien?.assignment
++        if (Number(assignmentHienTai?.id) !== Number(assignmentId)
++          || assignmentHienTai?.is_current === false) {
++          this.loiHoanTatBuoiHuanLuyen = taoLoiAnToan({
++            httpStatus: 403,
++            message: 'Ph?n c?ng ch?a ???c x?c nh?n. H?y t?i l?i h? s? h?c vi?n tr??c khi ti?p t?c.',
++          }, 'Kh?ng th? x?c nh?n bu?i hu?n luy?n.')
++          return null
++        }
++        try {
++          thaoTac = Object.freeze({
++            memberId: id,
++            assignmentId: Number(assignmentId),
++            notes,
++            idempotencyKey: taoKhoaIdempotency(),
++            outcomeUnknown: false,
++          })
++        } catch (error) {
++          this.loiHoanTatBuoiHuanLuyen = taoLoiAnToan(error, 'Kh?ng th? chu?n b? thao t?c an to?n.')
++          return null
++        }
++        this.thaoTacBuoiHuanLuyenDangCho = thaoTac
++      }
++
++      const generation = tangGeneration(this, 'buoiHuanLuyenMutation')
++      this.dangHoanTatBuoiHuanLuyen = true
++      this.loiHoanTatBuoiHuanLuyen = null
++      this.ketQuaBuoiHuanLuyen = null
++      const laChonHienTai = () => this.hoiVienDaChonId === id
++        && this.requestGeneration.buoiHuanLuyenMutation === generation
++
++      try {
++        const phanHoi = await hoanTatBuoiHuanLuyenApi(
++          thaoTac.assignmentId,
++          thaoTac.notes,
++          thaoTac.idempotencyKey,
++        )
++        const payload = layDuLieuEnvelope(phanHoi)
++        if (!laChonHienTai()) return null
++        this.ketQuaBuoiHuanLuyen = payload
++        const historyId = payload?.history_id
++        if (historyId !== undefined) {
++          this.lichSuBuoiHuanLuyen = [payload, ...this.lichSuBuoiHuanLuyen.filter((item) => item?.history_id !== historyId)].slice(0, 100)
++        }
++        this.thaoTacBuoiHuanLuyenDangCho = null
++        return payload
++      } catch (error) {
++        if (!laChonHienTai()) return null
++        if (laLoiMatPhamVi(error)) return this.xuLyMatPhamVi(id, error)
++        this.loiHoanTatBuoiHuanLuyen = taoLoiAnToan(error, 'Kh?ng th? x?c nh?n bu?i hu?n luy?n.')
++        if (laLoiTamThoi(error)) {
++          this.thaoTacBuoiHuanLuyenDangCho = Object.freeze({ ...thaoTac, outcomeUnknown: true })
++          this.loiHoanTatBuoiHuanLuyen = {
++            ...this.loiHoanTatBuoiHuanLuyen,
++            outcomeUnknown: true,
++          }
++          // GET khong co original key va chi giu latest-100; day la doi chieu, khong la bang chung.
++          await this.taiLichSuBuoiHuanLuyen(id)
++          return null
++        }
++        this.thaoTacBuoiHuanLuyenDangCho = null
++        return null
++      } finally {
++        if (laChonHienTai()) this.dangHoanTatBuoiHuanLuyen = false
++      }
++    },
++
+     /** Purge atomically khi 403/404 member-scoped hoac assignment list mat Member. */
+     xuLyMatPhamVi(memberId, error = null, { giuDanhSachHoiVien = false } = {}) {
+       const id = laySoId(memberId)
+       tangTatCaGeneration(this)
++      xoaDuLieuDeXuatPtNeuDaKhoiTao()
+       if (!giuDanhSachHoiVien) {
+         this.danhSachHoiVien = []
+         this.daTaiDanhSachHoiVien = false
+@@ -606,6 +739,7 @@ export const useHoiVienPtStore = defineStore('hoi_vien_pt', {
+         this.lichSuTap = taoTrangThaiLichSu()
+         this.chiTietPhien = null
+         this.danhSachGhiChu = []
++        this.lichSuBuoiHuanLuyen = []
+       }
+       this.loiChiTietHoiVien = error ? taoLoiAnToan(error, 'H?c vi?n kh?ng c?n trong ph?m vi ph?n c?ng hi?n t?i.') : null
+       this.loiTongQuan = error ? taoLoiAnToan(error, 'H?c vi?n kh?ng c?n trong ph?m vi ph?n c?ng hi?n t?i.') : null
+@@ -616,6 +750,10 @@ export const useHoiVienPtStore = defineStore('hoi_vien_pt', {
+       this.loiGhiChu = error ? taoLoiAnToan(error, 'H?c vi?n kh?ng c?n trong ph?m vi ph?n c?ng hi?n t?i.') : null
+       this.loiChiTietPhien = error ? taoLoiAnToan(error, 'H?c vi?n kh?ng c?n trong ph?m vi ph?n c?ng hi?n t?i.') : null
+       this.loiThemGhiChu = error ? taoLoiAnToan(error, 'H?c vi?n kh?ng c?n trong ph?m vi ph?n c?ng hi?n t?i.') : null
++      this.loiBuoiHuanLuyen = error ? taoLoiAnToan(error, 'H?c vi?n kh?ng c?n trong ph?m vi ph?n c?ng hi?n t?i.') : null
++      this.loiHoanTatBuoiHuanLuyen = error ? taoLoiAnToan(error, 'H?c vi?n kh?ng c?n trong ph?m vi ph?n c?ng hi?n t?i.') : null
++      this.thaoTacBuoiHuanLuyenDangCho = null
++      this.ketQuaBuoiHuanLuyen = null
+       this.dangTaiDanhSachHoiVien = false
+       this.dangTaiChiTietHoiVien = false
+       this.dangTaiTongQuan = false
+@@ -626,11 +764,14 @@ export const useHoiVienPtStore = defineStore('hoi_vien_pt', {
+       this.dangTaiChiTietPhien = false
+       this.dangTaiGhiChu = false
+       this.dangThemGhiChu = false
++      this.dangTaiBuoiHuanLuyen = false
++      this.dangHoanTatBuoiHuanLuyen = false
+       return { scopeLost: true, memberId: id }
+     },
+ 
+     xoaHoiVienDangChon() {
+       tangTatCaGeneration(this)
++      xoaDuLieuDeXuatPtNeuDaKhoiTao()
+       if (this.hoiVienDaChonId !== null) xoaCacheHoiVien(this, this.hoiVienDaChonId)
+       this.hoiVienDaChonId = null
+       this.chiTietHoiVien = null
+@@ -639,6 +780,7 @@ export const useHoiVienPtStore = defineStore('hoi_vien_pt', {
+       this.lichSuTap = taoTrangThaiLichSu()
+       this.chiTietPhien = null
+       this.danhSachGhiChu = []
++      this.lichSuBuoiHuanLuyen = []
+       this.dangTaiChiTietHoiVien = false
+       this.dangTaiTongQuan = false
+       this.dangTaiChiSoCoThe = false
+@@ -658,10 +800,17 @@ export const useHoiVienPtStore = defineStore('hoi_vien_pt', {
+       this.dangThemGhiChu = false
+       this.loiThemGhiChu = null
+       this.ketQuaThemGhiChu = null
++      this.loiBuoiHuanLuyen = null
++      this.dangTaiBuoiHuanLuyen = false
++      this.loiHoanTatBuoiHuanLuyen = null
++      this.dangHoanTatBuoiHuanLuyen = false
++      this.thaoTacBuoiHuanLuyenDangCho = null
++      this.ketQuaBuoiHuanLuyen = null
+     },
+ 
+     xoaDuLieu() {
+       tangTatCaGeneration(this)
++      xoaDuLieuDeXuatPtNeuDaKhoiTao()
+       this.danhSachHoiVien = []
+       this.dangTaiDanhSachHoiVien = false
+       this.loiDanhSachHoiVien = null
+@@ -692,6 +841,13 @@ export const useHoiVienPtStore = defineStore('hoi_vien_pt', {
+       this.dangThemGhiChu = false
+       this.loiThemGhiChu = null
+       this.ketQuaThemGhiChu = null
++      this.lichSuBuoiHuanLuyen = []
++      this.dangTaiBuoiHuanLuyen = false
++      this.loiBuoiHuanLuyen = null
++      this.dangHoanTatBuoiHuanLuyen = false
++      this.loiHoanTatBuoiHuanLuyen = null
++      this.thaoTacBuoiHuanLuyenDangCho = null
++      this.ketQuaBuoiHuanLuyen = null
+       this.chiTietTheoHoiVien = taoDoiTuongTheoId()
+       this.tienDoTheoHoiVien = taoDoiTuongTheoId()
+       this.keHoachTheoHoiVien = taoDoiTuongTheoId()
+diff --git a/FE/src/stores/hoi_vien_pt.store.test.js b/FE/src/stores/hoi_vien_pt.store.test.js
+index 2fe93bf..b65b561 100644
+--- a/FE/src/stores/hoi_vien_pt.store.test.js
++++ b/FE/src/stores/hoi_vien_pt.store.test.js
+@@ -11,6 +11,8 @@ import {
+   taiLichSuTapHoiVien,
+ } from '../services/lich_su_tap_pt.api.js'
+ import { taiDanhSachGhiChu, themGhiChuHuanLuyen } from '../services/ghi_chu.api.js'
++import { hoanTatBuoiHuanLuyen, taiLichSuBuoiHuanLuyen } from '../services/buoi_huan_luyen.api.js'
++import { taoKhoaIdempotency } from '../utils/khoa_idempotency.js'
+ import {
+   useHoiVienPtStore,
+   xoaDuLieuHoiVienPtNeuDaKhoiTao,
+@@ -54,6 +56,19 @@ vi.mock('../services/ghi_chu.api.js', async () => {
+   return { ...actual, taiDanhSachGhiChu: vi.fn(), themGhiChuHuanLuyen: vi.fn() }
+ })
+ 
++vi.mock('../services/buoi_huan_luyen.api.js', async () => {
++  const actual = await vi.importActual('../services/buoi_huan_luyen.api.js')
++  return {
++    ...actual,
++    hoanTatBuoiHuanLuyen: vi.fn(),
++    taiLichSuBuoiHuanLuyen: vi.fn(),
++  }
++})
++
++vi.mock('../utils/khoa_idempotency.js', () => ({
++  taoKhoaIdempotency: vi.fn(),
++}))
++
+ function taoChiTiet(id, name = `Member ${id}`) {
+   return { data: { member: { id, name }, assignment: { id: id + 100, is_current: true } } }
+ }
+@@ -72,6 +87,7 @@ describe('hoi_vien_pt.store FE5', () => {
+   beforeEach(() => {
+     setActivePinia(createPinia())
+     vi.resetAllMocks()
++    taoKhoaIdempotency.mockReturnValue('9c87e6ae-69e1-4a15-8330-9848fe48c7d2')
+   })
+ 
+   it('commits only current assigned list and supports idempotent cleanup', async () => {
+@@ -385,4 +401,120 @@ describe('hoi_vien_pt.store FE5', () => {
+     expect(store.keHoachTap.plan.id).toBe(4)
+     expect(store.lichSuTap.items[0].id).toBe(3)
+   })
++
++  it('retries unknown direct completion only after refetch with the same assignment, notes and key', async () => {
++    const pending = taoDeferred()
++    const history = { history_id: 91, assignment_id: 107, member_id: 7, status: 'HOAN_THANH' }
++    taiLichSuBuoiHuanLuyen.mockResolvedValue({ data: [history] })
++    hoanTatBuoiHuanLuyen
++      .mockReturnValueOnce(pending.promise)
++      .mockResolvedValueOnce({ data: { ...history, replayed: true } })
++    const store = useHoiVienPtStore()
++    store.chonHoiVien(7)
++    store.chiTietHoiVien = { member: { id: 7 }, assignment: { id: 107, is_current: true } }
++
++    const completion = store.hoanTatBuoiHuanLuyen(7, 107, 'Ghi ch? g?c')
++    expect(store.dangHoanTatBuoiHuanLuyen).toBe(true)
++    expect(Object.isFrozen(store.thaoTacBuoiHuanLuyenDangCho)).toBe(true)
++    expect(hoanTatBuoiHuanLuyen).toHaveBeenCalledTimes(1)
++    await expect(store.hoanTatBuoiHuanLuyen(7, 107, 'Ghi ch? g?c')).resolves.toBeNull()
++    expect(hoanTatBuoiHuanLuyen).toHaveBeenCalledTimes(1)
++
++    pending.reject({ isNetworkError: true, message: 'timeout' })
++    await completion
++    expect(taiLichSuBuoiHuanLuyen).toHaveBeenCalledTimes(1)
++    expect(store.thaoTacBuoiHuanLuyenDangCho).toMatchObject({ outcomeUnknown: true, assignmentId: 107 })
++
++    await store.hoanTatBuoiHuanLuyen(7, 999, 'Ghi ch? ?? s?a', { retry: true })
++
++    expect(taiLichSuBuoiHuanLuyen).toHaveBeenCalledTimes(2)
++    expect(hoanTatBuoiHuanLuyen).toHaveBeenCalledTimes(2)
++    expect(hoanTatBuoiHuanLuyen.mock.calls[0]).toEqual([
++      107, 'Ghi ch? g?c', '9c87e6ae-69e1-4a15-8330-9848fe48c7d2',
++    ])
++    expect(hoanTatBuoiHuanLuyen.mock.calls[1]).toEqual(hoanTatBuoiHuanLuyen.mock.calls[0])
++    expect(store.ketQuaBuoiHuanLuyen).toMatchObject({ history_id: 91, replayed: true })
++    expect(store.lichSuBuoiHuanLuyen.filter((item) => item.history_id === 91)).toHaveLength(1)
++    expect(store.thaoTacBuoiHuanLuyenDangCho).toBeNull()
++  })
++
++  it('does not commit a late direct completion after switching Member', async () => {
++    const pending = taoDeferred()
++    hoanTatBuoiHuanLuyen.mockReturnValue(pending.promise)
++    const store = useHoiVienPtStore()
++    store.chonHoiVien(7)
++    store.chiTietHoiVien = { member: { id: 7 }, assignment: { id: 107, is_current: true } }
++    const completion = store.hoanTatBuoiHuanLuyen(7, 107, 'Private Member A')
++
++    store.chonHoiVien(8)
++    pending.resolve({ data: { history_id: 91, member_id: 7, status: 'HOAN_THANH' } })
++    await completion
++
++    expect(store.hoiVienDaChonId).toBe(8)
++    expect(store.lichSuBuoiHuanLuyen).toEqual([])
++    expect(store.ketQuaBuoiHuanLuyen).toBeNull()
++    expect(store.thaoTacBuoiHuanLuyenDangCho).toBeNull()
++    expect(store.dangHoanTatBuoiHuanLuyen).toBe(false)
++  })
++
++  it('waits for successful history refetch before retrying an unknown direct completion', async () => {
++    taiLichSuBuoiHuanLuyen
++      .mockRejectedValueOnce({ httpStatus: 503, message: 'history unavailable' })
++      .mockResolvedValueOnce({ data: [] })
++    hoanTatBuoiHuanLuyen
++      .mockRejectedValueOnce({ isNetworkError: true, message: 'timeout' })
++      .mockResolvedValueOnce({ data: { history_id: 92, member_id: 7, replayed: true } })
++    const store = useHoiVienPtStore()
++    store.chonHoiVien(7)
++    store.chiTietHoiVien = { member: { id: 7 }, assignment: { id: 107, is_current: true } }
++
++    await store.hoanTatBuoiHuanLuyen(7, 107, 'Keep this note')
++    expect(store.thaoTacBuoiHuanLuyenDangCho).toMatchObject({ outcomeUnknown: true })
++    expect(store.loiBuoiHuanLuyen.httpStatus).toBe(503)
++    expect(hoanTatBuoiHuanLuyen).toHaveBeenCalledTimes(1)
++
++    await store.hoanTatBuoiHuanLuyen(7, 107, 'Keep this note', { retry: true })
++
++    expect(taiLichSuBuoiHuanLuyen).toHaveBeenCalledTimes(2)
++    expect(hoanTatBuoiHuanLuyen).toHaveBeenCalledTimes(2)
++    expect(hoanTatBuoiHuanLuyen.mock.calls[1]).toEqual(hoanTatBuoiHuanLuyen.mock.calls[0])
++    expect(store.ketQuaBuoiHuanLuyen).toMatchObject({ history_id: 92, replayed: true })
++  })
++
++  it('does not commit a late direct completion after auth cleanup', async () => {
++    const pending = taoDeferred()
++    hoanTatBuoiHuanLuyen.mockReturnValue(pending.promise)
++    const store = useHoiVienPtStore()
++    store.chonHoiVien(7)
++    store.chiTietHoiVien = { member: { id: 7 }, assignment: { id: 107, is_current: true } }
++    const completion = store.hoanTatBuoiHuanLuyen(7, 107, 'Private note')
++
++    store.xoaDuLieu()
++    pending.resolve({ data: { history_id: 93, member_id: 7, status: 'HOAN_THANH' } })
++    await completion
++
++    expect(store.hoiVienDaChonId).toBeNull()
++    expect(store.lichSuBuoiHuanLuyen).toEqual([])
++    expect(store.ketQuaBuoiHuanLuyen).toBeNull()
++    expect(store.thaoTacBuoiHuanLuyenDangCho).toBeNull()
++    expect(store.dangHoanTatBuoiHuanLuyen).toBe(false)
++  })
++
++  it.each([403, 404])('clears direct-session state after assignment scope loss (%s)', async (httpStatus) => {
++    hoanTatBuoiHuanLuyen.mockRejectedValue({ httpStatus, message: 'assignment unavailable' })
++    const store = useHoiVienPtStore()
++    store.chonHoiVien(7)
++    store.chiTietHoiVien = { member: { id: 7 }, assignment: { id: 107, is_current: true } }
++    const proposalStore = (await import('./de_xuat.store.js')).useDeXuatStore()
++    proposalStore.chonHoiVien(7)
++    proposalStore.banNhap.title = 'Draft for member 7'
++
++    await expect(store.hoanTatBuoiHuanLuyen(7, 107)).resolves.toMatchObject({ scopeLost: true })
++
++    expect(store.hoiVienDaChonId).toBeNull()
++    expect(store.thaoTacBuoiHuanLuyenDangCho).toBeNull()
++    expect(store.lichSuBuoiHuanLuyen).toEqual([])
++    expect(proposalStore.memberId).toBeNull()
++    expect(proposalStore.banNhap.title).toBe('')
++  })
+ })
+diff --git a/FE/src/stores/xac_thuc.store.test.js b/FE/src/stores/xac_thuc.store.test.js
+index 16013b2..4371947 100644
+--- a/FE/src/stores/xac_thuc.store.test.js
++++ b/FE/src/stores/xac_thuc.store.test.js
+@@ -8,6 +8,8 @@ import {
+ } from './xac_thuc.store.js'
+ import { useTaiKhoanStore } from './tai_khoan.store.js'
+ import { useThanhToanStore } from './thanh_toan.store.js'
++import { useDeXuatStore } from './de_xuat.store.js'
++import { useHoiVienPtStore } from './hoi_vien_pt.store.js'
+ import {
+   dangNhap as dangNhapApi,
+   dangXuat as dangXuatApi,
+@@ -285,6 +287,43 @@ describe('xac_thuc.store', () => {
+     expect(paymentStore.loiSuKienThanhToan).toBeNull()
+   })
+ 
++  it('logout va doi actor xoa Member direct history va proposal draft/action', () => {
++    const authStore = useXacThucStore()
++    const memberStore = useHoiVienPtStore()
++    const proposalStore = useDeXuatStore()
++    memberStore.chonHoiVien(7)
++    memberStore.chiTietHoiVien = { member: { id: 7 }, assignment: { id: 71, is_current: true } }
++    memberStore.lichSuBuoiHuanLuyen = [{ history_id: 91, member_id: 7 }]
++    memberStore.thaoTacBuoiHuanLuyenDangCho = { memberId: 7, outcomeUnknown: true }
++    proposalStore.chonHoiVien(7)
++    proposalStore.danhSachDeXuat = [{ id: 42, title: 'Private proposal' }]
++    proposalStore.banNhap.title = 'Private draft'
++    proposalStore.thaoTacDangCho = { memberId: 7, idempotencyKey: 'pending-key', outcomeUnknown: true }
++
++    authStore.xoaPhienDangNhap()
++
++    expect(memberStore.hoiVienDaChonId).toBeNull()
++    expect(memberStore.lichSuBuoiHuanLuyen).toEqual([])
++    expect(memberStore.thaoTacBuoiHuanLuyenDangCho).toBeNull()
++    expect(proposalStore.memberId).toBeNull()
++    expect(proposalStore.danhSachDeXuat).toEqual([])
++    expect(proposalStore.banNhap.title).toBe('')
++    expect(proposalStore.thaoTacDangCho).toBeNull()
++
++    authStore.vaiTro = ['ADMIN', 'PT']
++    authStore.chonVaiTroDangDung('ADMIN')
++    memberStore.chonHoiVien(8)
++    memberStore.lichSuBuoiHuanLuyen = [{ history_id: 92, member_id: 8 }]
++    proposalStore.chonHoiVien(8)
++    proposalStore.banNhap.title = 'Draft before actor switch'
++    authStore.chonVaiTroDangDung('PT')
++
++    expect(memberStore.hoiVienDaChonId).toBeNull()
++    expect(memberStore.lichSuBuoiHuanLuyen).toEqual([])
++    expect(proposalStore.memberId).toBeNull()
++    expect(proposalStore.banNhap.title).toBe('')
++  })
++
+   it('logout network hoac 5xx fail van clear local session', async () => {
+     const store = useXacThucStore()
+     datTokenTrongPhien(store)

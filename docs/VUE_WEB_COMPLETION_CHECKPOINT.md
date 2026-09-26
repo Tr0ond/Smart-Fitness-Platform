@@ -1,7 +1,7 @@
 # Vue Web Completion Checkpoint
 
-CURRENT_PHASE: FE-5
-CURRENT_TASK: FE5-ALL
+CURRENT_PHASE: FE-6
+CURRENT_TASK: FE6-ALL
 STATUS: PASS
 FE0_PHASE_STATUS: PASS
 FE1_PHASE_STATUS: PASS
@@ -9,8 +9,10 @@ FE2_PHASE_STATUS: PASS
 FE3_PHASE_STATUS: PASS
 FE4_PHASE_STATUS: PASS
 FE5_PHASE_STATUS: PASS
+FE6_PHASE_STATUS: PASS
 
 COMPLETED_PHASES:
+- FE-6 — PT Direct + Proposal; FE6-ALL PASS after independent final re-review, with Backend 348 tests and Frontend 855 tests on final code.
 - FE-5 — PT Member Workspace; BE-FE5-PREREQ và FE5-ALL đã PASS với Backend 346 tests, Frontend 801 tests và independent final re-review sau consolidated repair.
 - FE-4 — Admin Payment & Reconciliation; BE-WEB-T01 prerequisite và FE4-ALL repair round 1 đã PASS với Backend 331 tests, Frontend 729 tests và independent final review.
 - FE-3 — Admin Catalog; FE3-ALL và final repair Wave 5 đã PASS với Frontend 684 tests, Backend 329 tests và independent final review.
@@ -19,6 +21,7 @@ COMPLETED_PHASES:
 - FE-2 — Admin PT; FE2-ALL và menu remediation round 5 đã PASS với Backend 323 tests và Frontend 572 tests.
 
 COMPLETED_TASKS:
+- FE6-ALL
 - FE5-ALL
 - FE4-ALL
 - FE3-ALL
@@ -58,7 +61,19 @@ REMEDIATED_TASKS:
 - FE1-T08 — Cleanup/race/pagination/422/drawer/filter/status label đã sửa và full gate chạy lại PASS.
 - FE2-T08 — Trang phân công PT đã được mở trong menu Admin; route metadata, thứ tự/active state và full FE gate 572 tests đã PASS ở remediation round 5.
 
-EXACT_NEXT_ACTION: FE6-ALL
+EXACT_NEXT_ACTION: FE7-ALL entry-gate preflight — verify BE-WEB-T04/Reverb deployment and dependency compatibility before dispatch.
+
+FE6_COMPLETION_EVIDENCE_2026_09_27:
+- ENTRY_GATE: PASS — FE5-ALL checkpoint PASS; PT Direct/Proposal Backend contracts and tests inspected before writer; one aggregate task implemented all three required PT screens.
+- FINAL_REPAIR: PASS — owner-authorized dedicated PT-only `GET /api/pt/direct-sessions/history` fixes dual-role PT history without changing Member-first legacy read; official Plan decimal weight and root Proposal preview rest/notes corrected. F-001–F-007 CLOSED.
+- INDEPENDENT_TASK_REVIEW: PASS — round-1 task re-review closed F-001–F-004 after the first repair.
+- INDEPENDENT_FINAL_REVIEW: PASS — `final-review-after-repair.md` has VERDICT/SPEC/QUALITY PASS after the consolidated final repair. F-008 is a nonblocking Minor finding: two PT history exception messages have garbled Vietnamese text.
+- FRONTEND_FINAL_GATE: PASS — focused 12 files/117 tests; full 86 files/855 tests; lint exit 0 with 0 errors/375 warnings; production build exit 0, 200 modules and 641.63 kB JS size advisory; independent reviewer ran 4 focused files/23 tests PASS.
+- BACKEND_FINAL_GATE: PASS — focused PT Direct 13 tests/75 assertions and full Backend 348 tests/4,130 assertions, using bundled PHP 8.4.25 and explicit `APP_ENV=testing`, `DB_CONNECTION=mysql`, `DB_DATABASE=SMART_FITNESS_TEST_DATABASE=smart_fitness_fe5_round2_test`; TestDatabaseGuard passed. Read-only migration status showed M001–M061 Ran. No migration or seed command ran in the repair.
+- TEST_SAFETY_LIMITATION: One earlier malformed Backend test launch emitted four environment-assignment errors and was interrupted without PHPUnit or guard output. Its database activity and selected schema are unknown; it is excluded from PASS evidence. The later guarded test runs do not establish the safety of that failed launch.
+- SCOPE_AUDIT: PASS — initial product tree was clean; 23 original FE task paths and 12 authorized final repair targets were preserved and compared with before/after snapshots; no unexpected product path, schema, rule, package, or config edit; `git diff --check` PASS. No branch/worktree/commit/push/reset/restore/checkout/stash/clean.
+- BROWSER_VISUAL_SMOKE: UNVERIFIED — protected PT pages were not visually exercised in a signed-in browser. The 100-row history caps can leave read-only outcome checks inconclusive; retry preserves the original idempotency key and payload.
+- CHECKPOINT_TRANSITION: FE-6/FE6-ALL PASS; next step is FE-7 dependency preflight.
 
 FE5_COMPLETION_EVIDENCE_2026_09_26:
 - ENTRY_GATE: PASS — FE0–FE4 checkpoint PASS; BE-FE5-PREREQ thêm bốn GET PT workspace có `auth:api`, `role:PT`, exact current assignment và safe DTO; Task 1 independent review PASS, F-001/F-002 CLOSED.
