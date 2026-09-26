@@ -1,15 +1,17 @@
 # Vue Web Completion Checkpoint
 
-CURRENT_PHASE: FE-4
-CURRENT_TASK: FE4-ALL
+CURRENT_PHASE: FE-5
+CURRENT_TASK: FE5-ALL
 STATUS: PASS
 FE0_PHASE_STATUS: PASS
 FE1_PHASE_STATUS: PASS
 FE2_PHASE_STATUS: PASS
 FE3_PHASE_STATUS: PASS
 FE4_PHASE_STATUS: PASS
+FE5_PHASE_STATUS: PASS
 
 COMPLETED_PHASES:
+- FE-5 — PT Member Workspace; BE-FE5-PREREQ và FE5-ALL đã PASS với Backend 346 tests, Frontend 801 tests và independent final re-review sau consolidated repair.
 - FE-4 — Admin Payment & Reconciliation; BE-WEB-T01 prerequisite và FE4-ALL repair round 1 đã PASS với Backend 331 tests, Frontend 729 tests và independent final review.
 - FE-3 — Admin Catalog; FE3-ALL và final repair Wave 5 đã PASS với Frontend 684 tests, Backend 329 tests và independent final review.
 - FE-0 — Foundation; remediation đã PASS với 200 tests.
@@ -17,6 +19,7 @@ COMPLETED_PHASES:
 - FE-2 — Admin PT; FE2-ALL và menu remediation round 5 đã PASS với Backend 323 tests và Frontend 572 tests.
 
 COMPLETED_TASKS:
+- FE5-ALL
 - FE4-ALL
 - FE3-ALL
 - FE0-T01
@@ -55,7 +58,23 @@ REMEDIATED_TASKS:
 - FE1-T08 — Cleanup/race/pagination/422/drawer/filter/status label đã sửa và full gate chạy lại PASS.
 - FE2-T08 — Trang phân công PT đã được mở trong menu Admin; route metadata, thứ tự/active state và full FE gate 572 tests đã PASS ở remediation round 5.
 
-EXACT_NEXT_ACTION: FE5-ALL
+EXACT_NEXT_ACTION: FE6-ALL
+
+FE5_COMPLETION_EVIDENCE_2026_09_26:
+- ENTRY_GATE: PASS — FE0–FE4 checkpoint PASS; BE-FE5-PREREQ thêm bốn GET PT workspace có `auth:api`, `role:PT`, exact current assignment và safe DTO; Task 1 independent review PASS, F-001/F-002 CLOSED.
+- SCOPE: PASS — một aggregate FE5-ALL writer triển khai đủ bảy PT screens: hồ sơ self, hội viên đang phân công, chi tiết, tiến độ, Plan chính thức/lịch tương lai, lịch sử bất biến và ghi chú append-only; không thêm FE6 chat/proposal UI.
+- AUTHORIZATION_AND_INTEGRITY: PASS — PT resource scope do Backend quyết định; 403/404 xóa dữ liệu nhạy cảm và điều hướng, kể cả history load-more; request generations chặn response A đến muộn sau B/logout/role change; Plan tách Proposal, Session chỉ đọc, notes không blind retry.
+- TASK_REVIEW: PASS — Task 2 round-2 independent reviewer đóng R01–R07; focused 169 tests, full FE 794 tests, lint/build/dependency checks PASS tại thời điểm review.
+- FINAL_REPAIR: PASS — consolidated final wave đóng FE5-FINAL-001 Important và FE5-FINAL-002/003 Minor trong đúng sáu FE source/test paths, giữ các finding cũ CLOSED.
+- INDEPENDENT_FINAL_REVIEW: PASS — `final-review-round-1.md` có VERDICT/SPEC/QUALITY PASS, không còn Critical/Important/Minor finding; `FE5_CHECKPOINT_TRANSITION_PERMITTED: YES`.
+- FRONTEND_FINAL_GATE: PASS — trên source cuối, affected 38 tests, exact focused 22 files/176 tests, full FE 79 files/801 tests; lint exit 0, 0 errors/110 formatting warnings; production build 190 modules với chunk-size advisory; `npm ls --depth=0` PASS.
+- BACKEND_FINAL_GATE: PASS — trên schema test dùng một lần được chủ dự án phê duyệt `smart_fitness_fe5_round2_test` với đủ bốn testing guards và 61 migrations: DB guard 7/7, related focused 62 tests/644 assertions, full Backend 346 tests/4,104 assertions; Pint, Composer strict validate/audit/platform, route scan PASS.
+- SCOPE_AUDIT: PASS — baseline product ban đầu clean; Task 1 đúng tám Backend/contract paths, Task 2 đúng 44 FE allowed targets với snapshot/delta từng vòng; `git diff --check` PASS; không sửa package/lock/config/rules, không commit/push/branch/worktree/reset/restore/checkout/stash/clean.
+- BROWSER_VISUAL_SMOKE: UNVERIFIED — chưa có PT credential/session fixture an toàn để chạy bảy protected pages tại 1440/768/390; browser skill cài đặt thiếu runtime rule files bắt buộc. Public login-shell smoke không được coi là protected-page evidence. Unit/router integration và Backend security tests vẫn đạt exit gate browser-if-available của packet.
+- RESIDUAL_NON_BLOCKERS: 110 Vue formatting warnings, Vite chunk-size advisory; disposable test schema được giữ lại, schema `smart_fitness_test` cũ từng nhiễm fixture không bị xóa hoặc sửa trong recovery.
+- CHECKPOINT_TRANSITION: FE-5/FE5-ALL PASS; next action FE6-ALL theo Vue Plan V2 §FE-6, chưa bắt đầu FE-6.
+- COMMIT_CREATED: NO.
+- PUSH_PERFORMED: NO.
 
 FE4_COMPLETION_EVIDENCE_2026_09_20:
 - ENTRY_GATE: PASS — FE-1/FE-3 checkpoint PASS; BE-WEB-T01 closed BE-FOLLOWUP-01A/01B with safe unlinked events, related abnormal-event reconciliation, Admin authorization, linked branch isolation and Safe DTO redaction.
@@ -69,7 +88,7 @@ FE4_COMPLETION_EVIDENCE_2026_09_20:
 - CHECKPOINT_TRANSITION: FE-4/FE4-ALL PASS; next action is FE5-ALL. FE5 was not started.
 
 BLOCKED_FEATURES:
-- CURRENT: Không còn blocker hiện hành thuộc FE-4. BE-FOLLOWUP-01A/01B và FE4-ALL đã được supersede bằng independent final review PASS; các dòng FE3 quota/entry-gate cũ ngay bên dưới chỉ là historical evidence.
+- CURRENT: Không còn blocker hiện hành thuộc FE-5. BE-FE5-PREREQ và FE5-ALL đã được independent final re-review PASS; các dòng FE3 quota/entry-gate cũ ngay bên dưới chỉ là historical evidence.
 - FE3 execution is temporarily blocked by required-model capacity: three Luna Max writer attempts ended during mandatory preflight with zero target changes; current Codex weekly/secondary usage is 100%, `rateLimitReachedType=rate_limit_reached`, no reset credit, reset expected 15/09/2026 12:49:44 ICT. The approved Sol repair plan/brief and 16-target byte-for-byte snapshot are preserved in `.fitness-sdd/fe3-all`; model substitution is prohibited.
 - FE3-ALL entry gate failed on 10/09/2026: actual `nhom_co` schema/model/create-update requests/service DTO have no `status`, so Muscle Group cannot be deactivated without hard delete. Backend tests also lack Muscle Group deactivate coverage and Muscle Group PATCH authorization-matrix coverage. Planner verdict is `WAITING_BACKEND_FIX`; no FE3 writer/reviewer was dispatched and no product code changed.
 - Không còn blocker thuộc FE-0 sau remediation.
@@ -89,7 +108,7 @@ BACKEND_API_BLOCKERS:
 
 FUTURE_BACKEND_BLOCKERS:
 - Các blocker Admin PT profile và Admin assignment history đã được đóng trong FE-2; historical entries trong V2/checkpoint vẫn được giữ để truy nguyên.
-- Các dependency phase sau vẫn giữ nguyên: PT Member detail, PT current Workout Plan, PT Workout History, Receptionist Member lookup và Receptionist Membership/Gym eligibility.
+- PT Member detail, PT current Workout Plan và PT Workout History đã được đóng bởi BE-FE5-PREREQ; dependency phase sau còn Receptionist Member lookup và Receptionist Membership/Gym eligibility. FE-6 Direct/Proposal có entry gate riêng theo Vue Plan V2.
 - Payment event visibility và reconciliation filter đã được đóng bởi BE-WEB-T01 với regression/authorization/redaction evidence PASS; invitation recovery và PT onboarding audit snapshot đã được đóng trong FE-2.
 - Reverb external probe và các dependency triển khai HTTPS/CORS/WSS/queue/scheduler vẫn là release dependency; không thuộc FE-0 và không được tuyên bố đã hoàn tất.
 
