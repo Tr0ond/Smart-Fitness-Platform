@@ -258,6 +258,46 @@ class PtDirectService
         ])->values()->all();
     }
 
+    /**
+     * Read the authenticated PT's latest direct-service history across Members.
+     * Input: authenticated account; the PT role and trainer profile are revalidated server-side.
+     * Process: scope by the account's trainer profile and order by confirmation time then ID.
+     * Output: at most 100 existing history DTOs; side effect: none.
+     * A simultaneous Member role does not change this dedicated PT read's scope.
+     */
+    public function layLichSuCuaPt(NguoiDung $nguoiDung): array
+    {
+        if ($nguoiDung->trang_thai !== 'HOAT_DONG' || ! $this->nguoiDungCoVaiTro($nguoiDung, 'PT')) {
+            throw new PtWorkflowException('Không có quyền đọc lịch sử PT.', 403, 'PT_HISTORY_ACCESS_DENIED');
+        }
+
+        $huanLuyenVienId = HoSoHuanLuyenVien::query()
+            ->where('nguoi_dung_id', $nguoiDung->getKey())
+            ->value('id');
+        if ($huanLuyenVienId === null) {
+            throw new PtWorkflowException('Tài khoản chưa có hồ sơ huấn luyện viên.', 404, 'TRAINER_PROFILE_REQUIRED');
+        }
+
+        return LichSuSuDungHuanLuyenVien::query()
+            ->where('huan_luyen_vien_id', $huanLuyenVienId)
+            ->orderByDesc('xac_nhan_luc')
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get()
+            ->map(fn (LichSuSuDungHuanLuyenVien $lichSu): array => [
+                'history_id' => (int) $lichSu->getKey(),
+                'assignment_id' => (int) $lichSu->phan_cong_huan_luyen_vien_id,
+                'member_id' => (int) $lichSu->hoi_vien_id,
+                'trainer_id' => (int) $lichSu->huan_luyen_vien_id,
+                'term_id' => (int) $lichSu->ky_han_hoi_vien_id,
+                'usage_id' => (int) $lichSu->su_dung_quyen_loi_id,
+                'status' => $lichSu->trang_thai,
+                'completed_at' => $lichSu->hoan_thanh_luc?->toISOString(),
+                'confirmed_at' => $lichSu->xac_nhan_luc?->toISOString(),
+                'notes' => $lichSu->ghi_chu,
+            ])->values()->all();
+    }
+
     private function xacThucPt(NguoiDung $pt): HoSoHuanLuyenVien
     {
         if ($pt->trang_thai !== 'HOAT_DONG' || ! $this->nguoiDungCoVaiTro($pt, 'PT')) {

@@ -1,0 +1,88 @@
+﻿ M FE/src/components/PT/thanh_dieu_huong_hoi_vien.test.js
+ M FE/src/components/PT/thanh_dieu_huong_hoi_vien.vue
+ M FE/src/router/dieu_huong_pt.js
+ M FE/src/router/dieu_huong_pt.test.js
+ M FE/src/router/index.js
+ M FE/src/router/index.test.js
+ M FE/src/stores/hoi_vien_pt.store.js
+ M FE/src/stores/hoi_vien_pt.store.test.js
+ M FE/src/stores/xac_thuc.store.test.js
+?? .fitness-sdd/fe6-all/baseline-status.txt
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/components/PT/thanh_dieu_huong_hoi_vien.test.js
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/components/PT/thanh_dieu_huong_hoi_vien.vue
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/router/dieu_huong_pt.js
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/router/dieu_huong_pt.test.js
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/router/index.js
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/router/index.test.js
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/stores/hoi_vien_pt.store.js
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/stores/hoi_vien_pt.store.test.js
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/stores/xac_thuc.store.js
+?? .fitness-sdd/fe6-all/baseline-tree/FE/src/stores/xac_thuc.store.test.js
+?? .fitness-sdd/fe6-all/baseline-untracked.txt
+?? .fitness-sdd/fe6-all/plan.md
+?? .fitness-sdd/fe6-all/progress.md
+?? .fitness-sdd/fe6-all/task-1-brief.md
+?? .fitness-sdd/fe6-all/task-1-existing.patch
+?? .fitness-sdd/fe6-all/task-1-report.md
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/components/PT/khung_xem_de_xuat.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/components/PT/khung_xem_de_xuat.vue
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/components/PT/thanh_dieu_huong_hoi_vien.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/components/PT/thanh_dieu_huong_hoi_vien.vue
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/pages/pt/buoi_huan_luyen/buoi_huan_luyen.index.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/pages/pt/buoi_huan_luyen/buoi_huan_luyen.index.vue
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.index.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.index.vue
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.tao_moi.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.tao_moi.vue
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/router/dieu_huong_pt.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/router/dieu_huong_pt.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/router/index.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/router/index.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/services/buoi_huan_luyen.api.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/services/buoi_huan_luyen.api.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/services/de_xuat.api.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/services/de_xuat.api.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/stores/de_xuat.store.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/stores/de_xuat.store.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/stores/hoi_vien_pt.store.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/stores/hoi_vien_pt.store.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/stores/xac_thuc.store.js
+?? .fitness-sdd/fe6-all/task-1-round-0-after/FE/src/stores/xac_thuc.store.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/components/PT/khung_xem_de_xuat.test.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/components/PT/khung_xem_de_xuat.vue.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/components/PT/thanh_dieu_huong_hoi_vien.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/components/PT/thanh_dieu_huong_hoi_vien.vue
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/pages/pt/buoi_huan_luyen/buoi_huan_luyen.index.test.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/pages/pt/buoi_huan_luyen/buoi_huan_luyen.index.vue.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.index.test.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.index.vue.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.tao_moi.test.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.tao_moi.vue.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/router/dieu_huong_pt.js
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/router/dieu_huong_pt.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/router/index.js
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/router/index.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/services/buoi_huan_luyen.api.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/services/buoi_huan_luyen.api.test.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/services/de_xuat.api.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/services/de_xuat.api.test.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/stores/de_xuat.store.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/stores/de_xuat.store.test.js.ABSENT
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/stores/hoi_vien_pt.store.js
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/stores/hoi_vien_pt.store.test.js
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/stores/xac_thuc.store.js
+?? .fitness-sdd/fe6-all/task-1-round-0-before/FE/src/stores/xac_thuc.store.test.js
+?? FE/src/components/PT/khung_xem_de_xuat.test.js
+?? FE/src/components/PT/khung_xem_de_xuat.vue
+?? FE/src/pages/pt/buoi_huan_luyen/buoi_huan_luyen.index.test.js
+?? FE/src/pages/pt/buoi_huan_luyen/buoi_huan_luyen.index.vue
+?? FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.index.test.js
+?? FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.index.vue
+?? FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.tao_moi.test.js
+?? FE/src/pages/pt/de_xuat_ke_hoach_tap/de_xuat_ke_hoach_tap.tao_moi.vue
+?? FE/src/services/buoi_huan_luyen.api.js
+?? FE/src/services/buoi_huan_luyen.api.test.js
+?? FE/src/services/de_xuat.api.js
+?? FE/src/services/de_xuat.api.test.js
+?? FE/src/stores/de_xuat.store.js
+?? FE/src/stores/de_xuat.store.test.js
